@@ -1,0 +1,142 @@
+{
+  "slug": "stage-ecm",
+  "title": "Stage ECM — outil de reporting",
+  "subtitle": "Six mois pour concevoir l’outil interne de reporting Power BI d’ECM et automatiser le suivi d’activité.",
+  "course": "Stage de fin d’études — Analyste data / Reporting",
+  "level": "Stage",
+  "date": "Février – août 2026",
+  "authors": [
+    "François Pichon"
+  ],
+  "supervisor": null,
+  "tools": [
+    "Power BI"
+  ],
+  "methods": [
+    "Reporting",
+    "Tableaux de bord",
+    "Automatisation",
+    "Modélisation des données"
+  ],
+  "abstract": "Stage de fin d’études chez ECM (Engineering Conception Maintenance), du 8 février au 8 août 2026. Mission : développer un outil interne de reporting sous Power BI, concevoir les tableaux de bord et automatiser le suivi d’activité. L’outil est organisé en modules métiers accessibles depuis une vue globale.",
+  "question": "Comment réunir le suivi d’activité de l’entreprise dans un seul outil, lisible par chaque équipe ?",
+  "kpis": [
+    {
+      "value": "6",
+      "label": "Mois de stage"
+    },
+    {
+      "value": "5",
+      "label": "Modules métiers"
+    },
+    {
+      "value": "1",
+      "label": "Vue globale de pilotage"
+    },
+    {
+      "value": "Power BI",
+      "label": "Outil"
+    }
+  ],
+  "data": {
+    "source": "Données internes d’ECM (confidentielles : aucun chiffre n’est publié ici)."
+  },
+  "sections": [
+    {
+      "id": "mission",
+      "title": "La mission",
+      "blocks": [
+        {
+          "type": "list",
+          "items": [
+            "Développement d’un **outil interne de reporting** sous Power BI.",
+            "Conception de **tableaux de bord** et **automatisation** du suivi d’activité."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "architecture",
+      "title": "Architecture de l’outil",
+      "blocks": [
+        {
+          "type": "text",
+          "md": "Une **vue globale** sert de point d’entrée ; chaque **module** regroupe ses propres pages, chacune avec sa vue d’ensemble : **Projets**, **Finance**, **Performance**, **Intercontrat** et **Ressources**."
+        }
+      ]
+    }
+  ],
+  "figures": {
+    "modules": [
+      {
+        "id": "projets",
+        "label": "Projets",
+        "icon": "🏗️",
+        "pages": [
+          "Vue globale",
+          "Page 1",
+          "Page 2",
+          "Page 3",
+          "Page 4"
+        ]
+      },
+      {
+        "id": "finance",
+        "label": "Finance",
+        "icon": "💰",
+        "pages": [
+          "Vue globale",
+          "Page 1",
+          "Page 2",
+          "Page 3",
+          "Page 4"
+        ]
+      },
+      {
+        "id": "performance",
+        "label": "Performance",
+        "icon": "📊",
+        "pages": [
+          "Vue globale",
+          "Page 1",
+          "Page 2",
+          "Page 3",
+          "Page 4"
+        ]
+      },
+      {
+        "id": "intercontrat",
+        "label": "Intercontrat",
+        "icon": "🔄",
+        "pages": [
+          "Vue globale",
+          "Page 1",
+          "Page 2",
+          "Page 3",
+          "Page 4"
+        ]
+      },
+      {
+        "id": "ressources",
+        "label": "Ressources",
+        "icon": "👥",
+        "pages": [
+          "Vue globale",
+          "Page 1",
+          "Page 2",
+          "Page 3",
+          "Page 4"
+        ]
+      }
+    ]
+  },
+  "conclusions": [
+    "Un point d’entrée unique pour le suivi d’activité, découpé en modules métiers."
+  ],
+  "limits": [
+    "Données confidentielles : la page présente l’architecture de l’outil, pas ses chiffres."
+  ],
+  "changesVsOldSite": [
+    "Le précédent site pointait par erreur vers le rapport Leboncoin ; la page présente désormais l’architecture de l’outil sans données internes."
+  ]
+}

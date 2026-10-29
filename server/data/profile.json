@@ -1,0 +1,110 @@
+{
+  "name": "François Pichon",
+  "headline": "Économètre · Data analyst",
+  "status": "En recherche d’un CDI en analyse de données",
+  "school": "Master 2 Économétrie appliquée · Université de Lille",
+  "intro": "Je transforme des données complexes en **modèles lisibles** et en **décisions actionnables**. Mon terrain : la modélisation économétrique, le scoring du risque, les séries temporelles et la data-visualisation.",
+  "motto": "Un bon modèle se mesure à la décision qu’il rend possible.",
+  "about": "Formé à l’économétrie appliquée à l’Université de Lille, j’aime les projets où il faut nettoyer, modéliser puis expliquer : scoring, prévision, analyse de survie, économétrie spatiale, analyse textuelle et tableaux de bord. Mon stage de fin d’études chez ECM m’a permis de concevoir un outil de reporting Power BI utilisé au quotidien.",
+  "photo": "/photo.jpg",
+  "cv": "/reports/CV_Francois_Pichon.pdf",
+  "contact": {
+    "email": "francois_pichon@outlook.fr",
+    "phone": "06 09 52 24 84",
+    "phoneHref": "tel:+33609522484",
+    "linkedin": "https://www.linkedin.com/in/fran%C3%A7ois-pichon-697329204/",
+    "github": "https://github.com/m6rdxc9g4t-beep",
+    "location": "Lille / Hauts-de-France"
+  },
+  "skills": [
+    {
+      "group": "Programmation",
+      "certified": true,
+      "items": ["Python", "PySpark", "scikit-learn", "pandas", "NumPy", "R", "ggplot2", "dplyr", "SAS"],
+      "highlight": ["Python", "R"]
+    },
+    {
+      "group": "Outils & cloud",
+      "certified": true,
+      "items": ["Power BI", "SQL", "Azure", "AWS", "Databricks", "Office"],
+      "highlight": ["Power BI", "SQL"]
+    },
+    {
+      "group": "Modélisation",
+      "items": ["Logit", "Probit", "Tobit", "Modèles dynamiques", "Panel", "Séries temporelles", "Analyse de survie", "Économétrie spatiale", "Scoring"]
+    },
+    {
+      "group": "Méthodes d’analyse",
+      "items": ["Statistiques descriptives", "Tests de significativité", "Analyse textuelle", "Data-visualisation"]
+    }
+  ],
+  "languages": [
+    { "name": "Français", "level": "C2" },
+    { "name": "Anglais", "level": "B2" },
+    { "name": "Allemand", "level": "A2" }
+  ],
+  "qualities": ["Relationnel", "Gestion de projet", "Rigueur", "Réactivité", "Attentif", "Curieux"],
+  "experiences": [
+    {
+      "when": "Février 2026 – Août 2026",
+      "title": "Stage de fin d’études — Analyste data / Reporting",
+      "org": "ECM",
+      "tag": "Power BI",
+      "featured": true,
+      "points": [
+        "Développement d’un outil interne de reporting sous Power BI.",
+        "Conception de tableaux de bord et automatisation du suivi d’activité."
+      ]
+    },
+    {
+      "when": "Janvier 2023 – Août 2023",
+      "title": "Gestionnaire de stockage",
+      "org": "JD Sport",
+      "points": ["Suivi logistique et gestion du stock.", "Organisation et rigueur dans un environnement exigeant."]
+    },
+    {
+      "when": "2022 – 2023",
+      "title": "Bénévole",
+      "org": "Croix-Rouge française",
+      "points": ["Aide et accompagnement aux personnes en difficulté."]
+    }
+  ],
+  "education": [
+    { "when": "2024 – 2026", "title": "Master Économie appliquée — parcours Économétrie appliquée", "org": "Université de Lille" },
+    { "when": "2017 – 2022", "title": "Licence Économie & Gestion — parcours Finance", "org": "Université de Villetaneuse" },
+    { "when": "2017", "title": "Baccalauréat ES — spécialité Mathématiques", "org": "Lycée Jean-Rostand, Villepinte" }
+  ],
+  "highlights": [
+    { "level": "Master 1", "items": ["Mémoire : inégalités de santé infantile en Inde", "Étude de cas : modélisation des prix hédoniques (Maine-et-Loire)", "Étude de cas : scoring en marketing", "Projet SHARE : recours aux soins en Europe"] },
+    { "level": "Master 2", "items": ["Étude de cas : scoring en assurance", "Analyse textuelle des avis Flunch", "Analyse exploratoire du catalogue Netflix", "Modèles de durée, ARCH/GARCH, économétrie spatiale, microéconométrie"] }
+  ],
+  "passions": [
+    {
+      "icon": "📷",
+      "title": "Photographie",
+      "figure": "10 000",
+      "unit": "+ clichés",
+      "text": "Plus de 10 000 photos réalisées et éditées, avec un book personnel en cours de création. Le cadrage comme l’analyse : faire ressortir l’essentiel.",
+      "tags": ["Prise de vue", "Édition", "Book en cours"],
+      "accent": "#2ec4b6"
+    },
+    {
+      "icon": "✈️",
+      "title": "Voyages",
+      "figure": "6",
+      "unit": "pays visités",
+      "text": "Six pays explorés en organisation totalement autonome — Angleterre, Italie, Espagne… Planifier, s’adapter, découvrir : le goût de l’organisation de bout en bout.",
+      "tags": ["Angleterre", "Italie", "Espagne", "Belgique", "Maroc"],
+      "accent": "#5fb6e6"
+    },
+    {
+      "icon": "🏁",
+      "title": "Sports mécaniques",
+      "figure": "10",
+      "unit": "ans de passion",
+      "text": "Dix ans à suivre la Formule 1 et l’Endurance (WEC). Stratégie, données de course et performance : un sport où chaque centième compte.",
+      "tags": ["Formule 1", "WEC", "Endurance"],
+      "accent": "#ef6b6b"
+    }
+  ]
+}

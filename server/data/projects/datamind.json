@@ -1,0 +1,142 @@
+{
+  "slug": "datamind",
+  "title": "DataMind — agent data analyst",
+  "subtitle": "Déposez un CSV : statistiques, graphiques automatiques et un agent IA qui répond à vos questions sur les données.",
+  "course": "Projet personnel — IA appliquée à l’analyse de données",
+  "level": "Perso",
+  "date": "2026",
+  "authors": [
+    "François Pichon"
+  ],
+  "supervisor": null,
+  "tools": [
+    "React",
+    "Papa Parse",
+    "Recharts",
+    "API Claude"
+  ],
+  "methods": [
+    "Statistiques descriptives",
+    "Détection de types",
+    "Visualisation automatique",
+    "Agent IA"
+  ],
+  "abstract": "DataMind est un prototype d’agent data analyst : on dépose un fichier CSV, l’application détecte les colonnes numériques et catégorielles, calcule des indicateurs, propose des graphiques automatiques (barres, répartition, évolution temporelle) et un agent conversationnel analyse le jeu de données à partir de raccourcis (exploration, outliers, corrélations, segmentation, insights). Dans ce portfolio, l’agent passe par le serveur : la clé d’API n’est jamais exposée au navigateur.",
+  "question": "Peut-on donner à n’importe qui un premier diagnostic de ses données en quelques secondes ?",
+  "kpis": [
+    {
+      "value": "3",
+      "label": "Vues : chat, graphiques, données"
+    },
+    {
+      "value": "11",
+      "label": "Analyses en un clic"
+    },
+    {
+      "value": "CSV",
+      "label": "Format d’entrée"
+    },
+    {
+      "value": "0",
+      "label": "Clé exposée côté navigateur"
+    }
+  ],
+  "data": {
+    "source": "Fichier CSV fourni par l’utilisateur (traité dans le navigateur)."
+  },
+  "sections": [
+    {
+      "id": "fonctionnement",
+      "title": "Fonctionnement",
+      "blocks": [
+        {
+          "type": "list",
+          "items": [
+            "**Chargement** d’un CSV par glisser-déposer, analysé dans le navigateur (Papa Parse).",
+            "**Détection** des colonnes numériques (valeurs convertibles) et catégorielles (2 à 14 modalités).",
+            "**Graphiques automatiques** : somme d’une mesure par catégorie, répartition d’une catégorie, évolution si une colonne de date existe.",
+            "**Agent IA** : questions libres ou raccourcis (exploration, outliers, valeurs manquantes, corrélations, segmentation, tendances, insights, plan d’analyse, graphiques, métriques)."
+          ]
+        }
+      ]
+    }
+  ],
+  "figures": {
+    "quickPrompts": [
+      {
+        "label": "Exploration",
+        "items": [
+          [
+            "Statistiques descriptives",
+            "Décris ce jeu de données : types de colonnes, valeurs manquantes, statistiques descriptives."
+          ],
+          [
+            "Détection d’outliers",
+            "Identifie les valeurs aberrantes (outliers) dans chaque colonne numérique."
+          ],
+          [
+            "Valeurs manquantes",
+            "Y a-t-il des valeurs manquantes ? Comment les traiter ?"
+          ]
+        ]
+      },
+      {
+        "label": "Analyse",
+        "items": [
+          [
+            "Corrélations",
+            "Quelles corrélations remarquables existent entre les colonnes numériques ?"
+          ],
+          [
+            "Segmentation",
+            "Segmente les données en groupes significatifs et explique chaque groupe."
+          ],
+          [
+            "Tendances temporelles",
+            "Quelles sont les tendances temporelles si une colonne de date existe ?"
+          ]
+        ]
+      },
+      {
+        "label": "Insights",
+        "items": [
+          [
+            "Top 5 insights",
+            "Donne-moi les 5 insights les plus importants de ce dataset."
+          ],
+          [
+            "Questions business",
+            "Quelles questions business peut-on répondre avec ces données ?"
+          ],
+          [
+            "Plan d’analyse",
+            "Propose un plan d’analyse complet étape par étape pour ce dataset."
+          ]
+        ]
+      },
+      {
+        "label": "Visualisation",
+        "items": [
+          [
+            "Recommander des graphiques",
+            "Quels graphiques seraient les plus pertinents pour visualiser ces données ?"
+          ],
+          [
+            "Métriques clés",
+            "Génère un tableau de bord avec les métriques clés à surveiller."
+          ]
+        ]
+      }
+    ]
+  },
+  "conclusions": [
+    "Un premier diagnostic de n’importe quel CSV en quelques secondes, et un agent pour aller plus loin."
+  ],
+  "limits": [
+    "L’agent ne voit qu’un aperçu (30 lignes) et des statistiques : ses conclusions restent à vérifier sur le jeu complet.",
+    "L’agent IA n’est actif que si le serveur dispose d’une clé d’API."
+  ],
+  "changesVsOldSite": [
+    "Projet absent de l’ancien site ; l’appel à l’API passe désormais par le serveur."
+  ]
+}

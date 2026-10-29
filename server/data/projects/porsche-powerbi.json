@@ -1,0 +1,63 @@
+{
+  "slug": "porsche-powerbi",
+  "title": "Porsche — suivi des gammes",
+  "subtitle": "Tableaux de bord Power BI dédiés à chaque gamme : Taycan, 911 / 718 et Cayenne.",
+  "course": "Data-visualisation — Power BI",
+  "level": "Projet",
+  "date": "—",
+  "authors": [
+    "François Pichon"
+  ],
+  "supervisor": null,
+  "tools": [
+    "Power BI"
+  ],
+  "methods": [
+    "Data-visualisation",
+    "Tableau de bord",
+    "Suivi commercial"
+  ],
+  "abstract": "Un rapport Power BI publié sur le web, organisé en une page par gamme de modèles. Chaque page réunit les indicateurs de suivi commercial de la gamme pour une lecture rapide et comparable d’un modèle à l’autre.",
+  "question": "Comment donner à chaque gamme un tableau de bord lisible, comparable et explorable ?",
+  "kpis": [
+    {
+      "value": "3",
+      "label": "Gammes suivies"
+    },
+    {
+      "value": "3",
+      "label": "Pages interactives"
+    },
+    {
+      "value": "Power BI",
+      "label": "Outil"
+    },
+    {
+      "value": "Web",
+      "label": "Rapport publié"
+    }
+  ],
+  "data": {
+    "source": "Rapport Power BI publié sur le web."
+  },
+  "sections": [
+    {
+      "id": "rapport",
+      "title": "Le rapport",
+      "blocks": [
+        {
+          "type": "text",
+          "md": "Le rapport est découpé par **gamme** : une page **Taycan**, une page **911 / 718** et une page **Cayenne**. Les filtres et visuels Power BI restent entièrement interactifs dans la page."
+        }
+      ]
+    }
+  ],
+  "figures": {},
+  "conclusions": [
+    "Une page par gamme : la même grille de lecture, appliquée à chaque modèle."
+  ],
+  "limits": [],
+  "changesVsOldSite": [
+    "Contenu repris du précédent portfolio (pas de rapport écrit pour ce projet)."
+  ]
+}

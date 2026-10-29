@@ -1,0 +1,212 @@
+{
+  "slug": "prevision-arima-sarima",
+  "title": "Prévision ARIMA / SARIMA",
+  "subtitle": "Chômage des hommes et chiffre d’affaires de la boulangerie : deux séries, une même démarche Box–Jenkins.",
+  "course": "Séries temporelles — méthode Box–Jenkins",
+  "level": "Projet",
+  "date": "—",
+  "authors": [
+    "François Pichon"
+  ],
+  "supervisor": null,
+  "tools": [
+    "R",
+    "forecast",
+    "tseries"
+  ],
+  "methods": [
+    "ARIMA",
+    "SARIMA",
+    "Test ADF",
+    "Ljung–Box",
+    "BIC",
+    "Prévision hors échantillon"
+  ],
+  "abstract": "Modélisation de deux séries françaises par la méthode Box–Jenkins : le taux de chômage des hommes (trimestriel, 203 observations) et l’indice de chiffre d’affaires de la boulangerie-pâtisserie (mensuel, 320 observations). Le même protocole — visualiser, stationnariser, identifier, valider, prévoir — révèle deux signatures très différentes : une tendance pure d’un côté, une tendance doublée d’une forte saisonnalité de l’autre.",
+  "question": "Quel modèle ARIMA/SARIMA décrit le mieux chaque série, et que vaut-il en prévision hors échantillon ?",
+  "kpis": [
+    {
+      "value": "2",
+      "label": "Séries modélisées"
+    },
+    {
+      "value": "523",
+      "label": "Observations au total"
+    },
+    {
+      "value": "2,65 %",
+      "label": "MAPE — chômage (8 trimestres)"
+    },
+    {
+      "value": "9,94 %",
+      "label": "MAPE — boulangerie (12 mois)"
+    }
+  ],
+  "data": {
+    "source": "Séries statistiques françaises : taux de chômage des hommes (trimestriel) et indice de chiffre d’affaires de la boulangerie-pâtisserie (mensuel).",
+    "n": "203 + 320 observations",
+    "variables": [],
+    "cleaning": [
+      "Décomposition STL",
+      "Passage au logarithme pour la série de chiffre d’affaires"
+    ]
+  },
+  "sections": [
+    {
+      "id": "demarche",
+      "title": "La démarche Box–Jenkins",
+      "blocks": [
+        {
+          "type": "list",
+          "items": [
+            "**Visualiser et décomposer** la série (STL) : tendance, saisonnalité, résidu.",
+            "**Stationnariser** : test ADF, différenciation simple (d) ou saisonnière (D).",
+            "**Identifier** l’ordre du modèle à partir des ACF/PACF et du **BIC**.",
+            "**Valider** les résidus (test de Ljung–Box : bruit blanc ?).",
+            "**Prévoir** hors échantillon et mesurer l’erreur (RMSE, MAPE)."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chomage",
+      "title": "Série 1 — Chômage des hommes",
+      "blocks": [
+        {
+          "type": "table",
+          "title": "Trimestriel, 203 observations",
+          "columns": [
+            "Élément",
+            "Valeur",
+            "Interprétation"
+          ],
+          "rows": [
+            [
+              "Modèle retenu",
+              "ARIMA(0,1,3)",
+              "BIC minimal : meilleur compromis ajustement / parcimonie"
+            ],
+            [
+              "ADF en niveau",
+              "DF = 1,76 ; p = 0,677",
+              "Racine unitaire non rejetée : série non stationnaire"
+            ],
+            [
+              "ADF après d = 1",
+              "DF = 5,21 ; p < 0,01",
+              "Stationnarité retrouvée (d = 1, D = 0)"
+            ],
+            [
+              "Ljung–Box (résidus)",
+              "p = 0,534",
+              "Résidus compatibles avec un bruit blanc"
+            ],
+            [
+              "SARIMA",
+              "pas d’amélioration",
+              "Saisonnalité trimestrielle trop faible"
+            ],
+            [
+              "Prévision 8 trimestres (test)",
+              "MAPE 2,65 % · RMSE 0,225 · U 1,12",
+              "Erreurs modérées ; le benchmark naïf reste compétitif"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "boulangerie",
+      "title": "Série 2 — Chiffre d’affaires de la boulangerie",
+      "blocks": [
+        {
+          "type": "table",
+          "title": "Mensuel, 320 observations",
+          "columns": [
+            "Élément",
+            "Valeur",
+            "Interprétation"
+          ],
+          "rows": [
+            [
+              "Transformation",
+              "passage au log",
+              "Stabilise la variance (modèle additif)"
+            ],
+            [
+              "Modèle retenu",
+              "SARIMA(1,0,2)(0,1,2)[12] + dérive",
+              "Sur la série en log ; saisonnalité annuelle intégrée"
+            ],
+            [
+              "ADF sur le log",
+              "stat = −10,20 ; p = 0,01",
+              "Stationnaire (d = 0)"
+            ],
+            [
+              "ACF / PACF",
+              "pics tous les 12 mois",
+              "Saisonnalité annuelle nette (pic de décembre)"
+            ],
+            [
+              "Ljung–Box (résidus)",
+              "p = 0,383",
+              "Résidus validés"
+            ],
+            [
+              "Hors échantillon, 12 mois",
+              "MAPE 9,94 % (log) vs 13,60 % (brut)",
+              "Le modèle en log domine (RMSE 25,10 vs 28,03)"
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "figures": {
+    "steps": [
+      "Visualiser",
+      "Stationnariser",
+      "Identifier",
+      "Valider",
+      "Prévoir"
+    ],
+    "accuracy": {
+      "description": "Erreurs de prévision hors échantillon",
+      "series": [
+        {
+          "serie": "Chômage — ARIMA(0,1,3)",
+          "horizon": "8 trimestres",
+          "mape": 2.65,
+          "rmse": 0.225,
+          "theilU": 1.12
+        },
+        {
+          "serie": "Boulangerie — SARIMA en log",
+          "horizon": "12 mois",
+          "mape": 9.94,
+          "rmse": 25.1
+        },
+        {
+          "serie": "Boulangerie — modèle en brut",
+          "horizon": "12 mois",
+          "mape": 13.6,
+          "rmse": 28.03
+        }
+      ]
+    }
+  },
+  "conclusions": [
+    "Deux signatures distinctes : tendance pure (chômage) contre tendance et forte saisonnalité (boulangerie).",
+    "Le BIC privilégie la parcimonie : les variantes saisonnières ne se justifient que si elles l’améliorent.",
+    "Le passage au logarithme réduit nettement l’erreur de prévision de la série de chiffre d’affaires.",
+    "Ces modèles décrivent le fonctionnement « normal » des séries mais n’anticipent pas les chocs (COVID)."
+  ],
+  "limits": [
+    "Modèles univariés : aucune variable explicative (conjoncture, prix…).",
+    "Le benchmark naïf reste compétitif sur la série de chômage (U de Theil > 1)."
+  ],
+  "changesVsOldSite": [
+    "Contenu repris de la fiche du précédent portfolio (aucun rapport PDF fourni pour ce projet)."
+  ]
+}

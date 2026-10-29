@@ -1,0 +1,26 @@
+/* Graphiques SVG : couleurs pilotées par le thème via --c-* */
+.chart { width: 100%; height: auto; overflow: visible; font-family: var(--c-font, var(--mono)); }
+.chart-grid line { stroke: var(--c-grid, rgba(127, 127, 127, 0.18)); stroke-width: 1; }
+.chart-axis line { stroke: var(--c-axis, rgba(127, 127, 127, 0.45)); }
+.chart-axis text { fill: var(--c-tick, currentColor); font-size: 11px; opacity: 0.75; }
+.chart-axis .chart-label { font-size: 11.5px; opacity: 0.9; font-weight: 600; }
+.chart-ref line { stroke-width: 1.4; }
+.chart-ref text { font-size: 11px; font-weight: 600; }
+.chart-cursor { stroke: var(--c-cursor, currentColor); stroke-width: 1.2; stroke-dasharray: 3 3; opacity: 0.7; pointer-events: none; }
+.chart-marker text { font-size: 12px; font-weight: 700; }
+.vbar-value { font-size: 11px; fill: var(--c-value, currentColor); font-weight: 600; }
+.vbar-label { font-size: 11px; fill: var(--c-tick, currentColor); opacity: 0.85; }
+
+.hbars { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+.hbars li { display: grid; grid-template-columns: minmax(110px, 34%) 1fr auto; align-items: center; gap: 12px; font-size: 13px; border-radius: 6px; outline: none; }
+.hbars-label { text-align: right; color: var(--c-label, inherit); line-height: 1.25; }
+.hbars-track { position: relative; height: 10px; background: var(--c-track, rgba(127, 127, 127, 0.14)); border-radius: 6px; overflow: hidden; }
+.hbars-fill { position: absolute; inset: 0 auto 0 0; background: var(--c-bar, currentColor); border-radius: 6px; transition: width 0.9s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.hbars-value { font-family: var(--c-font, var(--mono)); font-size: 12px; min-width: 56px; color: var(--c-value, inherit); }
+.hbars-note { grid-column: 2 / -1; font-size: 11.5px; opacity: 0.7; margin-top: -4px; }
+.hbars li.is-active .hbars-label, .hbars li:focus-visible .hbars-label { font-weight: 700; }
+@media (max-width: 560px) {
+  .hbars li { grid-template-columns: 1fr auto; }
+  .hbars-label { text-align: left; grid-column: 1 / -1; }
+  .hbars-track { grid-column: 1 / 2; }
+}

@@ -1,0 +1,38 @@
+/* Blocs de contenu des fiches. Chaque thème règle les variables --b-* */
+.blk-stack { display: flex; flex-direction: column; gap: 18px; }
+.blk-text { max-width: 72ch; color: var(--b-text, inherit); }
+.blk-text strong, .blk-list strong, .blk-callout strong, .blk-table strong { color: var(--b-strong, inherit); font-weight: 650; }
+.blk-list { list-style: none; display: flex; flex-direction: column; gap: 9px; max-width: 78ch; }
+.blk-list li { position: relative; padding-left: 26px; color: var(--b-text, inherit); }
+.blk-list li::before { content: '→'; position: absolute; left: 0; top: 0; color: var(--b-accent, currentColor); font-weight: 700; }
+.blk-callout {
+  border-left: 3px solid var(--b-accent, currentColor);
+  background: var(--b-card, rgba(127, 127, 127, 0.08));
+  padding: 16px 20px; border-radius: 0 10px 10px 0; max-width: 80ch;
+}
+.blk-formula { background: var(--b-card, rgba(127, 127, 127, 0.08)); border: 1px solid var(--b-line, rgba(127, 127, 127, 0.2)); border-radius: 10px; padding: 14px 18px; overflow-x: auto; }
+.blk-formula figcaption { font-family: var(--b-mono, var(--mono)); font-size: 12px; color: var(--b-muted, inherit); margin-top: 6px; }
+.blk-formula .katex-display { margin: 0.4em 0; }
+.blk-figure { margin: 4px 0; max-width: 920px; }
+.blk-figure img { width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--b-line, rgba(127, 127, 127, 0.2)); background: #fff; }
+.blk-figure figcaption { font-family: var(--b-mono, var(--mono)); font-size: 12px; color: var(--b-muted, inherit); margin-top: 8px; line-height: 1.5; }
+.blk-table { margin: 4px 0; }
+.blk-table-title { font-family: var(--b-display, inherit); font-weight: 600; font-size: 1.02rem; margin-bottom: 10px; color: var(--b-strong, inherit); }
+.blk-table-scroll { overflow-x: auto; border: 1px solid var(--b-line, rgba(127, 127, 127, 0.25)); border-radius: 10px; background: var(--b-card, transparent); -webkit-overflow-scrolling: touch; }
+.blk-table table { border-collapse: collapse; width: 100%; font-size: 14px; min-width: 520px; }
+.blk-table th, .blk-table td { padding: 10px 14px; border-bottom: 1px solid var(--b-line, rgba(127, 127, 127, 0.2)); text-align: left; vertical-align: top; }
+.blk-table thead th { font-family: var(--b-mono, var(--mono)); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--b-muted, inherit); font-weight: 500; background: var(--b-head, rgba(127, 127, 127, 0.07)); white-space: nowrap; }
+.blk-table tbody th { font-weight: 600; color: var(--b-strong, inherit); }
+.blk-table tbody td { font-family: var(--b-mono, var(--mono)); font-size: 13px; color: var(--b-text, inherit); }
+.blk-table tbody tr:last-child th, .blk-table tbody tr:last-child td { border-bottom: 0; }
+.blk-table tbody tr:hover { background: var(--b-hover, rgba(127, 127, 127, 0.06)); }
+.blk-note { font-family: var(--b-mono, var(--mono)); font-size: 11.5px; color: var(--b-muted, inherit); margin-top: 8px; }
+
+.blk-section { padding: 64px 0; border-top: 1px solid var(--b-line, rgba(127, 127, 127, 0.2)); }
+.blk-section-head { display: flex; align-items: baseline; gap: 18px; margin-bottom: 26px; }
+.blk-section-no { font-family: var(--b-mono, var(--mono)); font-size: 13px; color: var(--b-accent-2, var(--b-accent, currentColor)); letter-spacing: 0.08em; }
+.blk-section-head h2 { font-family: var(--b-display, inherit); font-weight: 600; font-size: clamp(26px, 4vw, 42px); line-height: 1.08; letter-spacing: -0.015em; color: var(--b-strong, inherit); }
+@media (max-width: 640px) {
+  .blk-section { padding: 44px 0; }
+  .blk-section-head { gap: 12px; }
+}

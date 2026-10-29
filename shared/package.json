@@ -1,0 +1,23 @@
+{
+  "name": "@atelier/shared",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Types de contenu et modèles statistiques partagés (serveur + client) : logit, grille de score, survie, GARCH, Moran, sélection, lexique de sentiment.",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "development": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.3",
+    "vitest": "^5.0.5"
+  }
+}

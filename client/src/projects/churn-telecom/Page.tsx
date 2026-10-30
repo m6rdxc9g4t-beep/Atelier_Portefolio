@@ -267,7 +267,7 @@ export default function Page({ project }: { project: ProjectResponse }) {
       {/* 06 — conclusion */}
       <EdSection id="conclusion" no={6} title="À retenir" sub="Le message des courbes">
         <EdPull>
-          « Le risque est <em>maximal dès le premier mois</em>, puis s’effondre : la fidélité se gagne à l’<em>onboarding</em>. »
+          « Le risque est <em>maximal dès le premier mois</em>, puis chute rapidement : la rétention se joue dès l’<em>onboarding</em>. »
         </EdPull>
         <EdLimits items={c.conclusions} />
         {transparency?.type === 'callout' && (
@@ -334,7 +334,7 @@ function HeroCurve({ km }: { km: Curve }) {
           ← −5,4 points dès le 1er mois
         </text>
       </svg>
-      <figcaption>Axe vertical tronqué à 0,5 : la médiane de survie n’est jamais atteinte.</figcaption>
+      <figcaption>Axe vertical tronqué à 0,5 : la médiane de survie n’est pas atteinte sur l’horizon observé.</figcaption>
     </figure>
   );
 }
@@ -486,9 +486,9 @@ function Boxplots({ tenure, charges }: { tenure: Box; charges: Box }) {
 
 /* ───────── La table de survie, mois par mois ───────── */
 const QUALITY: Record<string, string> = {
-  publié: 'publié (tableau 3)',
+  publié: 'n(t) et d(t) publiés (tableau 3)',
   reconstruit: 'reconstruit d’après les figures',
-  estimé: 'n(t) estimé à ±2 clients près',
+  estimé: 'n(t) estimé (±2 clients en moyenne, ±6 au plus)',
 };
 
 function LifeTable({ lt, km }: { lt: LifeTableFig; km: Curve }) {

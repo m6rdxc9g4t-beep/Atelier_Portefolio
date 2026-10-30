@@ -320,7 +320,7 @@ function Waterline({ employed, notEmployed }: { employed: number; notEmployed: n
         </svg>
         <div className="ots-water-lab top">
           <b>{fmt(employed)}</b> en emploi
-          <span>salaire observé</span>
+          <span>salaire observé · 19 461 − 6 952 (calculé)</span>
         </div>
         <div className="ots-water-lab bottom">
           <b>{fmt(notEmployed)}</b> sans emploi
@@ -482,7 +482,7 @@ function ProbitBuilder({ steps, explain }: { steps: ProbitStep[]; explain: strin
               <b>{cur.aic !== null ? fmt(cur.aic, 2, 2) : 'en baisse'}</b>
             </div>
             <div>
-              <small>Δ étape</small>
+              <small>{prevKnown && prevKnown.i !== k - 1 ? `Δ depuis « ${SHORT[prevKnown.i]} »` : 'Δ étape'}</small>
               <b className={delta !== null && delta < 0 ? 'down' : ''}>{delta !== null ? fmt(delta, 2, 2) : '—'}</b>
             </div>
             <div>

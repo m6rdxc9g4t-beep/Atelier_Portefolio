@@ -145,7 +145,7 @@ export function SurvivalLab({ data, maxT = 72, initial = 12 }: { data: SurvivalD
               </span>
             )}
             <span>
-              <i className="sv-med" /> Ŝ = 0,5 : médiane jamais atteinte
+              <i className="sv-med" /> Ŝ = 0,5 : médiane non atteinte sur 72 mois
             </span>
             {data.sparse && <span className="sv-sparse">points publiés reliés (interpolation entre les horizons)</span>}
           </div>

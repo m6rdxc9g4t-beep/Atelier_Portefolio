@@ -174,7 +174,7 @@
     },
     {
      "type": "text",
-     "md": "En première lecture, les churners ont une **ancienneté plus faible**. Ils ont aussi des *TotalCharges* plus faibles, ce qui est largement mécanique : cette variable est un cumul, qui s'arrête dès que l'abonnement cesse. Quelques valeurs extrêmes chez les churners correspondent à des départs plus tardifs ou à des offres plus coûteuses."
+     "md": "En première lecture, les churners ont une **ancienneté plus faible**. Ils ont aussi des *TotalCharges* plus faibles, ce qui est largement mécanique : cette variable est un cumul, qui s'arrête dès que l'abonnement cesse. Quelques valeurs extrêmes chez les churners sont compatibles avec des départs plus tardifs ou à des offres plus coûteuses."
     },
     {
      "type": "figure",

@@ -102,7 +102,9 @@ export function GarchLab({ presets }: { presets: GarchPreset[] }) {
               <dd>{Number.isFinite(hl) ? `${fmt(hl, 1)} sem.` : '∞'}</dd>
             </div>
             <div>
-              <dt>Variance de long terme</dt>
+              <dt>
+                Variance de long terme de <span className="nocaps">ηₜ</span>
+              </dt>
               <dd>{Number.isFinite(uv) ? fmtSci(uv, 2) : 'non définie'}</dd>
             </div>
             <div>

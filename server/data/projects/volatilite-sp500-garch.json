@@ -135,7 +135,7 @@
     },
     {
      "type": "text",
-     "md": "Lues sur la figure, les plus fortes baisses atteignent environ −0,17 en rendement log (octobre 1987 et octobre 2008), puis −0,13 (mars 2020). La plus forte hausse, environ +0,11, date d’avril 2020."
+     "md": "Lues sur la figure, les plus fortes baisses atteignent environ −0,17 en rendement log (octobre 1987) et −0,16 (octobre 2008), puis −0,13 (mars 2020). La plus forte hausse, environ +0,11, date d’avril 2020."
     }
    ]
   },
@@ -428,7 +428,7 @@
       ["ε̂ₜ", "0,8232", "Pas d’autocorrélation"],
       ["ε̂ₜ²", "0,9667", "Pas d’autocorrélation"]
      ],
-     "note": "Les ACF des résidus et de leurs carrés restent dans les bandes ±1,96/√T."
+     "note": "Les ACF des résidus et de leurs carrés restent dans les bandes ±1,96/√T, à une exception près : le retard 22 des résidus dépasse à peine la bande (figure 10)."
     },
     {
      "type": "callout",

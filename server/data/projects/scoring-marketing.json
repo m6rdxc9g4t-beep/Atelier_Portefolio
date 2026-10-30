@@ -1,0 +1,1659 @@
+{
+ "slug": "scoring-marketing",
+ "title": "Scoring marketing",
+ "subtitle": "Profil des répondants à un mailing et formule de score logistique sur 39 779 clients",
+ "course": "M1 Économétrie appliquée (Université de Lille, FaSEST) — Scoring",
+ "level": "M1",
+ "date": "Avril 2025",
+ "authors": ["François Pichon", "Miangaly Razanaboninahitra"],
+ "supervisor": null,
+ "tools": ["SAS", "Macro SAS %biqualitativ"],
+ "methods": ["Scoring", "Tri à plat", "Discrétisation en déciles", "Tris croisés", "Test du khi-deux", "V de Cramér", "Test t de Student", "Régression logistique", "Sélection stepwise", "Courbe ROC (AUC)"],
+ "abstract": "Une entreprise a envoyé un mailing à 39 779 clients représentatifs de sa clientèle. Le projet décrit le fichier, recode les variables qualitatives, découpe les variables quantitatives en déciles et mesure leur lien avec la réponse par des tris croisés (khi-deux, V de Cramér). L'historique d'achat, l'âge et le score de crédit FICO ressortent comme les variables les plus discriminantes. Une régression logistique avec sélection stepwise, estimée sous SAS, retient 7 variables et fournit la formule de score. La courbe ROC donne une AUC de 0,649 : le score fait mieux que le hasard, mais sa capacité de discrimination reste modérée.",
+ "question": "Quels clients ont répondu au mailing, et quelle formule de score permet de noter toute la clientèle pour cibler ceux qui ont le plus de chances de répondre à l'offre ?",
+ "kpis": [
+  {
+   "value": "39 779",
+   "label": "Clients ayant reçu le mailing",
+   "note": "Mailing du 16/04/2003"
+  },
+  {
+   "value": "12",
+   "label": "Variables explicatives candidates"
+  },
+  {
+   "value": "10",
+   "label": "Classes par variable quantitative",
+   "note": "Déciles d'AGE, FICO, INCOME et VALUE24"
+  },
+  {
+   "value": "7",
+   "label": "Variables retenues par la stepwise",
+   "note": "AGE, BUY18, MARRIED, OWNHOME, BUY12, FICO, BUY6"
+  },
+  {
+   "value": "0,649",
+   "label": "AUC du modèle final",
+   "note": "Courbe ROC : discrimination modérée"
+  }
+ ],
+ "data": {
+  "source": "Fichier clients d'une entreprise ayant envoyé un mailing à un échantillon représentatif de sa clientèle",
+  "unit": "Client",
+  "period": "Mailing du 16/04/2003 ; commandes sur 6, 12 et 18 mois, montant des commandes sur 24 mois",
+  "n": "39 779 clients",
+  "variables": [
+   {
+    "name": "RETOUR",
+    "label": "A répondu au mail du 16/04/2003 (variable à expliquer)",
+    "type": "binaire"
+   },
+   {
+    "name": "AGE",
+    "label": "Âge du client (18 à 75 ans)",
+    "type": "continue"
+   },
+   {
+    "name": "BUY6",
+    "label": "Nombre de commandes passées dans les 6 derniers mois",
+    "type": "discrète"
+   },
+   {
+    "name": "BUY12",
+    "label": "Nombre de commandes passées dans les 12 derniers mois",
+    "type": "discrète"
+   },
+   {
+    "name": "BUY18",
+    "label": "Nombre de commandes passées dans les 18 derniers mois",
+    "type": "discrète"
+   },
+   {
+    "name": "COA6",
+    "label": "Changement d'adresse",
+    "type": "binaire"
+   },
+   {
+    "name": "FICO",
+    "label": "Score de crédit FICO (565 à 810)",
+    "type": "continue"
+   },
+   {
+    "name": "INCOME",
+    "label": "Revenu",
+    "type": "continue"
+   },
+   {
+    "name": "LOC",
+    "label": "Localité (A à H)",
+    "type": "qualitative nominale"
+   },
+   {
+    "name": "MARRIED",
+    "label": "Situation familiale : marié / pas marié",
+    "type": "binaire"
+   },
+   {
+    "name": "OWNHOME",
+    "label": "Propriétaire ou non",
+    "type": "binaire"
+   },
+   {
+    "name": "SEX",
+    "label": "Civilité du client (M / F)",
+    "type": "qualitative nominale"
+   },
+   {
+    "name": "VALUE24",
+    "label": "Montant des commandes sur 24 mois (60 à 1 317)",
+    "type": "continue"
+   }
+  ],
+  "cleaning": [
+   "Tri à plat de chaque variable : repérage des valeurs manquantes, aberrantes ou extrêmes et des ordres de grandeur.",
+   "SEX : 58 valeurs manquantes, regroupées dans une modalité dédiée (« U »).",
+   "RETOUR, COA6, MARRIED et OWNHOME binarisées (1 = OUI, 0 = NON).",
+   "Compteurs de commandes regroupés : BUY6 en 0 / 1 / 2+, BUY12 en 0 / 1 / 2 / 3+, BUY18 en 0 / 1 / 2+.",
+   "LOC conservée telle quelle (localités A à H).",
+   "AGE, FICO, INCOME et VALUE24 découpés en déciles et recodés de 1 à 10 (variables t_…)."
+  ]
+ },
+ "sections": [
+  {
+   "id": "contexte",
+   "title": "Contexte et objectif",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Une entreprise a envoyé un mailing à un échantillon représentatif de sa clientèle, soit **39 779 clients**. La variable à expliquer, RETOUR, indique si le client a répondu au mail du 16/04/2003."
+    },
+    {
+     "type": "text",
+     "md": "L'étude a deux objectifs. D'abord, analyser le **profil des répondants** à l'offre. Ensuite, trouver la **formule de score** qui permet de « noter » tous les clients de l'entreprise, pour cibler ceux qui ont le plus de chances de répondre."
+    },
+    {
+     "type": "callout",
+     "md": "*Pourquoi un scoring ?* Cette méthode statistique affecte une note à chaque client ou prospect d'une base, calculée à partir des variables disponibles. Elle aide à trouver les adresses les plus susceptibles de répondre positivement à une offre, et donc à prospecter plus efficacement."
+    },
+    {
+     "type": "list",
+     "items": [
+      "Description du fichier et tris à plat des variables",
+      "Codage des variables qualitatives et découpage des variables quantitatives en 10 classes",
+      "Tris croisés avec RETOUR : test du khi-deux et V de Cramér",
+      "Profil des répondants au mailing",
+      "Régression logistique avec sélection stepwise : la formule de score",
+      "Validation du modèle par la courbe ROC"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "donnees",
+   "title": "Le fichier d'étude",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Le fichier contient la cible RETOUR et **12 variables explicatives** : historique de commandes, montant des achats, score de crédit, revenu, localité et caractéristiques socio-démographiques."
+    },
+    {
+     "type": "table",
+     "title": "Dictionnaire des variables",
+     "columns": ["Variable", "Libellé", "Type", "Modalités"],
+     "rows": [
+      ["RETOUR (cible)", "A répondu au mail du 16/04/2003", "Binaire", "OUI / NON"],
+      ["AGE", "Âge du client", "Continu", "18 à 75"],
+      ["BUY6", "Nombre de commandes passées dans les 6 derniers mois", "Continu", "0, 1, 2…"],
+      ["BUY12", "Nombre de commandes passées dans les 12 derniers mois", "Continu", "0, 1, 2…"],
+      ["BUY18", "Nombre de commandes passées dans les 18 derniers mois", "Continu", "0, 1, 2…"],
+      ["COA6", "Changement d'adresse", "Binaire", "OUI / NON"],
+      ["FICO", "Score de crédit FICO", "Continu", "565 à 810"],
+      ["INCOME", "Revenu", "Continu", "1 500 à 12 800"],
+      ["LOC", "Localité", "Chaîne de caractères", "A à H"],
+      ["MARRIED", "Situation familiale : marié / pas marié", "Binaire", "OUI / NON"],
+      ["OWNHOME", "Propriétaire ou non", "Binaire", "OUI / NON"],
+      ["SEX", "Civilité du client", "Chaîne de caractères", "M / F"],
+      ["VALUE24", "Montant des commandes sur 24 mois", "Continu", "60 à 1 317"]
+     ],
+     "note": "Tableau 1 du rapport."
+    }
+   ]
+  },
+  {
+   "id": "exploration",
+   "title": "Exploration univariée",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Les statistiques univariées servent à repérer les données manquantes, aberrantes ou extrêmes. Elles donnent aussi l'ordre de grandeur des variables et préparent le regroupement en classes des variables continues."
+    },
+    {
+     "type": "table",
+     "title": "Tri à plat de la variable SEX",
+     "columns": ["SEX", "Effectif", "Pourcentage", "Effectif cumulé", "Pourcentage cumulé"],
+     "rows": [
+      ["F", "18 516", "46,62 %", "18 516", "46,62 %"],
+      ["M", "21 205", "53,38 %", "39 721", "100,00 %"]
+     ],
+     "note": "Tableau 2 du rapport. Effectif manquant : 58."
+    },
+    {
+     "type": "text",
+     "md": "SEX n'est pas renseigné pour **58 clients**. Ces valeurs manquantes reçoivent leur propre modalité (code 0, ou « U » dans le tableau de codage), à côté du masculin et du féminin."
+    }
+   ]
+  },
+  {
+   "id": "codage",
+   "title": "Codage des variables qualitatives",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Les variables binaires sont codées 1 = OUI et 0 = NON, ce qui prépare la modélisation logistique. Les compteurs de commandes sont regroupés pour éviter les modalités trop rares."
+    },
+    {
+     "type": "table",
+     "title": "Recodage des variables qualitatives",
+     "columns": ["Variable", "Codage initial", "Recodage", "Commentaire"],
+     "rows": [
+      ["RETOUR", "OUI / NON", "1 = OUI, 0 = NON", "Binarisation pour la modélisation logistique"],
+      ["BUY6", "0 ; 1 ; 2", "0, 1, 2+", "Regroupement des valeurs ≥ 2 pour la stabilité"],
+      ["BUY12", "0 ; 1 ; 2 ; 3", "0, 1, 2, 3+", "Simplification des modalités rares"],
+      ["BUY18", "0 ; 1 ; 2 ; 3 ; 4", "0, 1, 2+", "Fusion des catégories peu fréquentes"],
+      ["COA6", "OUI / NON", "1 = OUI, 0 = NON", "Binarisation"],
+      ["LOC", "A ; B ; … ; H", "Pas de recodage", "Variable nominale conservée"],
+      ["MARRIED", "OUI / NON", "1 = OUI, 0 = NON", "Binarisation"],
+      ["OWNHOME", "OUI / NON", "1 = OUI, 0 = NON", "Binarisation"],
+      ["SEX", "F ; M", "F, M, U", "Catégorie « U » pour les valeurs manquantes"]
+     ],
+     "note": "Tableau Codif_VAR_Qualitatives du rapport."
+    }
+   ]
+  },
+  {
+   "id": "deciles",
+   "title": "Découpage des variables quantitatives en 10 classes",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "L'âge, le score FICO, le revenu et le montant des commandes sur 24 mois sont **discrétisés en déciles**. Chaque variable devient une variable ordonnée, codée de 1 à 10 (préfixe *t_* : t_AGE, t_FICO…)."
+    },
+    {
+     "type": "table",
+     "title": "Bornes des 10 classes",
+     "columns": ["Classe", "AGE (ans)", "FICO", "INCOME (k€)", "VALUE24"],
+     "rows": [
+      ["1", "[18 ; 32]", "≤ 656", "≤ 24", "≤ 102"],
+      ["2", "]32 ; 36]", "]656 ; 670]", "]24 ; 32]", "]102 ; 135]"],
+      ["3", "]36 ; 39]", "]670 ; 680]", "]32 ; 38]", "]135 ; 163]"],
+      ["4", "]39 ; 42]", "]680 ; 688]", "]38 ; 44]", "]163 ; 189]"],
+      ["5", "]42 ; 44]", "]688 ; 695]", "]44 ; 50]", "]189 ; 215]"],
+      ["6", "]44 ; 46]", "]695 ; 702]", "]50 ; 54]", "]215 ; 241]"],
+      ["7", "]46 ; 49]", "]702 ; 709]", "]54 ; 59]", "]241 ; 277]"],
+      ["8", "]49 ; 52]", "]709 ; 718]", "]59 ; 63]", "]277 ; 359]"],
+      ["9", "]52 ; 57]", "]718 ; 730]", "]63 ; 68]", "]359 ; 475]"],
+      ["10", "> 57", "> 730", "> 68", "> 475"]
+     ],
+     "note": "Tableaux Deciles_VAR_Quantitatives et de recodage en 10 classes."
+    },
+    {
+     "type": "text",
+     "md": "Ce découpage améliore l'interprétabilité des données. Il facilite aussi la détection de relations non linéaires avec la réponse."
+    }
+   ]
+  },
+  {
+   "id": "tris-croises",
+   "title": "Tris croisés avec la réponse",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Chaque variable explicative est croisée avec RETOUR, les quantitatives sous leur forme en classes. Le **test du khi-deux** vérifie l'indépendance des deux variables. Si elle est rejetée, le **V de Cramér** mesure l'intensité de la liaison."
+    },
+    {
+     "type": "formula",
+     "tex": "T = \\sum_{i,j} \\frac{\\left(n_{ij} - \\frac{n_{i\\cdot}\\,n_{\\cdot j}}{n}\\right)^2}{\\frac{n_{i\\cdot}\\,n_{\\cdot j}}{n}} = \\sum_{i,j} \\frac{n_{ij}^2}{\\frac{n_{i\\cdot}\\,n_{\\cdot j}}{n}} - n",
+     "caption": "Statistique du khi-deux : écart entre effectifs observés et effectifs attendus sous l'indépendance. H0 : X et Y sont indépendants ; seuil α = 0,05."
+    },
+    {
+     "type": "text",
+     "md": "Des tests t de Student comparent aussi les moyennes des variables continues entre répondants et non-répondants. Une macro SAS, **%biqualitativ**, automatise ces analyses sur toutes les variables."
+    },
+    {
+     "type": "table",
+     "title": "Liaison de chaque variable avec RETOUR",
+     "columns": ["Variable", "Khi-deux", "p-value", "Dépendance (seuil 1 %)", "V de Cramér"],
+     "rows": [
+      ["AGE", "24,75", "< 0,001", "Oui", "0,18"],
+      ["BUY6", "62,41", "< 0,001", "Oui", "0,32"],
+      ["BUY12", "58,93", "< 0,001", "Oui", "0,30"],
+      ["BUY18", "45,67", "< 0,001", "Oui", "0,26"],
+      ["COA6", "3,21", "0,073", "Non", "0,05"],
+      ["FICO", "19,88", "0,002", "Oui", "0,15"],
+      ["INCOME", "12,34", "0,015", "Non (seuil 1 %)", "0,11"],
+      ["LOC", "8,97", "0,062", "Non", "0,09"],
+      ["MARRIED", "6,45", "0,040", "Non (seuil 1 %)", "0,08"],
+      ["OWNHOME", "4,32", "0,115", "Non", "0,06"],
+      ["SEX", "1,98", "0,372", "Non", "0,04"],
+      ["VALUE24", "15,72", "0,008", "Oui", "0,13"]
+     ],
+     "note": "Tableau du rapport (p. 12)."
+    },
+    {
+     "type": "text",
+     "md": "**L'historique d'achat** est le plus lié à la réponse : BUY6, BUY12 et BUY18 ont les V de Cramér les plus élevés (0,32, 0,30 et 0,26). Viennent ensuite l'âge (0,18), le score FICO (0,15) et VALUE24 (0,13). COA6, LOC, OWNHOME et SEX ne sont pas significatifs au seuil de 5 %. INCOME et MARRIED ne le sont qu'au seuil de 5 %, avec des liaisons faibles."
+    }
+   ]
+  },
+  {
+   "id": "profil",
+   "title": "Profil des répondants",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Les tris croisés montrent, pour chaque variable, les modalités sur- ou sous-représentées parmi les répondants. Ils dessinent le profil des clients réceptifs avant toute modélisation."
+    },
+    {
+     "type": "table",
+     "title": "Réponse au mailing par tranche d'âge",
+     "columns": ["Tranche d'âge", "Taux de réponse"],
+     "rows": [
+      ["18–25 ans", "22 %"],
+      ["25–35 ans", "28 %"],
+      ["35–55 ans", "15 %"],
+      ["55–75 ans", "9 %"]
+     ],
+     "note": "Tableau de la p. 14 ; tranches telles qu'écrites dans le rapport."
+    },
+    {
+     "type": "text",
+     "md": "Les **25–35 ans** forment le cœur de cible, avec 28 % de réponse. Les 18–25 ans suivent (22 %) : le rapport y voit un potentiel à mobiliser par des offres jeunes. Les 55–75 ans répondent le moins (9 %)."
+    },
+    {
+     "type": "figure",
+     "src": "img/scoring-marketing/fig-1.png",
+     "caption": "Taux de réponse selon le nombre de commandes des 6 derniers mois (BUY6 ; 2 = deux ou plus) : 13,3 % sans commande, 15,6 % avec une commande, 13,0 % avec deux ou plus."
+    },
+    {
+     "type": "text",
+     "md": "Les clients ayant passé **une commande** dans les six derniers mois répondent le plus. Les clients sans commande récente représentent 68 % de la base : le rapport y voit un potentiel de réactivation, à traiter avec une part moindre du budget."
+    },
+    {
+     "type": "figure",
+     "src": "img/scoring-marketing/fig-2.png",
+     "caption": "Taux de réponse selon le nombre de commandes des 12 derniers mois (BUY12 ; 3 = trois ou plus)."
+    },
+    {
+     "type": "text",
+     "md": "La relation avec BUY12 est **non linéaire** : 17,1 % de réponse pour un achat, 13,7 % pour deux, 12,8 % sans achat et 9,1 % à partir de trois. Le rapport évoque une saturation des clients les plus fidèles, ou une segmentation inadaptée."
+    },
+    {
+     "type": "callout",
+     "md": "Synthèse du rapport : impact fort pour l'historique d'achat (BUY6, BUY12, BUY18), le score FICO et le jeune âge ; impact faible ou nul pour COA6, LOC, OWNHOME, SEX, INCOME et MARRIED."
+    }
+   ]
+  },
+  {
+   "id": "modelisation",
+   "title": "Modélisation et formule de score",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Le score repose sur une **régression logistique** de RETOUR (1 = a répondu). La sélection **pas à pas** (stepwise) ajoute les variables significatives et retire celles qui ne le sont plus, au seuil de 5 %."
+    },
+    {
+     "type": "text",
+     "md": "Les 12 variables sont candidates : AGE, INCOME, FICO, BUY6, BUY12, BUY18, VALUE24 et COA6 comme variables continues ; MARRIED, OWNHOME, LOC et SEX comme variables catégorielles."
+    },
+    {
+     "type": "table",
+     "title": "Sélection stepwise",
+     "columns": ["Étape", "Variable entrée", "Khi-deux du score", "Pr > khi-deux"],
+     "rows": [
+      ["1", "AGE", "435,7650", "< 0,0001"],
+      ["2", "BUY18", "368,5186", "< 0,0001"],
+      ["3", "MARRIED", "250,1407", "< 0,0001"],
+      ["4", "OWNHOME", "183,0056", "< 0,0001"],
+      ["5", "BUY12", "98,3279", "< 0,0001"],
+      ["6", "FICO", "92,4854", "< 0,0001"],
+      ["7", "BUY6", "13,4023", "0,0003"]
+     ],
+     "note": "Récapitulatif de la sélection stepwise (sortie SAS). Chaque variable compte 1 degré de liberté ; aucune n'est retirée."
+    },
+    {
+     "type": "text",
+     "md": "**Sept variables** sont retenues. L'âge entre en premier, suivi de BUY18 et de la situation familiale. INCOME, VALUE24, COA6, LOC et SEX ne sont pas retenus."
+    },
+    {
+     "type": "table",
+     "title": "Coefficients du modèle final",
+     "columns": ["Paramètre", "Estimation", "Erreur type", "Khi-deux de Wald", "Pr > khi-deux"],
+     "rows": [
+      ["Constante", "3,0769", "0,3650", "71,0505", "< 0,0001"],
+      ["AGE", "−0,0415", "0,00171", "589,8325", "< 0,0001"],
+      ["MARRIED = 0 (non marié)", "−0,5438", "0,0343", "250,7260", "< 0,0001"],
+      ["FICO", "−0,00492", "0,000512", "92,1464", "< 0,0001"],
+      ["OWNHOME = 0 (non propriétaire)", "0,4582", "0,0342", "179,2020", "< 0,0001"],
+      ["BUY6", "−0,2294", "0,0627", "13,3755", "0,0003"],
+      ["BUY12", "−0,3175", "0,0594", "28,5518", "< 0,0001"],
+      ["BUY18", "0,6465", "0,0338", "365,2306", "< 0,0001"]
+     ],
+     "note": "Estimations du maximum de vraisemblance (sortie SAS). Les paramètres de MARRIED et OWNHOME sont affichés pour la modalité 0 (NON)."
+    },
+    {
+     "type": "formula",
+     "tex": "\\begin{aligned}\\ln\\frac{p}{1-p} = {} & 3{,}0769 - 0{,}0415\\,\\text{AGE} - 0{,}00492\\,\\text{FICO} \\\\ & - 0{,}5438\\,\\mathbf{1}_{\\{\\text{MARRIED}=0\\}} + 0{,}4582\\,\\mathbf{1}_{\\{\\text{OWNHOME}=0\\}} \\\\ & - 0{,}2294\\,\\text{BUY6} - 0{,}3175\\,\\text{BUY12} + 0{,}6465\\,\\text{BUY18}\\end{aligned}",
+     "caption": "Formule de score : logit de la probabilité de répondre. AGE en années, FICO en points, BUY = nombres de commandes ; l'indicatrice vaut 1 si la condition est vraie."
+    },
+    {
+     "type": "formula",
+     "tex": "p = \\frac{1}{1 + e^{-z}} \\qquad \\text{où } z \\text{ est le logit ci-dessus}",
+     "caption": "Probabilité estimée de répondre au mailing."
+    },
+    {
+     "type": "text",
+     "md": "À autres caractéristiques égales, la probabilité estimée de répondre **baisse avec l'âge et avec le score FICO**. Elle est plus faible pour les clients non mariés et plus élevée pour les non-propriétaires. BUY18 a un coefficient positif, BUY6 et BUY12 des coefficients négatifs : les trois fenêtres de commandes étant emboîtées, ces effets se lisent ensemble."
+    }
+   ]
+  },
+  {
+   "id": "validation",
+   "title": "Validation du modèle",
+   "blocks": [
+    {
+     "type": "figure",
+     "src": "img/scoring-marketing/fig-3.png",
+     "caption": "Courbe ROC du modèle final : aire sous la courbe (AUC) = 0,6490."
+    },
+    {
+     "type": "text",
+     "md": "La courbe ROC met en regard la sensibilité (taux de vrais positifs) et 1 − spécificité (taux de faux positifs). L'**AUC vaut 0,649**. Le modèle fait mieux qu'un tirage aléatoire (AUC = 0,5), mais sa capacité de discrimination reste **modérée**."
+    },
+    {
+     "type": "text",
+     "md": "Le rapport en tire quatre enseignements sur la robustesse du modèle :"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Généralisation limitée : le modèle détecte une structure, mais reste faible pour un ciblage précis ou une campagne automatisée.",
+      "Pouvoir discriminant faible : la courbe reste proche de la diagonale, ce qui peut venir de variables peu informatives, d'un modèle trop simple, d'un surapprentissage ou d'un déséquilibre de la cible.",
+      "Surajustement à contrôler : si l'AUC est la même en apprentissage et en test, le modèle est cohérent mais simplement trop faible.",
+      "Stabilité à tester : un modèle qui change beaucoup d'un jeu de données à l'autre (validation croisée) serait peu robuste."
+     ]
+    },
+    {
+     "type": "callout",
+     "md": "Pistes d'amélioration citées par le rapport : meilleur ajustement, enrichissement des données, autre choix de variables explicatives, étude des interactions entre variables et optimisation des seuils."
+    }
+   ]
+  },
+  {
+   "id": "recommandations",
+   "title": "Recommandations opérationnelles",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Le rapport traduit le score en règles de ciblage pour les prochaines campagnes :"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Cibler en priorité les clients des 3 premiers déciles du score, la population la plus réceptive.",
+      "Adapter les messages aux segments clés : clients jeunes et acheteurs récents.",
+      "Exclure les déciles 8 à 10, dont le taux de réponse est inférieur à 5 %.",
+      "Combiner la fidélisation des clients actifs et la réactivation des clients sans achat récent."
+     ]
+    }
+   ]
+  }
+ ],
+ "figures": {
+  "variable_dictionary": {
+   "description": "Dictionnaire des variables (Tableau 1, p. 3–4)",
+   "columns": ["name", "label", "reportType", "modalities", "role"],
+   "rows": [
+    ["RETOUR", "A répondu au mail du 16/04/2003", "Binaire", "OUI/NON", "cible"],
+    ["AGE", "Âge du client", "Continu", "[18 ; 19 ; 20 ; … ; 75]", "explicative"],
+    ["BUY6", "Nombre de commandes passées dans les 6 derniers mois", "Continu", "0 ; 1 ; 2 ; …", "explicative"],
+    ["BUY12", "Nombre de commandes passées dans les 12 derniers mois", "Continu", "0 ; 1 ; 2 ; …", "explicative"],
+    ["BUY18", "Nombre de commandes passées dans les 18 derniers mois", "Continu", "0 ; 1 ; 2 ; …", "explicative"],
+    ["COA6", "Changement d'adresse", "Binaire", "OUI/NON", "explicative"],
+    ["FICO", "Score de crédit FICO", "Continu", "[565 ; … ; 810]", "explicative"],
+    ["INCOME", "Revenu", "Continu", "[1 500 ; … ; 12 800]", "explicative"],
+    ["LOC", "Localité", "Chaîne de caractères", "A ; B ; C ; … ; H", "explicative"],
+    ["MARRIED", "Situation familiale : marié / pas marié", "Binaire", "OUI/NON", "explicative"],
+    ["OWNHOME", "Propriétaire ou non", "Binaire", "OUI/NON", "explicative"],
+    ["SEX", "Civilité du client", "Chaîne de caractères", "M/F", "explicative"],
+    ["VALUE24", "Montant des commandes sur 24 mois", "Continu", "[60 ; … ; 1 317]", "explicative"]
+   ],
+   "note": "Libellés et types tels qu'écrits dans le rapport."
+  },
+  "sex_frequencies": {
+   "description": "Tri à plat de SEX (Tableau 2, p. 4)",
+   "x": ["F", "M"],
+   "y": [18516, 21205],
+   "percent": [46.62, 53.38],
+   "cumulativeFrequency": [18516, 39721],
+   "cumulativePercent": [46.62, 100.0],
+   "missing": 58,
+   "approx": false
+  },
+  "qualitative_coding": {
+   "description": "Codage des variables qualitatives (tableau Codif_VAR_Qualitatives, p. 5–6)",
+   "rows": [
+    {
+     "variable": "RETOUR",
+     "initial": "OUI/NON",
+     "recode": "1 = OUI, 0 = NON",
+     "comment": "Binarisation pour modélisation logistique"
+    },
+    {
+     "variable": "BUY6",
+     "initial": "[0 ; 1 ; 2]",
+     "recode": "0 = 0, 1 = 1, 2 = 2+",
+     "comment": "Regroupement des valeurs ≥ 2 pour stabilité"
+    },
+    {
+     "variable": "BUY12",
+     "initial": "[0 ; 1 ; 2 ; 3]",
+     "recode": "0 = 0, 1 = 1, 2 = 2, 3 = 3+",
+     "comment": "Simplification des modalités rares"
+    },
+    {
+     "variable": "BUY18",
+     "initial": "[0 ; 1 ; 2 ; 3 ; 4]",
+     "recode": "0 = 0, 1 = 1, ≥ 2 = 2+",
+     "comment": "Fusion des catégories peu fréquentes"
+    },
+    {
+     "variable": "COA6",
+     "initial": "OUI/NON",
+     "recode": "1 = OUI, 0 = NON",
+     "comment": "Binarisation"
+    },
+    {
+     "variable": "LOC",
+     "initial": "A ; B ; … ; H",
+     "recode": "Pas de recodage",
+     "comment": "Variable nominale conservée"
+    },
+    {
+     "variable": "MARRIED",
+     "initial": "OUI/NON",
+     "recode": "1 = OUI, 0 = NON",
+     "comment": "Binarisation"
+    },
+    {
+     "variable": "OWNHOME",
+     "initial": "OUI/NON",
+     "recode": "1 = OUI, 0 = NON",
+     "comment": "Binarisation"
+    },
+    {
+     "variable": "SEX",
+     "initial": "F ; M",
+     "recode": "F = F, M = M, vide = U",
+     "comment": "Ajout d'une catégorie U pour valeurs manquantes"
+    }
+   ],
+   "note": "Le texte de la p. 5 propose aussi un codage numérique de SEX : 0 = non renseigné, 1 = masculin, 2 = féminin."
+  },
+  "deciles": {
+   "description": "Bornes des déciles des variables quantitatives (tableau Deciles_VAR_Quantitatives, p. 6–7) et recodage en classes 1 à 10 (p. 7–8)",
+   "variables": {
+    "AGE": {
+     "unit": "ans",
+     "range": [18, 75],
+     "labels": ["[18 ; 32]", "]32 ; 36]", "]36 ; 39]", "]39 ; 42]", "]42 ; 44]", "]44 ; 46]", "]46 ; 49]", "]49 ; 52]", "]52 ; 57]", "> 57"],
+     "upperBounds": [32, 36, 39, 42, 44, 46, 49, 52, 57],
+     "classes": [
+      {
+       "k": 1,
+       "label": "[18 ; 32]",
+       "lowerExcl": null,
+       "upperIncl": 32
+      },
+      {
+       "k": 2,
+       "label": "]32 ; 36]",
+       "lowerExcl": 32,
+       "upperIncl": 36
+      },
+      {
+       "k": 3,
+       "label": "]36 ; 39]",
+       "lowerExcl": 36,
+       "upperIncl": 39
+      },
+      {
+       "k": 4,
+       "label": "]39 ; 42]",
+       "lowerExcl": 39,
+       "upperIncl": 42
+      },
+      {
+       "k": 5,
+       "label": "]42 ; 44]",
+       "lowerExcl": 42,
+       "upperIncl": 44
+      },
+      {
+       "k": 6,
+       "label": "]44 ; 46]",
+       "lowerExcl": 44,
+       "upperIncl": 46
+      },
+      {
+       "k": 7,
+       "label": "]46 ; 49]",
+       "lowerExcl": 46,
+       "upperIncl": 49
+      },
+      {
+       "k": 8,
+       "label": "]49 ; 52]",
+       "lowerExcl": 49,
+       "upperIncl": 52
+      },
+      {
+       "k": 9,
+       "label": "]52 ; 57]",
+       "lowerExcl": 52,
+       "upperIncl": 57
+      },
+      {
+       "k": 10,
+       "label": "> 57",
+       "lowerExcl": 57,
+       "upperIncl": null
+      }
+     ]
+    },
+    "FICO": {
+     "unit": "points",
+     "range": [565, 810],
+     "labels": ["≤ 656", "]656 ; 670]", "]670 ; 680]", "]680 ; 688]", "]688 ; 695]", "]695 ; 702]", "]702 ; 709]", "]709 ; 718]", "]718 ; 730]", "> 730"],
+     "upperBounds": [656, 670, 680, 688, 695, 702, 709, 718, 730],
+     "classes": [
+      {
+       "k": 1,
+       "label": "≤ 656",
+       "lowerExcl": null,
+       "upperIncl": 656
+      },
+      {
+       "k": 2,
+       "label": "]656 ; 670]",
+       "lowerExcl": 656,
+       "upperIncl": 670
+      },
+      {
+       "k": 3,
+       "label": "]670 ; 680]",
+       "lowerExcl": 670,
+       "upperIncl": 680
+      },
+      {
+       "k": 4,
+       "label": "]680 ; 688]",
+       "lowerExcl": 680,
+       "upperIncl": 688
+      },
+      {
+       "k": 5,
+       "label": "]688 ; 695]",
+       "lowerExcl": 688,
+       "upperIncl": 695
+      },
+      {
+       "k": 6,
+       "label": "]695 ; 702]",
+       "lowerExcl": 695,
+       "upperIncl": 702
+      },
+      {
+       "k": 7,
+       "label": "]702 ; 709]",
+       "lowerExcl": 702,
+       "upperIncl": 709
+      },
+      {
+       "k": 8,
+       "label": "]709 ; 718]",
+       "lowerExcl": 709,
+       "upperIncl": 718
+      },
+      {
+       "k": 9,
+       "label": "]718 ; 730]",
+       "lowerExcl": 718,
+       "upperIncl": 730
+      },
+      {
+       "k": 10,
+       "label": "> 730",
+       "lowerExcl": 730,
+       "upperIncl": null
+      }
+     ]
+    },
+    "INCOME": {
+     "unit": "k€",
+     "labels": ["≤ 24", "]24 ; 32]", "]32 ; 38]", "]38 ; 44]", "]44 ; 50]", "]50 ; 54]", "]54 ; 59]", "]59 ; 63]", "]63 ; 68]", "> 68"],
+     "upperBounds": [24, 32, 38, 44, 50, 54, 59, 63, 68],
+     "classes": [
+      {
+       "k": 1,
+       "label": "≤ 24",
+       "lowerExcl": null,
+       "upperIncl": 24
+      },
+      {
+       "k": 2,
+       "label": "]24 ; 32]",
+       "lowerExcl": 24,
+       "upperIncl": 32
+      },
+      {
+       "k": 3,
+       "label": "]32 ; 38]",
+       "lowerExcl": 32,
+       "upperIncl": 38
+      },
+      {
+       "k": 4,
+       "label": "]38 ; 44]",
+       "lowerExcl": 38,
+       "upperIncl": 44
+      },
+      {
+       "k": 5,
+       "label": "]44 ; 50]",
+       "lowerExcl": 44,
+       "upperIncl": 50
+      },
+      {
+       "k": 6,
+       "label": "]50 ; 54]",
+       "lowerExcl": 50,
+       "upperIncl": 54
+      },
+      {
+       "k": 7,
+       "label": "]54 ; 59]",
+       "lowerExcl": 54,
+       "upperIncl": 59
+      },
+      {
+       "k": 8,
+       "label": "]59 ; 63]",
+       "lowerExcl": 59,
+       "upperIncl": 63
+      },
+      {
+       "k": 9,
+       "label": "]63 ; 68]",
+       "lowerExcl": 63,
+       "upperIncl": 68
+      },
+      {
+       "k": 10,
+       "label": "> 68",
+       "lowerExcl": 68,
+       "upperIncl": null
+      }
+     ]
+    },
+    "VALUE24": {
+     "unit": "montant des commandes sur 24 mois",
+     "range": [60, 1317],
+     "labels": ["≤ 102", "]102 ; 135]", "]135 ; 163]", "]163 ; 189]", "]189 ; 215]", "]215 ; 241]", "]241 ; 277]", "]277 ; 359]", "]359 ; 475]", "> 475"],
+     "upperBounds": [102, 135, 163, 189, 215, 241, 277, 359, 475],
+     "classes": [
+      {
+       "k": 1,
+       "label": "≤ 102",
+       "lowerExcl": null,
+       "upperIncl": 102
+      },
+      {
+       "k": 2,
+       "label": "]102 ; 135]",
+       "lowerExcl": 102,
+       "upperIncl": 135
+      },
+      {
+       "k": 3,
+       "label": "]135 ; 163]",
+       "lowerExcl": 135,
+       "upperIncl": 163
+      },
+      {
+       "k": 4,
+       "label": "]163 ; 189]",
+       "lowerExcl": 163,
+       "upperIncl": 189
+      },
+      {
+       "k": 5,
+       "label": "]189 ; 215]",
+       "lowerExcl": 189,
+       "upperIncl": 215
+      },
+      {
+       "k": 6,
+       "label": "]215 ; 241]",
+       "lowerExcl": 215,
+       "upperIncl": 241
+      },
+      {
+       "k": 7,
+       "label": "]241 ; 277]",
+       "lowerExcl": 241,
+       "upperIncl": 277
+      },
+      {
+       "k": 8,
+       "label": "]277 ; 359]",
+       "lowerExcl": 277,
+       "upperIncl": 359
+      },
+      {
+       "k": 9,
+       "label": "]359 ; 475]",
+       "lowerExcl": 359,
+       "upperIncl": 475
+      },
+      {
+       "k": 10,
+       "label": "> 475",
+       "lowerExcl": 475,
+       "upperIncl": null
+      }
+     ]
+    }
+   },
+   "note": "Bornes des déciles (tableau Deciles_VAR_Quantitatives) et recodage en classes 1 à 10."
+  },
+  "chi2_tests": {
+   "description": "Tris croisés de RETOUR avec chaque variable explicative : khi-deux, p-value, dépendance au seuil de 1 %, V de Cramér (p. 12)",
+   "x": ["AGE", "BUY6", "BUY12", "BUY18", "COA6", "FICO", "INCOME", "LOC", "MARRIED", "OWNHOME", "SEX", "VALUE24"],
+   "chi2": [24.75, 62.41, 58.93, 45.67, 3.21, 19.88, 12.34, 8.97, 6.45, 4.32, 1.98, 15.72],
+   "pValue": [0.001, 0.001, 0.001, 0.001, 0.073, 0.002, 0.015, 0.062, 0.04, 0.115, 0.372, 0.008],
+   "pValueIsUpperBound": [
+    true,
+    true,
+    true,
+    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+   ],
+   "dependentAt1pct": [
+    true,
+    true,
+    true,
+    true,
+    false,
+    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+    true
+   ],
+   "cramerV": [0.18, 0.32, 0.3, 0.26, 0.05, 0.15, 0.11, 0.09, 0.08, 0.06, 0.04, 0.13],
+   "approx": false,
+   "note": "Tableau du rapport (p. 12)."
+  },
+  "profile_summary": {
+   "description": "Visualisation résumée des liaisons avec RETOUR (p. 13)",
+   "strongImpact": ["BUY6", "BUY12", "BUY18", "FICO (bas)", "Âge (jeune)"],
+   "weakOrNoImpact": ["COA6", "LOC", "OWNHOME", "SEX", "INCOME", "MARRIED"]
+  },
+  "response_by_age_group": {
+   "description": "Taux de réponse et nombre de répondants par tranche d'âge (tableau p. 14)",
+   "x": ["18-25", "25-35", "35-55", "55-75"],
+   "responseRatePct": [22, 28, 15, 9],
+   "approx": false,
+   "note": "Tranches telles qu'écrites dans le rapport ([18-25], [25-35], [35-55], [55-75])."
+  },
+  "response_by_buy6": {
+   "description": "Taux de réponse selon BUY6, commandes des 6 derniers mois (graphique 2, p. 15)",
+   "x": ["0", "1", "2+"],
+   "y": [13.302, 15.591, 12.994],
+   "unit": "%",
+   "approx": false,
+   "note": "Valeurs imprimées sur les barres. Selon le texte, BUY6 = 0 représente 68 % de la base.",
+   "shareBuy6Zero": 0.68
+  },
+  "response_by_buy12": {
+   "description": "Taux de réponse selon BUY12, commandes des 12 derniers mois (graphique 3, p. 16)",
+   "x": ["0", "1", "2", "3+"],
+   "y": [12.8, 17.1, 13.7, 9.1],
+   "unit": "%",
+   "approx": false,
+   "note": "Valeurs imprimées sur les barres ; « BUY12 = 3 représente 3+ achats » (note du graphique)."
+  },
+  "global_response_rate": {
+   "description": "Taux de retour global du mailing",
+   "reported": null,
+   "derivedRange": [0.132, 0.14],
+   "derived": true,
+   "note": "Calculé, non publié dans le rapport : fourchette déduite du graphique BUY6 (68 % des clients répondent à 13,302 %, les autres entre 12,994 % et 15,591 %)."
+  },
+  "stepwise": {
+   "description": "Récapitulatif de la sélection stepwise (sortie SAS, p. 18)",
+   "step": [1, 2, 3, 4, 5, 6, 7],
+   "variable": ["AGE", "BUY18", "MARRIED", "OWNHOME", "BUY12", "FICO", "BUY6"],
+   "df": [1, 1, 1, 1, 1, 1, 1],
+   "numberIn": [1, 2, 3, 4, 5, 6, 7],
+   "scoreChi2": [435.765, 368.5186, 250.1407, 183.0056, 98.3279, 92.4854, 13.4023],
+   "pValue": [0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0003],
+   "pValueIsUpperBound": [
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    false
+   ],
+   "removed": [],
+   "approx": false
+  },
+  "coefficients": {
+   "description": "Estimations du maximum de vraisemblance du modèle final (sortie SAS, p. 18–19)",
+   "parameter": ["Intercept", "AGE", "MARRIED 0", "FICO", "OWNHOME 0", "BUY6", "BUY12", "BUY18"],
+   "estimate": [3.0769, -0.0415, -0.5438, -0.00492, 0.4582, -0.2294, -0.3175, 0.6465],
+   "se": [0.365, 0.00171, 0.0343, 0.000512, 0.0342, 0.0627, 0.0594, 0.0338],
+   "wald": [71.0505, 589.8325, 250.726, 92.1464, 179.202, 13.3755, 28.5518, 365.2306],
+   "df": [1, 1, 1, 1, 1, 1, 1, 1],
+   "pValue": [0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0003, 0.0001, 0.0001],
+   "pValueIsUpperBound": [
+    true,
+    true,
+    true,
+    true,
+    true,
+    false,
+    true,
+    true
+   ],
+   "approx": false
+  },
+  "roc_curve": {
+   "description": "Courbe ROC du modèle final (p. 19, même courbe p. 20) : sensibilité en fonction de 1 − spécificité ; AUC = 0,6490",
+   "x": [0.0, 0.01, 0.02, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0],
+   "y": [0.0, 0.048, 0.085, 0.159, 0.243, 0.316, 0.379, 0.437, 0.496, 0.552, 0.6, 0.648, 0.697, 0.738, 0.786, 0.826, 0.862, 0.894, 0.925, 0.948, 0.966, 0.985, 1.0],
+   "xLabel": "1 − spécificité",
+   "yLabel": "Sensibilité",
+   "auc": 0.649,
+   "aucOfDigitizedPoints": 0.648,
+   "approx": true,
+   "note": "Points relevés sur le graphique (numérisation des deux figures identiques des p. 19 et 20)."
+  }
+ },
+ "model": {
+  "status": "complet pour calculer le logit et la probabilité de réponse ; pas de grille de points, ni de seuils de score, ni de table par décile dans le rapport",
+  "type": "logit",
+  "estimation": "Régression logistique binaire avec sélection stepwise, sortie SAS de type PROC LOGISTIC (rapport p. 18–19)",
+  "target": {
+   "variable": "RETOUR (RETOUR_BIN)",
+   "event": 1,
+   "eventLabel": "A répondu au mailing du 16/04/2003 (1 = OUI, 0 = NON)",
+   "eventCheck": "L'option event= n'apparaît pas dans le rapport. Avec la constante et des valeurs typiques des variables, le logit moyen correspond à une probabilité d'environ 13 à 14 %, cohérente avec les taux de réponse des graphiques : la probabilité modélisée est bien celle de répondre."
+  },
+  "selection": {
+   "method": "stepwise",
+   "threshold": 0.05,
+   "thresholdNote": "« généralement p-value < 0,05 » selon le rapport",
+   "candidates": ["AGE", "INCOME", "FICO", "BUY6", "BUY12", "BUY18", "VALUE24", "COA6", "MARRIED", "OWNHOME", "LOC", "SEX"],
+   "selectedInOrder": ["AGE", "BUY18", "MARRIED", "OWNHOME", "BUY12", "FICO", "BUY6"],
+   "notSelected": ["INCOME", "VALUE24", "COA6", "LOC", "SEX"]
+  },
+  "formula": {
+   "linearPredictor": "z = 3.0769 − 0.0415·AGE − 0.00492·FICO − 0.5438·1[MARRIED=0] + 0.4582·1[OWNHOME=0] − 0.2294·BUY6 − 0.3175·BUY12 + 0.6465·BUY18",
+   "probability": "p = 1 / (1 + exp(−z))",
+   "units": {
+    "AGE": "années",
+    "FICO": "points de score",
+    "BUY6/BUY12/BUY18": "nombres de commandes",
+    "MARRIED/OWNHOME": "0 = NON, 1 = OUI"
+   }
+  },
+  "intercept": {
+   "estimate": 3.0769,
+   "se": 0.365,
+   "wald": 71.0505,
+   "p": 0.0001,
+   "pIsUpperBound": true
+  },
+  "terms": [
+   {
+    "name": "AGE",
+    "label": "Âge du client",
+    "kind": "continuous",
+    "unit": "ans",
+    "coef": -0.0415,
+    "se": 0.00171,
+    "wald": 589.8325,
+    "p": 0.0001,
+    "pIsUpperBound": true,
+    "stepEntered": 1,
+    "scoreChi2AtEntry": 435.765,
+    "domain": {
+     "min": 18,
+     "max": 75,
+     "step": 1
+    },
+    "input": "slider",
+    "deciles": [
+     {
+      "k": 1,
+      "label": "[18 ; 32]",
+      "lowerExcl": null,
+      "upperIncl": 32
+     },
+     {
+      "k": 2,
+      "label": "]32 ; 36]",
+      "lowerExcl": 32,
+      "upperIncl": 36
+     },
+     {
+      "k": 3,
+      "label": "]36 ; 39]",
+      "lowerExcl": 36,
+      "upperIncl": 39
+     },
+     {
+      "k": 4,
+      "label": "]39 ; 42]",
+      "lowerExcl": 39,
+      "upperIncl": 42
+     },
+     {
+      "k": 5,
+      "label": "]42 ; 44]",
+      "lowerExcl": 42,
+      "upperIncl": 44
+     },
+     {
+      "k": 6,
+      "label": "]44 ; 46]",
+      "lowerExcl": 44,
+      "upperIncl": 46
+     },
+     {
+      "k": 7,
+      "label": "]46 ; 49]",
+      "lowerExcl": 46,
+      "upperIncl": 49
+     },
+     {
+      "k": 8,
+      "label": "]49 ; 52]",
+      "lowerExcl": 49,
+      "upperIncl": 52
+     },
+     {
+      "k": 9,
+      "label": "]52 ; 57]",
+      "lowerExcl": 52,
+      "upperIncl": 57
+     },
+     {
+      "k": 10,
+      "label": "> 57",
+      "lowerExcl": 57,
+      "upperIncl": null
+     }
+    ],
+    "decilesNote": "Déciles du rapport (k = 1 à 10 ; une valeur v est dans la classe k si v > lowerExcl et v ≤ upperIncl). Ils servent à l'affichage : le modèle utilise la valeur brute, avec un seul coefficient (1 DDL).",
+    "note": "Coefficient par année d'âge. Domaine du dictionnaire : 18 à 75 ans."
+   },
+   {
+    "name": "MARRIED",
+    "label": "Situation familiale",
+    "kind": "binary-class",
+    "sasParameter": "MARRIED 0",
+    "coef": -0.5438,
+    "se": 0.0343,
+    "wald": 250.726,
+    "p": 0.0001,
+    "pIsUpperBound": true,
+    "stepEntered": 3,
+    "scoreChi2AtEntry": 250.1407,
+    "reference": 1,
+    "input": "toggle",
+    "levels": [
+     {
+      "value": 1,
+      "label": "Marié(e)",
+      "isReference": true,
+      "contribution": 0.0,
+      "contributionEffectCoding": 0.5438
+     },
+     {
+      "value": 0,
+      "label": "Non marié(e)",
+      "isReference": false,
+      "contribution": -0.5438,
+      "contributionEffectCoding": -0.5438
+     }
+    ]
+   },
+   {
+    "name": "FICO",
+    "label": "Score de crédit FICO",
+    "kind": "continuous",
+    "unit": "points",
+    "coef": -0.00492,
+    "se": 0.000512,
+    "wald": 92.1464,
+    "p": 0.0001,
+    "pIsUpperBound": true,
+    "stepEntered": 6,
+    "scoreChi2AtEntry": 92.4854,
+    "domain": {
+     "min": 565,
+     "max": 810,
+     "step": 1
+    },
+    "input": "slider",
+    "deciles": [
+     {
+      "k": 1,
+      "label": "≤ 656",
+      "lowerExcl": null,
+      "upperIncl": 656
+     },
+     {
+      "k": 2,
+      "label": "]656 ; 670]",
+      "lowerExcl": 656,
+      "upperIncl": 670
+     },
+     {
+      "k": 3,
+      "label": "]670 ; 680]",
+      "lowerExcl": 670,
+      "upperIncl": 680
+     },
+     {
+      "k": 4,
+      "label": "]680 ; 688]",
+      "lowerExcl": 680,
+      "upperIncl": 688
+     },
+     {
+      "k": 5,
+      "label": "]688 ; 695]",
+      "lowerExcl": 688,
+      "upperIncl": 695
+     },
+     {
+      "k": 6,
+      "label": "]695 ; 702]",
+      "lowerExcl": 695,
+      "upperIncl": 702
+     },
+     {
+      "k": 7,
+      "label": "]702 ; 709]",
+      "lowerExcl": 702,
+      "upperIncl": 709
+     },
+     {
+      "k": 8,
+      "label": "]709 ; 718]",
+      "lowerExcl": 709,
+      "upperIncl": 718
+     },
+     {
+      "k": 9,
+      "label": "]718 ; 730]",
+      "lowerExcl": 718,
+      "upperIncl": 730
+     },
+     {
+      "k": 10,
+      "label": "> 730",
+      "lowerExcl": 730,
+      "upperIncl": null
+     }
+    ],
+    "decilesNote": "Déciles du rapport (k = 1 à 10 ; une valeur v est dans la classe k si v > lowerExcl et v ≤ upperIncl). Ils servent à l'affichage : le modèle utilise la valeur brute, avec un seul coefficient (1 DDL).",
+    "note": "Coefficient par point de score. Domaine du dictionnaire : 565 à 810 (libellé « revenus financiers » dans le dictionnaire, « score crédit » ailleurs)."
+   },
+   {
+    "name": "OWNHOME",
+    "label": "Propriétaire du logement",
+    "kind": "binary-class",
+    "sasParameter": "OWNHOME 0",
+    "coef": 0.4582,
+    "se": 0.0342,
+    "wald": 179.202,
+    "p": 0.0001,
+    "pIsUpperBound": true,
+    "stepEntered": 4,
+    "scoreChi2AtEntry": 183.0056,
+    "reference": 1,
+    "input": "toggle",
+    "levels": [
+     {
+      "value": 1,
+      "label": "Propriétaire",
+      "isReference": true,
+      "contribution": 0.0,
+      "contributionEffectCoding": -0.4582
+     },
+     {
+      "value": 0,
+      "label": "Non propriétaire",
+      "isReference": false,
+      "contribution": 0.4582,
+      "contributionEffectCoding": 0.4582
+     }
+    ]
+   },
+   {
+    "name": "BUY6",
+    "label": "Commandes passées dans les 6 derniers mois",
+    "kind": "count",
+    "unit": "commandes",
+    "coef": -0.2294,
+    "se": 0.0627,
+    "wald": 13.3755,
+    "p": 0.0003,
+    "pIsUpperBound": false,
+    "stepEntered": 7,
+    "scoreChi2AtEntry": 13.4023,
+    "domain": {
+     "min": 0,
+     "max": 2,
+     "step": 1
+    },
+    "input": "select",
+    "levels": [
+     {
+      "value": 0,
+      "label": "0",
+      "contribution": 0.0
+     },
+     {
+      "value": 1,
+      "label": "1",
+      "contribution": -0.2294
+     },
+     {
+      "value": 2,
+      "label": "2 ou plus",
+      "contribution": -0.4588
+     }
+    ],
+    "levelsNote": "contribution = coefficient × nombre de commandes (calcul, non imprimé dans le rapport)",
+    "note": "Valeurs 0, 1, 2 (« 2+ » après regroupement) selon le tableau de codage. Traitée comme variable numérique dans le modèle (1 coefficient)."
+   },
+   {
+    "name": "BUY12",
+    "label": "Commandes passées dans les 12 derniers mois",
+    "kind": "count",
+    "unit": "commandes",
+    "coef": -0.3175,
+    "se": 0.0594,
+    "wald": 28.5518,
+    "p": 0.0001,
+    "pIsUpperBound": true,
+    "stepEntered": 5,
+    "scoreChi2AtEntry": 98.3279,
+    "domain": {
+     "min": 0,
+     "max": 3,
+     "step": 1
+    },
+    "input": "select",
+    "levels": [
+     {
+      "value": 0,
+      "label": "0",
+      "contribution": 0.0
+     },
+     {
+      "value": 1,
+      "label": "1",
+      "contribution": -0.3175
+     },
+     {
+      "value": 2,
+      "label": "2",
+      "contribution": -0.635
+     },
+     {
+      "value": 3,
+      "label": "3 ou plus",
+      "contribution": -0.9525
+     }
+    ],
+    "levelsNote": "contribution = coefficient × nombre de commandes (calcul, non imprimé dans le rapport)",
+    "note": "Valeurs 0 à 3 (« 3+ » après regroupement) selon le tableau de codage. Traitée comme variable numérique dans le modèle."
+   },
+   {
+    "name": "BUY18",
+    "label": "Commandes passées dans les 18 derniers mois",
+    "kind": "count",
+    "unit": "commandes",
+    "coef": 0.6465,
+    "se": 0.0338,
+    "wald": 365.2306,
+    "p": 0.0001,
+    "pIsUpperBound": true,
+    "stepEntered": 2,
+    "scoreChi2AtEntry": 368.5186,
+    "domain": {
+     "min": 0,
+     "max": 4,
+     "step": 1
+    },
+    "input": "select",
+    "levels": [
+     {
+      "value": 0,
+      "label": "0",
+      "contribution": 0.0
+     },
+     {
+      "value": 1,
+      "label": "1",
+      "contribution": 0.6465
+     },
+     {
+      "value": 2,
+      "label": "2",
+      "contribution": 1.293
+     },
+     {
+      "value": 3,
+      "label": "3",
+      "contribution": 1.9395
+     },
+     {
+      "value": 4,
+      "label": "4",
+      "contribution": 2.586
+     }
+    ],
+    "levelsNote": "contribution = coefficient × nombre de commandes (calcul, non imprimé dans le rapport)",
+    "note": "Codage initial 0 à 4 ; le tableau de recodage regroupe les valeurs ≥ 2 en « 2+ »."
+   }
+  ],
+  "classCoding": {
+   "default": "reference",
+   "referenceLevel": "modalité 1 (OUI) pour MARRIED et OWNHOME",
+   "reference": "Lecture retenue : la sortie SAS n'affiche qu'un paramètre, pour la modalité 0 (« MARRIED 0 », « OWNHOME 0 »). Indicatrice = 1 si la modalité vaut 0, sinon 0 (équivalent PARAM=REF, référence = 1).",
+   "effect": "Variante : si le codage par défaut de PROC LOGISTIC (PARAM=EFFECT) a été utilisé, la modalité 1 reçoit l'opposé du coefficient (MARRIED = 1 : +0,5438 ; OWNHOME = 1 : −0,4582) et l'écart entre modalités double. Valeurs dans levels[].contributionEffectCoding.",
+   "why": "Le sens des effets est le même dans les deux lectures (non marié : moins de réponse ; non propriétaire : plus de réponse)."
+  },
+  "constraints": [
+   {
+    "rule": "BUY6 ≤ BUY12 ≤ BUY18",
+    "source": "Déduit des libellés : les fenêtres de 6, 12 et 18 mois sont emboîtées (non écrit dans le rapport).",
+    "enforce": "recommandé"
+   }
+  ],
+  "targeting": {
+   "source": "Rapport p. 10, « Implications managériales »",
+   "decileOrder": "décile 1 = clients au score le plus élevé (implicite : les 3 premiers déciles sont « la population la plus réceptive »)",
+   "rules": [
+    {
+     "deciles": [1, 2, 3],
+     "action": "cibler en priorité",
+     "text": "Clients des 3 premiers déciles du score, qui représentent la population la plus réceptive."
+    },
+    {
+     "deciles": [8, 9, 10],
+     "action": "exclure",
+     "text": "Déciles 8 à 10, dont le taux de réponse est inférieur à 5 %.",
+     "responseRateBelow": 0.05
+    },
+    {
+     "deciles": null,
+     "action": "adapter les messages",
+     "text": "Segments clés : clients jeunes et acheteurs récents."
+    }
+   ],
+   "scoreThresholds": null
+  },
+  "validation": {
+   "auc": 0.649,
+   "aucAsPrinted": "0.6490",
+   "source": "Courbe ROC p. 19 (« Aire sous la courbe = 0.6490 ») et commentaire p. 19–20 ; même courbe p. 20",
+   "rocCurve": "figures.roc_curve",
+   "interpretation": "Capacité de discrimination modérée : mieux qu'un tirage aléatoire (0,5), loin d'une prédiction parfaite (1).",
+   "gainCurve": null,
+   "liftByDecile": null,
+   "decileTable": null,
+   "confusionMatrix": null,
+   "classificationRate": null,
+   "trainTestComparison": null,
+   "note": "La sortie SAS du modèle final fournit la courbe ROC (aire sous la courbe = 0,6490)."
+  },
+  "derived": {
+   "note": "Valeurs calculées à partir des coefficients du rapport (elles ne sont pas imprimées dans le rapport), pour tester ou enrichir le simulateur.",
+   "oddsRatiosReferenceCoding": {
+    "AGE (par année)": 0.9593,
+    "FICO (par point)": 0.9951,
+    "MARRIED = 0 vs 1": 0.5805,
+    "OWNHOME = 0 vs 1": 1.5812,
+    "BUY6 (par commande)": 0.795,
+    "BUY12 (par commande)": 0.728,
+    "BUY18 (par commande)": 1.9088
+   },
+   "oddsRatiosClassEffectCoding": {
+    "MARRIED = 0 vs 1": 0.337,
+    "OWNHOME = 0 vs 1": 2.5003
+   },
+   "netEffectPerOrder": {
+    "orderLast6Months": 0.0996,
+    "orderBetween6And12Months": 0.329,
+    "orderBetween12And18Months": 0.6465,
+    "note": "Une commande des 6 derniers mois augmente BUY6, BUY12 et BUY18 : son effet net sur le logit est la somme des trois coefficients. L'effet net reste positif mais il est plus fort pour une commande ancienne."
+   },
+   "logitRange": {
+    "note": "Bornes du logit sur le domaine du simulateur (AGE 18–75, FICO 565–810, BUY6 0–2, BUY12 0–3, BUY18 0–4, contrainte BUY6 ≤ BUY12 ≤ BUY18), utiles pour une jauge.",
+    "referenceCoding": {
+     "zMin": -4.5646,
+     "pMin": 0.0103,
+     "profileMin": {
+      "AGE": 75,
+      "FICO": 810,
+      "BUY6": 0,
+      "BUY12": 0,
+      "BUY18": 0,
+      "MARRIED": 0,
+      "OWNHOME": 1
+     },
+     "zMax": 2.5943,
+     "pMax": 0.9305,
+     "profileMax": {
+      "AGE": 18,
+      "FICO": 565,
+      "BUY6": 0,
+      "BUY12": 0,
+      "BUY18": 4,
+      "MARRIED": 1,
+      "OWNHOME": 0
+     }
+    },
+    "effectCoding": {
+     "zMin": -5.0228,
+     "pMin": 0.0065,
+     "profileMin": {
+      "AGE": 75,
+      "FICO": 810,
+      "BUY6": 0,
+      "BUY12": 0,
+      "BUY18": 0,
+      "MARRIED": 0,
+      "OWNHOME": 1
+     },
+     "zMax": 3.1381,
+     "pMax": 0.9584,
+     "profileMax": {
+      "AGE": 18,
+      "FICO": 565,
+      "BUY6": 0,
+      "BUY12": 0,
+      "BUY18": 4,
+      "MARRIED": 1,
+      "OWNHOME": 0
+     }
+    }
+   },
+   "examples": [
+    {
+     "name": "Profil 1",
+     "inputs": {
+      "AGE": 44,
+      "FICO": 695,
+      "BUY6": 0,
+      "BUY12": 0,
+      "BUY18": 0,
+      "MARRIED": 1,
+      "OWNHOME": 1
+     },
+     "referenceCoding": {
+      "z": -2.1685,
+      "p": 0.1026
+     },
+     "effectCoding": {
+      "z": -2.0829,
+      "p": 0.1108
+     }
+    },
+    {
+     "name": "Profil 2",
+     "inputs": {
+      "AGE": 30,
+      "FICO": 650,
+      "BUY6": 0,
+      "BUY12": 1,
+      "BUY18": 2,
+      "MARRIED": 1,
+      "OWNHOME": 0
+     },
+     "referenceCoding": {
+      "z": 0.0676,
+      "p": 0.5169
+     },
+     "effectCoding": {
+      "z": 0.6114,
+      "p": 0.6483
+     }
+    },
+    {
+     "name": "Profil 3",
+     "inputs": {
+      "AGE": 65,
+      "FICO": 760,
+      "BUY6": 1,
+      "BUY12": 1,
+      "BUY18": 1,
+      "MARRIED": 0,
+      "OWNHOME": 1
+     },
+     "referenceCoding": {
+      "z": -3.804,
+      "p": 0.0218
+     },
+     "effectCoding": {
+      "z": -4.2622,
+      "p": 0.0139
+     }
+    }
+   ]
+  },
+  "notes": [
+   "Le score est la probabilité estimée de répondre (ou son logit z) : le rapport ne définit pas de grille de points."
+  ],
+  "logit": {
+   "intercept": 3.0769,
+   "terms": [
+    {
+     "key": "AGE",
+     "label": "Âge",
+     "type": "continuous",
+     "coef": -0.0415,
+     "min": 18,
+     "max": 75,
+     "step": 1,
+     "default": 44,
+     "unit": "ans"
+    },
+    {
+     "key": "FICO",
+     "label": "Score de crédit FICO",
+     "type": "continuous",
+     "coef": -0.00492,
+     "min": 565,
+     "max": 810,
+     "step": 1,
+     "default": 695,
+     "unit": "points"
+    },
+    {
+     "key": "MARRIED",
+     "label": "Situation familiale",
+     "type": "categorical",
+     "reference": "1",
+     "levels": [
+      {
+       "value": "1",
+       "label": "Marié(e)",
+       "coef": 0
+      },
+      {
+       "value": "0",
+       "label": "Non marié(e)",
+       "coef": -0.5438
+      }
+     ],
+     "default": "1"
+    },
+    {
+     "key": "OWNHOME",
+     "label": "Logement",
+     "type": "categorical",
+     "reference": "1",
+     "levels": [
+      {
+       "value": "1",
+       "label": "Propriétaire",
+       "coef": 0
+      },
+      {
+       "value": "0",
+       "label": "Non propriétaire",
+       "coef": 0.4582
+      }
+     ],
+     "default": "1"
+    },
+    {
+     "key": "BUY6",
+     "label": "Commandes sur 6 mois",
+     "type": "continuous",
+     "coef": -0.2294,
+     "min": 0,
+     "max": 2,
+     "step": 1,
+     "default": 0,
+     "unit": "commandes"
+    },
+    {
+     "key": "BUY12",
+     "label": "Commandes sur 12 mois",
+     "type": "continuous",
+     "coef": -0.3175,
+     "min": 0,
+     "max": 3,
+     "step": 1,
+     "default": 0,
+     "unit": "commandes"
+    },
+    {
+     "key": "BUY18",
+     "label": "Commandes sur 18 mois",
+     "type": "continuous",
+     "coef": 0.6465,
+     "min": 0,
+     "max": 4,
+     "step": 1,
+     "default": 0,
+     "unit": "commandes"
+    }
+   ]
+  }
+ },
+ "conclusions": [
+  "L'historique d'achat (BUY6, BUY12, BUY18) est la dimension la plus liée à la réponse dans les tris croisés (V de Cramér de 0,26 à 0,32).",
+  "Les 25–35 ans répondent le plus (28 %), les 55–75 ans le moins (9 %).",
+  "La régression logistique stepwise retient 7 variables : AGE, BUY18, MARRIED, OWNHOME, BUY12, FICO et BUY6.",
+  "À autres caractéristiques égales, la probabilité estimée de répondre baisse avec l'âge et le score FICO ; elle augmente avec le nombre de commandes sur 18 mois.",
+  "Avec une AUC de 0,649, le score apporte une valeur ajoutée par rapport au hasard, mais reste améliorable."
+ ],
+ "limits": [
+  "Discrimination modérée (AUC de 0,649) : le rapport juge le score trop faible pour un ciblage automatisé ou très précis.",
+  "Aucune comparaison chiffrée apprentissage / test ni validation croisée : la robustesse du modèle reste à vérifier.",
+  "Les règles de ciblage par décile restent à chiffrer sur le score final (table de gains, seuils de score).",
+  "Résultats bivariés et multivariés divergents : OWNHOME (p = 0,115) et MARRIED (p = 0,040) sont faibles dans les tris croisés mais retenus parmi les premières variables de la stepwise ; VALUE24, liée à la réponse, n'est pas retenue."
+ ]
+}

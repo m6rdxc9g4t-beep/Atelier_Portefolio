@@ -1,0 +1,1334 @@
+{
+ "slug": "immobilier-arras-spatial",
+ "title": "Immobilier à Arras : économétrie spatiale",
+ "subtitle": "1 549 ventes d’appartements (DVF, 2022–2025) : effet de taille, effets de quartier et erreur spatiale",
+ "course": "M2 Économétrie appliquée — Économétrie spatiale",
+ "level": "M2",
+ "date": "02/01/2026",
+ "authors": ["François Pichon", "Julien Pot"],
+ "supervisor": null,
+ "tools": ["R", "sf", "spdep", "spatialreg", "dplyr", "data.table", "ggplot2"],
+ "methods": [
+  "MCO (modèle de référence)",
+  "I de Moran sur les résidus",
+  "Tests de Rao (multiplicateur de Lagrange) simples et robustes",
+  "SAR (retard spatial)",
+  "SEM (erreur spatiale)",
+  "SDEM (Spatial Durbin Error Model)",
+  "Matrices de poids : kNN (k = 8) et sections cadastrales",
+  "Comparaison par AIC",
+  "Test du rapport de vraisemblance",
+  "Cartographie DVF et cadastre",
+  "Matrice d’impacts (effets directs et indirects)"
+ ],
+ "abstract": "À partir des ventes DVF d’appartements à Arras (2022–2025), le projet explique le logarithme du prix au mètre carré par la surface et le nombre de pièces. Les résidus de l’OLS sont fortement autocorrélés dans l’espace (I de Moran de 0,560 avec un voisinage kNN). Les tests de Rao robustes désignent une dépendance de type erreur : le SEM obtient l’AIC le plus bas sous les deux matrices de poids, le SDEM le suit de très près. Le SDEM estimé avec la matrice des sections cadastrales confirme un effet de taille négatif, un effet positif du nombre de pièces et une forte corrélation spatiale des chocs non observés (λ = 0,774). Une note théorique individuelle détaille l’écriture du SDEM et sa matrice d’impacts.",
+ "question": "Comment le log(prix/m²) des appartements d’Arras dépend-il des caractéristiques du bien (surface, pièces), et les prix — ou les résidus — sont-ils corrélés entre biens voisins ?",
+ "kpis": [
+  {
+   "value": "1 549",
+   "label": "Ventes d’appartements analysées",
+   "note": "Arras, 2022–2025 ; 100 % rattachées à une section cadastrale"
+  },
+  {
+   "value": "4 334 €/m²",
+   "label": "Prix moyen",
+   "note": "Médiane : 2 766 €/m² (distribution asymétrique)"
+  },
+  {
+   "value": "0,560",
+   "label": "I de Moran des résidus OLS",
+   "note": "W kNN (k = 8) ; 0,450 avec W sections"
+  },
+  {
+   "value": "2 046,7",
+   "label": "AIC minimal (SEM, W kNN)",
+   "note": "Contre 2 963,2 pour l’OLS"
+  },
+  {
+   "value": "0,774",
+   "label": "λ : erreur spatiale du SDEM",
+   "note": "W sections ; z = 37,09"
+  },
+  {
+   "value": "−0,647",
+   "label": "Coefficient de log(surface) dans le SDEM",
+   "note": "Effet de taille : prix au m² plus faible pour les grands logements"
+  }
+ ],
+ "data": {
+  "source": "DVF (Demandes de valeurs foncières) pour les transactions ; Cadastre Etalab pour les sections cadastrales (GeoJSON compressé .json.gz converti en Shapefile .shp)",
+  "unit": "Vente d’un appartement",
+  "period": "Du 01/01/2022 au 31/12/2025",
+  "n": "1 549 ventes, toutes rattachées à une section cadastrale (100 %)",
+  "variables": [
+   {
+    "name": "valeur_fonciere",
+    "label": "Valeur foncière : prix de vente (€)",
+    "type": "continue"
+   },
+   {
+    "name": "surface_reelle_bati",
+    "label": "Surface réelle bâtie (m²)",
+    "type": "continue"
+   },
+   {
+    "name": "nombre_pieces_principales",
+    "label": "Nombre de pièces principales",
+    "type": "discrète"
+   },
+   {
+    "name": "longitude / latitude",
+    "label": "Coordonnées géographiques de la vente",
+    "type": "coordonnées"
+   },
+   {
+    "name": "type_local",
+    "label": "Type de local (filtre : appartements)",
+    "type": "catégorielle"
+   },
+   {
+    "name": "nature_mutation",
+    "label": "Nature de la mutation (filtre : Vente)",
+    "type": "catégorielle"
+   },
+   {
+    "name": "prix_m2",
+    "label": "Prix au m² (€/m²)",
+    "type": "continue"
+   },
+   {
+    "name": "lprix_m2",
+    "label": "Variable expliquée : log(prix/m²)",
+    "type": "continue"
+   },
+   {
+    "name": "lsurf",
+    "label": "log(surface réelle bâtie)",
+    "type": "continue"
+   },
+   {
+    "name": "section",
+    "label": "Section cadastrale (quartier) de rattachement",
+    "type": "catégorielle"
+   }
+  ],
+  "cleaning": [
+   "Commune d’Arras (code INSEE 62041), transactions du 01/01/2022 au 31/12/2025.",
+   "Appartements uniquement (type_local), pour limiter l’hétérogénéité entre types de biens.",
+   "Ventes seules (nature_mutation = Vente).",
+   "Suppression des valeurs manquantes sur le prix, la surface ou les coordonnées.",
+   "Exclusion des très petits logements (surface_reelle_bati > 9 m²).",
+   "Retrait des transactions à valeur foncière non positive.",
+   "Prix au m² bornés entre 500 et 20 000 €/m² pour écarter les valeurs aberrantes.",
+   "Rattachement de chaque vente à une section cadastrale : 1 549 sur 1 549 (100 %).",
+   "Variable expliquée en logarithme, la distribution des prix étant asymétrique."
+  ]
+ },
+ "sections": [
+  {
+   "id": "contexte",
+   "title": "Contexte et problématique",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Projet 2 du cours d’économétrie spatiale (M2, Université de Lille), réalisé en binôme par François Pichon et Julien Pot. Il porte sur le prix des appartements vendus à **Arras** entre 2022 et 2025."
+    },
+    {
+     "type": "text",
+     "md": "**Problématique.** Expliquer le log(prix/m²) des appartements par les caractéristiques du bien (surface, pièces). Puis tester la présence d’effets spatiaux : les prix, ou les résidus, sont-ils corrélés entre biens voisins ?"
+    },
+    {
+     "type": "text",
+     "md": "La démarche suit trois temps : un modèle linéaire de référence (OLS), des tests de dépendance spatiale sur ses résidus, puis trois modèles spatiaux (SAR, SEM, SDEM) estimés sous deux matrices de poids *W*."
+    }
+   ]
+  },
+  {
+   "id": "donnees",
+   "title": "Construction de la base",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Les transactions proviennent de **DVF** : valeur foncière, surface réelle bâtie, nombre de pièces principales et coordonnées. Les **sections cadastrales** d’Etalab définissent l’environnement spatial (les quartiers). Fournies en GeoJSON compressé, elles sont converties en Shapefile pour la cartographie."
+    },
+    {
+     "type": "list",
+     "items": [
+      "Commune d’Arras (INSEE 62041), ventes du 01/01/2022 au 31/12/2025.",
+      "Appartements seulement, pour limiter l’hétérogénéité entre types de biens.",
+      "Ventes seules ; valeurs manquantes (prix, surface, coordonnées) supprimées.",
+      "Surface > 9 m², valeur foncière positive.",
+      "Prix au m² bornés entre 500 et 20 000 €/m²."
+     ]
+    },
+    {
+     "type": "table",
+     "title": "Échantillon final",
+     "columns": ["Étape", "Valeur"],
+     "rows": [
+      ["Observations finales (après filtres)", "1 549"],
+      ["Observations rattachées à une section", "1 549 (100 %)"],
+      ["Variable dépendante", "y = log(prix/m²)"]
+     ]
+    },
+    {
+     "type": "table",
+     "title": "Statistiques descriptives (échantillon final)",
+     "columns": ["Indicateur", "Valeur"],
+     "rows": [
+      ["N", "1 549"],
+      ["Prix moyen", "4 333,77 €/m²"],
+      ["Prix médian", "2 765,96 €/m²"],
+      ["Écart-type du prix", "3 838,51 €/m²"],
+      ["Surface moyenne", "49,52 m²"],
+      ["Pièces principales (moyenne)", "2,14"]
+     ]
+    },
+    {
+     "type": "callout",
+     "md": "Le prix moyen (4 334 €/m²) dépasse nettement la médiane (2 766 €/m²) : la distribution est asymétrique, tirée par quelques ventes très chères. Pour limiter leur influence, le modèle explique **y = log(prix/m²)**."
+    }
+   ]
+  },
+  {
+   "id": "cartes",
+   "title": "Ce que montrent les cartes",
+   "blocks": [
+    {
+     "type": "figure",
+     "src": "img/immobilier-arras-spatial/fig-1.png",
+     "caption": "Ventes d’appartements à Arras (2022–2025), couleur = log(prix/m²), sur le fond des sections cadastrales (Figure 1 du rapport)."
+    },
+    {
+     "type": "text",
+     "md": "Les ventes se concentrent dans la zone centrale. Les points clairs (prix au m² élevés) apparaissent autour du centre-ville ; les valeurs plus faibles se trouvent davantage en périphérie. Cette première lecture suggère une structure spatiale des prix."
+    },
+    {
+     "type": "figure",
+     "src": "img/immobilier-arras-spatial/fig-2.png",
+     "caption": "Prix moyen (€/m²) par section cadastrale ; en gris, les sections sans transaction retenue (Figure 2 du rapport)."
+    },
+    {
+     "type": "text",
+     "md": "Agrégées par section, les différences sont marquées : certaines sections atteignent environ 8 000 €/m² sur la légende, d’autres restent nettement plus basses. Cette hétérogénéité justifie un terme spatial dans le modèle (**effets de quartier**)."
+    },
+    {
+     "type": "callout",
+     "md": "Les sections grises n’ont aucune vente qui satisfasse à la fois les filtres (type de local, bornes de prix au m², coordonnées valides) sur la période. À la lecture de la carte, 26 des 42 sections affichées ont au moins une vente ; leurs moyennes vont d’environ 770 à environ 8 200 €/m²."
+    }
+   ]
+  },
+  {
+   "id": "methode",
+   "title": "Démarche et modèles",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Point de départ : un **modèle linéaire** estimé par les moindres carrés ordinaires, avec X = (1, log(surface), pièces)."
+    },
+    {
+     "type": "formula",
+     "tex": "\\ln\\!\\left(\\frac{\\text{prix}}{m^2}\\right)_i = \\beta_0 + \\beta_1 \\ln(\\text{surface}_i) + \\beta_2\\,\\text{pièces}_i + \\varepsilon_i",
+     "caption": "Modèle de référence (OLS)"
+    },
+    {
+     "type": "text",
+     "md": "**Tests.** Le I de Moran mesure l’autocorrélation spatiale des résidus OLS. Les tests de Rao (multiplicateur de Lagrange), simples et robustes, indiquent ensuite si la dépendance passe par les prix voisins (*lag*) ou par les chocs non observés (*error*)."
+    },
+    {
+     "type": "formula",
+     "tex": "y = \\rho W y + X\\beta + \\varepsilon",
+     "caption": "SAR : le prix dépend des prix voisins (interaction endogène)"
+    },
+    {
+     "type": "formula",
+     "tex": "y = X\\beta + u, \\qquad u = \\lambda W u + \\varepsilon",
+     "caption": "SEM : les chocs non observés sont corrélés entre voisins"
+    },
+    {
+     "type": "formula",
+     "tex": "y = X\\beta + WX\\theta + u, \\qquad u = \\lambda W u + \\varepsilon",
+     "caption": "SDEM : caractéristiques des voisins (WX) et erreur spatiale"
+    },
+    {
+     "type": "text",
+     "md": "**Deux matrices de poids.** *W kNN* relie chaque vente à ses 8 plus proches voisines. *W sections* définit le voisinage par les sections cadastrales. D’après le code du projet, deux biens d’une même section ont un poids de 1, un bien d’une section voisine un poids de 0,5, avec au plus 15 voisins par bien."
+    },
+    {
+     "type": "text",
+     "md": "Chaque modèle spatial est estimé sous les deux matrices, puis les modèles sont comparés par leur AIC."
+    }
+   ]
+  },
+  {
+   "id": "ols",
+   "title": "Modèle de référence (OLS)",
+   "blocks": [
+    {
+     "type": "table",
+     "title": "OLS : variable dépendante y = log(prix/m²)",
+     "columns": ["Variable", "Estimation", "Écart-type", "t", "p-value"],
+     "rows": [
+      ["Constante", "10,14039", "0,15981", "63,452", "< 2 × 10⁻¹⁶"],
+      ["log(surface bâtie)", "−0,57590", "0,05664", "−10,167", "< 2 × 10⁻¹⁶"],
+      ["Nb de pièces principales", "0,05743", "0,03082", "1,863", "0,0626"]
+     ],
+     "note": "R² = 0,1586 ; R² ajusté = 0,1575 ; erreur standard résiduelle = 0,6287 (Table 1 du rapport)."
+    },
+    {
+     "type": "text",
+     "md": "À nombre de pièces donné, un logement plus grand a un prix au m² plus faible. L’effet du nombre de pièces n’est significatif qu’au seuil de 10 % (p = 0,0626)."
+    },
+    {
+     "type": "text",
+     "md": "Le pouvoir explicatif reste faible (R² ≈ 0,16) : la surface et le nombre de pièces laissent l’essentiel de la variance sans explication."
+    }
+   ]
+  },
+  {
+   "id": "tests",
+   "title": "Dépendance spatiale des résidus",
+   "blocks": [
+    {
+     "type": "table",
+     "title": "I de Moran et tests de Rao (LM) sur les résidus OLS",
+     "columns": ["Test", "W kNN (k = 8)", "W sections"],
+     "rows": [
+      ["I de Moran (résidus)", "0,560 (p < 2,2 × 10⁻¹⁶)", "0,450 (p < 2,2 × 10⁻¹⁶)"],
+      ["Rao score Lag", "1 810,6 (p < 2 × 10⁻¹⁶)", "1 776,2 (p < 2 × 10⁻¹⁶)"],
+      ["Rao score Error", "2 370,3 (p < 2 × 10⁻¹⁶)", "2 640,4 (p < 2 × 10⁻¹⁶)"],
+      ["Robuste Lag", "0,089 (p = 0,7653)", "1,887 (p = 0,1696)"],
+      ["Robuste Error", "559,77 (p < 2,2 × 10⁻¹⁶)", "866,15 (p < 2,2 × 10⁻¹⁶)"]
+     ],
+     "note": "Table 2 du rapport."
+    },
+    {
+     "type": "text",
+     "md": "Les résidus OLS sont fortement autocorrélés dans l’espace, quelle que soit la définition du voisinage."
+    },
+    {
+     "type": "callout",
+     "md": "Les versions **robustes** tranchent : *Robuste Error* reste très significatif, *Robuste Lag* ne l’est pas. La dépendance passe surtout par l’**erreur**, ce qui oriente vers les modèles SEM et SDEM."
+    }
+   ]
+  },
+  {
+   "id": "aic",
+   "title": "Comparaison des modèles (AIC)",
+   "blocks": [
+    {
+     "type": "table",
+     "title": "AIC selon le modèle et la matrice W",
+     "columns": ["Modèle", "AIC (W kNN)", "AIC (W sections)"],
+     "rows": [
+      ["OLS", "2 963,230", "2 963,230"],
+      ["SAR", "2 132,204", "2 335,423"],
+      ["SEM", "2 046,700", "2 257,451"],
+      ["SDEM", "2 049,126", "2 258,525"]
+     ],
+     "note": "Plus l’AIC est bas, meilleur est le compromis entre ajustement et parcimonie (Table 3 du rapport). L’OLS ne dépend pas de W."
+    },
+    {
+     "type": "text",
+     "md": "Tous les modèles spatiaux améliorent nettement l’ajustement par rapport à l’OLS. Le **SEM** obtient l’AIC minimal sous les deux matrices."
+    },
+    {
+     "type": "text",
+     "md": "Le **SDEM** suit de très près le SEM (écart ≈ 1,1 sous W sections). Il permet en plus de mesurer l’effet des caractéristiques des voisins : il est retenu, sous W sections, comme modèle d’interprétation."
+    }
+   ]
+  },
+  {
+   "id": "sdem",
+   "title": "Modèle retenu : SDEM (W sections)",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Le SDEM combine (i) les variables du bien X, (ii) ces mêmes variables chez les voisins, spatialement retardées (WX), et (iii) une autocorrélation spatiale de l’erreur."
+    },
+    {
+     "type": "formula",
+     "tex": "y = X\\beta + WX\\theta + u,\\qquad u = \\lambda W u + \\varepsilon,\\qquad X = \\big(1,\\ \\ln(\\text{surface}),\\ \\text{pièces}\\big)",
+     "caption": "Forme estimée, avec y = log(prix/m²)"
+    },
+    {
+     "type": "table",
+     "title": "SDEM (W sections) : coefficients",
+     "columns": ["Variable", "Estimation", "Écart-type", "z", "p-value"],
+     "rows": [
+      ["Constante", "11,494410", "0,705014", "16,304", "< 2,2 × 10⁻¹⁶"],
+      ["log(surface bâtie)", "−0,646678", "0,051018", "−12,675", "< 2,2 × 10⁻¹⁶"],
+      ["Nb de pièces principales", "0,091304", "0,025695", "3,553", "0,0003804"],
+      ["W × log(surface bâtie)", "−0,431864", "0,252438", "−1,711", "0,0871"],
+      ["W × nb de pièces principales", "0,212595", "0,149539", "1,422", "0,1551"],
+      ["λ (erreur spatiale)", "0,77421", "0,020872", "37,093", "< 2,22 × 10⁻¹⁶"]
+     ],
+     "note": "Test LR = 705,15 (p < 2,22 × 10⁻¹⁶) ; AIC = 2 258,5 (Table 4 et texte du rapport)."
+    },
+    {
+     "type": "text",
+     "md": "**Effet de taille.** Le coefficient de log(surface) est négatif et très significatif : à pièces données, les logements plus grands ont un prix au m² plus faible."
+    },
+    {
+     "type": "text",
+     "md": "**Typologie.** Le nombre de pièces a un effet positif et significatif (p = 0,00038). Il suggère un effet de qualité ou de typologie à surface comparable."
+    },
+    {
+     "type": "text",
+     "md": "**Voisinage.** Les termes WX ne sont pas fortement significatifs : W × log(surface) n’est que marginalement différent de zéro (p = 0,087)."
+    },
+    {
+     "type": "callout",
+     "md": "**λ = 0,774** est élevé et très significatif (z = 37,09) : les chocs non observés (qualité du quartier, accessibilité, aménités, bruit…) sont spatialement corrélés. L’effet spatial passe par l’erreur plutôt que par une interaction directe entre les prix."
+    }
+   ]
+  },
+  {
+   "id": "note-theorique",
+   "title": "Note théorique : le SDEM et sa matrice d’impacts",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Exercice individuel de François Pichon (« Partie 4 », janvier 2026), qui complète le projet. Notations : y est le vecteur des n observations, X la matrice n × K des régresseurs (colonne xₗ), W la matrice de poids n × n, souvent normalisée en lignes avec wᵢᵢ = 0, et ε ∼ N(0, σ²Iₙ)."
+    },
+    {
+     "type": "text",
+     "md": "**(a) Construction.** On part du modèle linéaire, puis on ajoute une interaction *endogène* (prix des voisins), des externalités *exogènes* (caractéristiques des voisins) et des erreurs autocorrélées dans l’espace (facteurs communs non observés)."
+    },
+    {
+     "type": "formula",
+     "tex": "y = X\\beta + \\varepsilon",
+     "caption": "Modèle linéaire sans interaction spatiale"
+    },
+    {
+     "type": "formula",
+     "tex": "y = \\rho W y + X\\beta + \\varepsilon",
+     "caption": "Interaction endogène via la variable dépendante des voisins (effet de mimétisme)"
+    },
+    {
+     "type": "formula",
+     "tex": "y = \\rho W y + X\\beta + WX\\theta + \\varepsilon",
+     "caption": "Externalités exogènes via les caractéristiques des voisins"
+    },
+    {
+     "type": "formula",
+     "tex": "u = \\lambda W u + \\varepsilon",
+     "caption": "Facteurs communs non observés : erreurs autocorrélées dans l’espace"
+    },
+    {
+     "type": "formula",
+     "tex": "y = \\rho W y + X\\beta + WX\\theta + u,\\qquad u = \\lambda W u + \\varepsilon,\\qquad \\varepsilon \\sim \\mathcal{N}(0,\\sigma^2 I_n)",
+     "caption": "Écriture générale du SDEM dans la note : β effets propres, θ spillovers exogènes, ρ interaction endogène, λ autocorrélation des inobservables. Avec ρ = 0, on retrouve le SDEM « strict », celui estimé dans le projet."
+    },
+    {
+     "type": "formula",
+     "tex": "\\varrho(\\rho W) < 1, \\qquad \\varrho(\\lambda W) < 1",
+     "caption": "Conditions d’inversibilité ; ϱ(·) désigne le rayon spectral (noté ρ(·) dans la note)."
+    },
+    {
+     "type": "text",
+     "md": "**(b) Forme réduite.** L’équation d’erreur s’inverse ; on substitue, puis on isole y lorsque ρ ≠ 0."
+    },
+    {
+     "type": "formula",
+     "tex": "u = \\lambda W u + \\varepsilon \\iff (I_n - \\lambda W)\\,u = \\varepsilon \\iff u = (I_n - \\lambda W)^{-1}\\varepsilon",
+     "caption": "Inversion de l’équation d’erreur"
+    },
+    {
+     "type": "formula",
+     "tex": "y = (I_n - \\rho W)^{-1}\\Big(X\\beta + WX\\theta + (I_n - \\lambda W)^{-1}\\varepsilon\\Big)",
+     "caption": "Forme réduite"
+    },
+    {
+     "type": "formula",
+     "tex": "(I_n - \\lambda W)^{-1} = \\sum_{r=0}^{\\infty} (\\lambda W)^r = I_n + \\lambda W + \\lambda^2 W^2 + \\cdots",
+     "caption": "Série de Neumann, valable si ϱ(λW) < 1"
+    },
+    {
+     "type": "text",
+     "md": "Un choc idiosyncratique ε se propage donc aux voisins d’ordre 1 (W), puis d’ordre 2 (W²), et ainsi de suite, via la structure spatiale des erreurs."
+    },
+    {
+     "type": "text",
+     "md": "**(c) Matrice d’impacts.** Comme E(ε) = 0, l’espérance conditionnelle ne dépend que de X et de WX. La matrice d’impacts d’une variable xₗ rassemble les dérivées du prix attendu de chaque bien i par rapport à xₗ chez chaque bien j."
+    },
+    {
+     "type": "formula",
+     "tex": "E(y \\mid X, W) = (I_n - \\rho W)^{-1}(X\\beta + WX\\theta)",
+     "caption": "Espérance conditionnelle"
+    },
+    {
+     "type": "formula",
+     "tex": "S_\\ell^{SDEM}(W) = \\left[\\frac{\\partial E(y_i \\mid X, W)}{\\partial x_{j\\ell}}\\right]_{i,j=1}^{n} = (I_n - \\rho W)^{-1}\\left(\\beta_\\ell I_n + \\theta_\\ell W\\right)",
+     "caption": "Matrice d’impacts ; pour ρ = 0 : β I + θ W"
+    },
+    {
+     "type": "formula",
+     "tex": "\\text{Direct}_\\ell = \\tfrac{1}{n}\\operatorname{tr}(S_\\ell), \\qquad \\text{Total}_\\ell = \\tfrac{1}{n}\\,\\mathbf{1}^{\\prime} S_\\ell\\,\\mathbf{1}, \\qquad \\text{Indirect}_\\ell = \\text{Total}_\\ell - \\text{Direct}_\\ell",
+     "caption": "Effets directs (diagonale), totaux et indirects (hors diagonale : spillovers)"
+    },
+    {
+     "type": "text",
+     "md": "**(d) Lecture élément par élément.** Pour ρ = 0, l’effet d’une caractéristique du bien j sur le prix du bien i vaut β si i = j (puisque wᵢᵢ = 0) et θ wᵢⱼ sinon."
+    },
+    {
+     "type": "formula",
+     "tex": "\\frac{\\partial E(y_i \\mid X, W)}{\\partial x_{j\\ell}} = \\beta_\\ell\\,\\mathbf{1}\\{i = j\\} + \\theta_\\ell\\, w_{ij} \\qquad (\\rho = 0)",
+     "caption": "SDEM « strict » : effet propre et spillover exogène"
+    },
+    {
+     "type": "formula",
+     "tex": "S_\\ell^{SAR}(W) = (I_n - \\rho W)^{-1}\\beta_\\ell I_n \\;\\Longrightarrow\\; \\frac{\\partial E(y_i \\mid X, W)}{\\partial x_{j\\ell}} = \\beta_\\ell\\left[(I_n - \\rho W)^{-1}\\right]_{ij}",
+     "caption": "Comparaison : modèle SAR, y = ρWy + Xβ + ε"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**SAR** : les spillovers viennent uniquement du feedback endogène via Wy, propagé à tous les ordres (W, W², …).",
+      "**SDEM** : s’y ajoutent des spillovers exogènes via WXθ (effet « environnement proche ») et une autocorrélation spatiale des erreurs via λ.",
+      "**λ** modifie surtout la structure stochastique (corrélations, variance) ; les effets systématiques sur la moyenne passent par β et θ (et éventuellement ρ)."
+     ]
+    },
+    {
+     "type": "callout",
+     "md": "Dans le SDEM estimé (ρ = 0), la matrice d’impacts se réduit à **β I + θ W** : β mesure l’effet direct d’une caractéristique, θ ses retombées sur les voisins — retombées non significatives à 5 % ici (p = 0,087 et 0,155)."
+    }
+   ]
+  }
+ ],
+ "figures": {
+  "descriptive_stats": {
+   "description": "Statistiques descriptives de l’échantillon final (rapport, p. 1–2).",
+   "approx": false,
+   "n": 1549,
+   "n_attached_to_section": 1549,
+   "share_attached_to_section": 1.0,
+   "price_m2_mean": 4333.77,
+   "price_m2_median": 2765.957,
+   "price_m2_sd": 3838.515,
+   "surface_mean_m2": 49.51904,
+   "rooms_mean": 2.139445,
+   "dependent_variable": "log(prix/m²)",
+   "filters": {
+    "insee_commune": "62041",
+    "period_start": "2022-01-01",
+    "period_end": "2025-12-31",
+    "type_local": "Appartement",
+    "nature_mutation": "Vente",
+    "surface_min_exclusive_m2": 9,
+    "price_m2_min": 500,
+    "price_m2_max": 20000
+   }
+  },
+  "spatial_tests": {
+   "description": "I de Moran et tests de Rao (multiplicateur de Lagrange) sur les résidus OLS, pour chaque matrice W (Table 2). p_value_upper : p-value seulement bornée (« p < … »).",
+   "approx": false,
+   "w_labels": {
+    "knn": "W kNN (k = 8)",
+    "sections": "W sections"
+   },
+   "tests": [
+    {
+     "id": "moran",
+     "label": "I de Moran (résidus)",
+     "knn": {
+      "statistic": 0.56,
+      "p_value": null,
+      "p_value_upper": 2.2e-16,
+      "significant_5pct": true
+     },
+     "sections": {
+      "statistic": 0.45,
+      "p_value": null,
+      "p_value_upper": 2.2e-16,
+      "significant_5pct": true
+     }
+    },
+    {
+     "id": "rs_lag",
+     "label": "Rao score Lag",
+     "knn": {
+      "statistic": 1810.6,
+      "p_value": null,
+      "p_value_upper": 2e-16,
+      "significant_5pct": true
+     },
+     "sections": {
+      "statistic": 1776.2,
+      "p_value": null,
+      "p_value_upper": 2e-16,
+      "significant_5pct": true
+     }
+    },
+    {
+     "id": "rs_error",
+     "label": "Rao score Error",
+     "knn": {
+      "statistic": 2370.3,
+      "p_value": null,
+      "p_value_upper": 2e-16,
+      "significant_5pct": true
+     },
+     "sections": {
+      "statistic": 2640.4,
+      "p_value": null,
+      "p_value_upper": 2e-16,
+      "significant_5pct": true
+     }
+    },
+    {
+     "id": "rs_lag_robust",
+     "label": "Robuste Lag",
+     "knn": {
+      "statistic": 0.089,
+      "p_value": 0.7653,
+      "p_value_upper": null,
+      "significant_5pct": false
+     },
+     "sections": {
+      "statistic": 1.887,
+      "p_value": 0.1696,
+      "p_value_upper": null,
+      "significant_5pct": false
+     }
+    },
+    {
+     "id": "rs_error_robust",
+     "label": "Robuste Error",
+     "knn": {
+      "statistic": 559.77,
+      "p_value": null,
+      "p_value_upper": 2.2e-16,
+      "significant_5pct": true
+     },
+     "sections": {
+      "statistic": 866.15,
+      "p_value": null,
+      "p_value_upper": 2.2e-16,
+      "significant_5pct": true
+     }
+    }
+   ],
+   "reading": "Robuste Error significatif et Robuste Lag non significatif sous les deux W : dépendance de type erreur, d’où les modèles SEM et SDEM."
+  },
+  "aic": {
+   "description": "AIC par modèle et par matrice W (Table 3). L’OLS ne dépend pas de W.",
+   "approx": false,
+   "models": ["OLS", "SAR", "SEM", "SDEM"],
+   "knn": [2963.23, 2132.204, 2046.7, 2049.126],
+   "sections": [2963.23, 2335.423, 2257.451, 2258.525],
+   "best": {
+    "knn": "SEM",
+    "sections": "SEM"
+   },
+   "retained_for_interpretation": {
+    "model": "SDEM",
+    "w": "sections"
+   },
+   "gap_sdem_vs_sem_sections_reported": 1.1
+  },
+  "coef_plot": {
+   "description": "Coefficients (hors constante) et écarts-types de l’OLS et du SDEM sous W sections, pour un graphique « estimation ± 1,96 × écart-type ». null : terme absent du modèle.",
+   "approx": false,
+   "terms": ["lsurf", "pieces", "w_lsurf", "w_pieces"],
+   "labels": ["log(surface bâtie)", "Nb de pièces principales", "W × log(surface bâtie)", "W × nb de pièces principales"],
+   "ols": {
+    "estimate": [
+     -0.5759,
+     0.05743,
+     null,
+     null
+    ],
+    "se": [
+     0.05664,
+     0.03082,
+     null,
+     null
+    ]
+   },
+   "sdem_sections": {
+    "estimate": [-0.646678, 0.091304, -0.431864, 0.212595],
+    "se": [0.051018, 0.025695, 0.252438, 0.149539]
+   }
+  },
+  "sections_mean_price": {
+   "description": "Prix moyen (€/m²) par section cadastrale, lu sur la Figure 2 (dégradé de couleur calé sur la légende). Identifiants propres à cette page : le rapport cartographie les sections sans en publier les codes. x_pct / y_pct : position d’un point intérieur de la section dans fig-2.png.",
+   "approx": true,
+   "precision_eur_m2": 30,
+   "n_sections_displayed": 42,
+   "n_with_sales": 26,
+   "n_without_sales": 16,
+   "min_mean_price_m2": 770,
+   "max_mean_price_m2": 8200,
+   "items": [
+    {
+     "id": "s01",
+     "mean_price_m2": 770,
+     "has_sales": true,
+     "lon": 2.7599,
+     "lat": 50.2826,
+     "x_pct": 41.1,
+     "y_pct": 63.7
+    },
+    {
+     "id": "s02",
+     "mean_price_m2": 1430,
+     "has_sales": true,
+     "lon": 2.744,
+     "lat": 50.2904,
+     "x_pct": 27.2,
+     "y_pct": 48.6
+    },
+    {
+     "id": "s03",
+     "mean_price_m2": 2230,
+     "has_sales": true,
+     "lon": 2.7493,
+     "lat": 50.2915,
+     "x_pct": 31.8,
+     "y_pct": 46.6
+    },
+    {
+     "id": "s04",
+     "mean_price_m2": 2360,
+     "has_sales": true,
+     "lon": 2.7523,
+     "lat": 50.286,
+     "x_pct": 34.5,
+     "y_pct": 57.1
+    },
+    {
+     "id": "s05",
+     "mean_price_m2": 2540,
+     "has_sales": true,
+     "lon": 2.7953,
+     "lat": 50.2873,
+     "x_pct": 71.8,
+     "y_pct": 54.7
+    },
+    {
+     "id": "s06",
+     "mean_price_m2": 2620,
+     "has_sales": true,
+     "lon": 2.7539,
+     "lat": 50.2898,
+     "x_pct": 35.9,
+     "y_pct": 49.7
+    },
+    {
+     "id": "s07",
+     "mean_price_m2": 2670,
+     "has_sales": true,
+     "lon": 2.7971,
+     "lat": 50.2813,
+     "x_pct": 73.4,
+     "y_pct": 66.2
+    },
+    {
+     "id": "s08",
+     "mean_price_m2": 3060,
+     "has_sales": true,
+     "lon": 2.7807,
+     "lat": 50.2964,
+     "x_pct": 59.1,
+     "y_pct": 37.0
+    },
+    {
+     "id": "s09",
+     "mean_price_m2": 3160,
+     "has_sales": true,
+     "lon": 2.7315,
+     "lat": 50.304,
+     "x_pct": 16.4,
+     "y_pct": 22.2
+    },
+    {
+     "id": "s10",
+     "mean_price_m2": 3360,
+     "has_sales": true,
+     "lon": 2.7668,
+     "lat": 50.2963,
+     "x_pct": 47.1,
+     "y_pct": 37.1
+    },
+    {
+     "id": "s11",
+     "mean_price_m2": 3400,
+     "has_sales": true,
+     "lon": 2.7852,
+     "lat": 50.2911,
+     "x_pct": 63.1,
+     "y_pct": 47.2
+    },
+    {
+     "id": "s12",
+     "mean_price_m2": 3530,
+     "has_sales": true,
+     "lon": 2.7568,
+     "lat": 50.2963,
+     "x_pct": 38.4,
+     "y_pct": 37.1
+    },
+    {
+     "id": "s13",
+     "mean_price_m2": 3530,
+     "has_sales": true,
+     "lon": 2.7732,
+     "lat": 50.297,
+     "x_pct": 52.6,
+     "y_pct": 35.8
+    },
+    {
+     "id": "s14",
+     "mean_price_m2": 3740,
+     "has_sales": true,
+     "lon": 2.7914,
+     "lat": 50.2823,
+     "x_pct": 68.5,
+     "y_pct": 64.3
+    },
+    {
+     "id": "s15",
+     "mean_price_m2": 3820,
+     "has_sales": true,
+     "lon": 2.7403,
+     "lat": 50.3069,
+     "x_pct": 24.0,
+     "y_pct": 16.6
+    },
+    {
+     "id": "s16",
+     "mean_price_m2": 4070,
+     "has_sales": true,
+     "lon": 2.7615,
+     "lat": 50.293,
+     "x_pct": 42.5,
+     "y_pct": 43.5
+    },
+    {
+     "id": "s17",
+     "mean_price_m2": 4360,
+     "has_sales": true,
+     "lon": 2.7853,
+     "lat": 50.2777,
+     "x_pct": 63.1,
+     "y_pct": 73.3
+    },
+    {
+     "id": "s18",
+     "mean_price_m2": 4410,
+     "has_sales": true,
+     "lon": 2.7672,
+     "lat": 50.2892,
+     "x_pct": 47.4,
+     "y_pct": 50.9
+    },
+    {
+     "id": "s19",
+     "mean_price_m2": 4600,
+     "has_sales": true,
+     "lon": 2.7727,
+     "lat": 50.2861,
+     "x_pct": 52.2,
+     "y_pct": 57.0
+    },
+    {
+     "id": "s20",
+     "mean_price_m2": 4650,
+     "has_sales": true,
+     "lon": 2.7864,
+     "lat": 50.2861,
+     "x_pct": 64.1,
+     "y_pct": 56.9
+    },
+    {
+     "id": "s21",
+     "mean_price_m2": 4810,
+     "has_sales": true,
+     "lon": 2.7838,
+     "lat": 50.2821,
+     "x_pct": 61.8,
+     "y_pct": 64.7
+    },
+    {
+     "id": "s22",
+     "mean_price_m2": 4850,
+     "has_sales": true,
+     "lon": 2.7485,
+     "lat": 50.2962,
+     "x_pct": 31.1,
+     "y_pct": 37.4
+    },
+    {
+     "id": "s23",
+     "mean_price_m2": 5090,
+     "has_sales": true,
+     "lon": 2.7784,
+     "lat": 50.2909,
+     "x_pct": 57.2,
+     "y_pct": 47.6
+    },
+    {
+     "id": "s24",
+     "mean_price_m2": 6160,
+     "has_sales": true,
+     "lon": 2.7781,
+     "lat": 50.2796,
+     "x_pct": 56.8,
+     "y_pct": 69.6
+    },
+    {
+     "id": "s25",
+     "mean_price_m2": 6650,
+     "has_sales": true,
+     "lon": 2.7722,
+     "lat": 50.289,
+     "x_pct": 51.7,
+     "y_pct": 51.4
+    },
+    {
+     "id": "s26",
+     "mean_price_m2": 8200,
+     "has_sales": true,
+     "lon": 2.8021,
+     "lat": 50.2882,
+     "x_pct": 77.8,
+     "y_pct": 52.9
+    },
+    {
+     "id": "s27",
+     "mean_price_m2": null,
+     "has_sales": false,
+     "lon": 2.7288,
+     "lat": 50.2998,
+     "x_pct": 14.0,
+     "y_pct": 30.4
+    },
+    {
+     "id": "s28",
+     "mean_price_m2": null,
+     "has_sales": false,
+     "lon": 2.7306,
+     "lat": 50.2941,
+     "x_pct": 15.6,
+     "y_pct": 41.5
+    },
+    {
+     "id": "s29",
+     "mean_price_m2": null,
+     "has_sales": false,
+     "lon": 2.7341,
+     "lat": 50.308,
+     "x_pct": 18.6,
+     "y_pct": 14.5
+    },
+    {
+     "id": "s30",
+     "mean_price_m2": null,
+     "has_sales": false,
+     "lon": 2.735,
+     "lat": 50.2977,
+     "x_pct": 19.4,
+     "y_pct": 34.3
+    },
+    {
+     "id": "s31",
+     "mean_price_m2": null,
+     "has_sales": false,
+     "lon": 2.7406,
+     "lat": 50.3017,
+     "x_pct": 24.3,
+     "y_pct": 26.7
+    },
+    {
+     "id": "s32",
+     "mean_price_m2": null,
+     "has_sales": false,
+     "lon": 2.7415,
+     "lat": 50.297,
+     "x_pct": 25.1,
+     "y_pct": 35.7
+    },
+    {
+     "id": "s33",
+     "mean_price_m2": null,
+     "has_sales": false,
+     "lon": 2.744,
+     "lat": 50.294,
+     "x_pct": 27.2,
+     "y_pct": 41.6
+    },
+    {
+     "id": "s34",
+     "mean_price_m2": null,
+     "has_sales": false,
+     "lon": 2.7445,
+     "lat": 50.2846,
+     "x_pct": 27.7,
+     "y_pct": 59.9
+    },
+    {
+     "id": "s35",
+     "mean_price_m2": null,
+     "has_sales": false,
+     "lon": 2.7473,
+     "lat": 50.3017,
+     "x_pct": 30.1,
+     "y_pct": 26.7
+    },
+    {
+     "id": "s36",
+     "mean_price_m2": null,
+     "has_sales": false,
+     "lon": 2.7575,
+     "lat": 50.2867,
+     "x_pct": 39.0,
+     "y_pct": 55.9
+    },
+    {
+     "id": "s37",
+     "mean_price_m2": null,
+     "has_sales": false,
+     "lon": 2.7625,
+     "lat": 50.2882,
+     "x_pct": 43.3,
+     "y_pct": 52.8
+    },
+    {
+     "id": "s38",
+     "mean_price_m2": null,
+     "has_sales": false,
+     "lon": 2.7742,
+     "lat": 50.2832,
+     "x_pct": 53.5,
+     "y_pct": 62.6
+    },
+    {
+     "id": "s39",
+     "mean_price_m2": null,
+     "has_sales": false,
+     "lon": 2.7898,
+     "lat": 50.2709,
+     "x_pct": 67.1,
+     "y_pct": 86.4
+    },
+    {
+     "id": "s40",
+     "mean_price_m2": null,
+     "has_sales": false,
+     "lon": 2.7908,
+     "lat": 50.2753,
+     "x_pct": 67.9,
+     "y_pct": 78.0
+    },
+    {
+     "id": "s41",
+     "mean_price_m2": null,
+     "has_sales": false,
+     "lon": 2.7949,
+     "lat": 50.2778,
+     "x_pct": 71.5,
+     "y_pct": 73.0
+    },
+    {
+     "id": "s42",
+     "mean_price_m2": null,
+     "has_sales": false,
+     "lon": 2.807,
+     "lat": 50.2858,
+     "x_pct": 82.0,
+     "y_pct": 57.5
+    }
+   ]
+  },
+  "points_colour_scale": {
+   "description": "Étendue de l’échelle de couleur de la Figure 1 (log(prix/m²) de chaque vente), lue sur la légende. Cohérente avec les bornes de nettoyage de 500 et 20 000 €/m².",
+   "approx": true,
+   "lprix_min": 6.37,
+   "lprix_max": 9.9,
+   "price_m2_min": 580,
+   "price_m2_max": 20000
+  },
+  "map_extent": {
+   "description": "Emprise des deux cartes (axes en degrés : longitude E, latitude N) et position du panneau cartographique dans fig-2.png, pour superposer des éléments interactifs (lecture des axes).",
+   "approx": true,
+   "lon_min": 2.7209,
+   "lon_max": 2.815,
+   "lat_min": 50.2659,
+   "lat_max": 50.3126,
+   "panel_in_fig2_pct": {
+    "x0": 7.1,
+    "x1": 88.9,
+    "y0": 5.4,
+    "y1": 96.1
+   }
+  }
+ },
+ "model": {
+  "description": "Modèles estimés sur 1 549 ventes : y = log(prix/m²) expliqué par log(surface) et le nombre de pièces principales. Coefficients complets publiés pour l’OLS et pour le SDEM sous W sections ; pour SAR, SEM et SDEM sous W kNN, seul l’AIC est publié.",
+  "dependent": {
+   "name": "lprix_m2",
+   "label": "log(prix/m²)",
+   "unit": "log(€/m²)",
+   "back_transform": "prix/m² = exp(y)"
+  },
+  "regressors": [
+   {
+    "term": "lsurf",
+    "name": "lsurf",
+    "label": "log(surface réelle bâtie)",
+    "unit": "log(m²)"
+   },
+   {
+    "term": "pieces",
+    "name": "nombre_pieces_principales",
+    "label": "Nombre de pièces principales",
+    "unit": "pièces"
+   }
+  ],
+  "formula_r": "lprix_m2 ~ lsurf + nombre_pieces_principales",
+  "formula_source": "Code R du projet ; le rapport écrit X = (1, log(surface), pièces).",
+  "weights": [
+   {
+    "id": "knn",
+    "label": "W kNN",
+    "type": "k plus proches voisins",
+    "k": 8,
+    "description": "Chaque vente est reliée à ses 8 ventes les plus proches.",
+    "source": "Rapport (k = 8)."
+   },
+   {
+    "id": "sections",
+    "label": "W sections",
+    "type": "voisinage par sections cadastrales",
+    "weight_same_section": 1,
+    "weight_neighbouring_section": 0.5,
+    "max_neighbours": 15,
+    "description": "Biens d’une même section : poids 1 ; biens d’une section voisine : poids 0,5 ; au plus 15 voisins par bien.",
+    "source": "Code R du projet (K_SEC = 15, W_SAME_SECTION = 1, W_NEIGH_SECTION = 0,5)."
+   }
+  ],
+  "row_standardisation": "Normalisation en lignes (style = \"W\" dans le code R du projet), pour les deux matrices.",
+  "models": [
+   {
+    "id": "ols",
+    "label": "OLS (MCO)",
+    "equation_tex": "y = X\\beta + \\varepsilon",
+    "depends_on_w": false,
+    "aic": 2963.23,
+    "fit": {
+     "r2": 0.1586,
+     "r2_adj": 0.1575,
+     "residual_se": 0.6287
+    },
+    "coefficients": [
+     {
+      "term": "const",
+      "label": "Constante",
+      "estimate": 10.14039,
+      "se": 0.15981,
+      "statistic": 63.452,
+      "statistic_type": "t",
+      "p_value": null,
+      "p_value_upper": 2e-16,
+      "significant_5pct": true
+     },
+     {
+      "term": "lsurf",
+      "label": "log(surface bâtie)",
+      "estimate": -0.5759,
+      "se": 0.05664,
+      "statistic": -10.167,
+      "statistic_type": "t",
+      "p_value": null,
+      "p_value_upper": 2e-16,
+      "significant_5pct": true
+     },
+     {
+      "term": "pieces",
+      "label": "Nb de pièces principales",
+      "estimate": 0.05743,
+      "se": 0.03082,
+      "statistic": 1.863,
+      "statistic_type": "t",
+      "p_value": 0.0626,
+      "p_value_upper": null,
+      "significant_5pct": false
+     }
+    ]
+   },
+   {
+    "id": "sar",
+    "label": "SAR (retard spatial)",
+    "equation_tex": "y = \\rho W y + X\\beta + \\varepsilon",
+    "depends_on_w": true,
+    "spatial_parameter": "rho",
+    "by_w": {
+     "knn": {
+      "aic": 2132.204,
+      "rho": null,
+      "coefficients": null
+     },
+     "sections": {
+      "aic": 2335.423,
+      "rho": null,
+      "coefficients": null
+     }
+    },
+    "note": "Coefficients et ρ non publiés dans le rapport."
+   },
+   {
+    "id": "sem",
+    "label": "SEM (erreur spatiale)",
+    "equation_tex": "y = X\\beta + u,\\quad u = \\lambda W u + \\varepsilon",
+    "depends_on_w": true,
+    "spatial_parameter": "lambda",
+    "by_w": {
+     "knn": {
+      "aic": 2046.7,
+      "lambda": null,
+      "coefficients": null
+     },
+     "sections": {
+      "aic": 2257.451,
+      "lambda": null,
+      "coefficients": null
+     }
+    },
+    "note": "AIC minimal sous les deux W ; coefficients et λ non publiés dans le rapport."
+   },
+   {
+    "id": "sdem",
+    "label": "SDEM (Spatial Durbin Error Model)",
+    "equation_tex": "y = X\\beta + WX\\theta + u,\\quad u = \\lambda W u + \\varepsilon",
+    "depends_on_w": true,
+    "spatial_parameter": "lambda",
+    "retained": {
+     "w": "sections",
+     "reason": "AIC très proche du SEM (écart ≈ 1,1) et effets des caractéristiques des voisins mesurables."
+    },
+    "by_w": {
+     "knn": {
+      "aic": 2049.126,
+      "lambda": null,
+      "coefficients": null
+     },
+     "sections": {
+      "aic": 2258.525,
+      "coefficients": [
+       {
+        "term": "const",
+        "label": "Constante",
+        "estimate": 11.49441,
+        "se": 0.705014,
+        "statistic": 16.304,
+        "statistic_type": "z",
+        "p_value": null,
+        "p_value_upper": 2.2e-16,
+        "significant_5pct": true
+       },
+       {
+        "term": "lsurf",
+        "label": "log(surface bâtie)",
+        "estimate": -0.646678,
+        "se": 0.051018,
+        "statistic": -12.675,
+        "statistic_type": "z",
+        "p_value": null,
+        "p_value_upper": 2.2e-16,
+        "significant_5pct": true
+       },
+       {
+        "term": "pieces",
+        "label": "Nb de pièces principales",
+        "estimate": 0.091304,
+        "se": 0.025695,
+        "statistic": 3.553,
+        "statistic_type": "z",
+        "p_value": 0.0003804,
+        "p_value_upper": null,
+        "significant_5pct": true
+       },
+       {
+        "term": "w_lsurf",
+        "label": "W × log(surface bâtie)",
+        "estimate": -0.431864,
+        "se": 0.252438,
+        "statistic": -1.711,
+        "statistic_type": "z",
+        "p_value": 0.0871,
+        "p_value_upper": null,
+        "significant_5pct": false
+       },
+       {
+        "term": "w_pieces",
+        "label": "W × nb de pièces principales",
+        "estimate": 0.212595,
+        "se": 0.149539,
+        "statistic": 1.422,
+        "statistic_type": "z",
+        "p_value": 0.1551,
+        "p_value_upper": null,
+        "significant_5pct": false
+       }
+      ],
+      "lambda": {
+       "estimate": 0.77421,
+       "se": 0.020872,
+       "statistic": 37.093,
+       "statistic_type": "z",
+       "p_value": null,
+       "p_value_upper": 2.22e-16
+      },
+      "lr_test": {
+       "statistic": 705.15,
+       "p_value": null,
+       "p_value_upper": 2.22e-16
+      }
+     }
+    },
+    "note": "Coefficients et λ du SDEM sous W kNN non publiés."
+   }
+  ],
+  "prediction": {
+   "description": "Pour des curseurs surface / pièces : ŷ = somme des coefficients × variables, puis prix/m² ≈ exp(ŷ). s = surface (m²), p = nombre de pièces principales.",
+   "ols": {
+    "intercept": 10.14039,
+    "lsurf": -0.5759,
+    "pieces": 0.05743,
+    "tex": "\\hat{y} = 10{,}14039 - 0{,}57590\\,\\ln s + 0{,}05743\\,p"
+   },
+   "sdem_sections": {
+    "intercept": 11.49441,
+    "lsurf": -0.646678,
+    "pieces": 0.091304,
+    "w_lsurf": -0.431864,
+    "w_pieces": 0.212595,
+    "tex": "\\hat{y} = 11{,}494410 - 0{,}646678\\,\\ln s + 0{,}091304\\,p - 0{,}431864\\,(W\\ln s) + 0{,}212595\\,(Wp)",
+    "neighbourhood_inputs": "W ln s et W p : valeurs moyennes du log de la surface et du nombre de pièces chez les voisins (pondérées par W). À défaut, supposer un voisinage semblable au bien (W ln s = ln s, W p = p)."
+   },
+   "notes": [
+    "λ n’entre pas dans la prédiction moyenne (E(u) = 0) : il décrit la corrélation spatiale des chocs non observés.",
+    "exp(ŷ) donne un ordre de grandeur « médian » du prix au m² (sans correction de retransformation).",
+    "Domaine des données : surface > 9 m² (moyenne 49,5 m²), 2,14 pièces en moyenne, prix bornés entre 500 et 20 000 €/m²."
+   ]
+  }
+ },
+ "conclusions": [
+  "Les prix des appartements d’Arras présentent une dépendance spatiale forte : I de Moran des résidus OLS de 0,560 (W kNN) et 0,450 (W sections).",
+  "Les tests robustes et l’AIC désignent une spécification avec erreur spatiale : le SEM a l’AIC le plus bas sous les deux W, le SDEM est quasi équivalent.",
+  "Effet de taille net : le prix au m² baisse avec la surface (−0,647 sur log(surface) dans le SDEM) ; à surface donnée, le nombre de pièces joue positivement (+0,091).",
+  "Les caractéristiques des voisins (WX) n’ont pas d’effet significatif à 5 % : l’effet spatial passe par des chocs de quartier non observés (λ = 0,774).",
+  "La carte par sections met en évidence des effets de quartier importants, cohérents avec un λ élevé."
+ ],
+ "limits": [
+  "Pouvoir explicatif limité : R² de 0,159 pour l’OLS, avec seulement la surface et le nombre de pièces comme caractéristiques.",
+  "Variables de qualité absentes de DVF : l’ancienneté, l’étage ou la proximité des services pourraient enrichir le modèle.",
+  "Couverture spatiale incomplète : une partie des sections cadastrales n’a aucune vente retenue sur la période (en gris sur la carte)."
+ ],
+ "codeSnippet": {
+  "language": "r",
+  "title": "Tests de dépendance spatiale et estimation des modèles (extrait de Code_Projet_2_Spatial_Pichon_Pot.R)",
+  "code": "# 3.2 OLS + tests Moran + RS\nmodel_formula <- lprix_m2 ~ lsurf + nombre_pieces_principales\nols <- lm(model_formula, data = df)\n\ntests_all <- rbind(\n  extract_tests(ols, listw_knn, \"kNN (k=8)\", zero.policy = FALSE),\n  extract_tests(ols, listw_sec, \"Sections (niv1/niv2)\", zero.policy = TRUE)\n)\nwrite.csv(tests_all, file.path(OUT_DIR, \"tests_moran_rs.csv\"), row.names = FALSE)\n\n# 3.3 Modèles SAR / SEM / SDEM\nfit_models <- function(listw, zero.policy){\n  list(\n    sar  = lagsarlm(model_formula, data = df, listw = listw, zero.policy = zero.policy),\n    sem  = errorsarlm(model_formula, data = df, listw = listw, zero.policy = zero.policy),\n    sdem = errorsarlm(model_formula, data = df, listw = listw, Durbin = TRUE, zero.policy = zero.policy)\n  )\n}\n\nmods_knn <- fit_models(listw_knn, zero.policy = FALSE)\nmods_sec <- fit_models(listw_sec, zero.policy = TRUE)\n\naic_knn <- AIC(ols, mods_knn$sar, mods_knn$sem, mods_knn$sdem)\naic_sec <- AIC(ols, mods_sec$sar, mods_sec$sem, mods_sec$sdem)"
+ }
+}

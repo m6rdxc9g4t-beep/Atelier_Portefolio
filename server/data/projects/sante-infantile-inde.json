@@ -1,0 +1,1003 @@
+{
+ "slug": "sante-infantile-inde",
+ "title": "Inégalités de santé infantile en Inde",
+ "subtitle": "Malnutrition des 6–59 mois : déterminants, indices de concentration et disparités entre États (NFHS-5)",
+ "course": "M1 Économétrie appliquée — Mémoire en économie de la santé",
+ "level": "M1",
+ "date": "Session 2024/2025",
+ "authors": [
+  "François Pichon"
+ ],
+ "supervisor": "Yves Arrighi",
+ "tools": ["R", "glm() — famille binomiale", "Shapefiles GADM"],
+ "methods": ["Scores Z de l'OMS (HAZ, WAZ, WHZ)", "Régression logistique binaire pondérée", "Effets fixes d'État", "VIF et matrice de corrélation", "Indice de concentration de Wagstaff", "Indice de concentration d'Erreygers", "Décomposition de Wagstaff, van Doorslaer et Watanabe (2003)", "Cartographie choroplèthe par État"],
+ "abstract": "Ce mémoire mesure les inégalités de malnutrition chez les enfants indiens de 6 à 59 mois à partir de l'enquête NFHS-5 (2019–2021). Trois indicateurs anthropométriques de l'OMS sont étudiés : le retard de croissance (35,5 %), l'insuffisance pondérale (32,1 %) et l'émaciation (19,3 %). Trois modèles logit pondérés, avec effets fixes d'État, relient ces indicateurs aux caractéristiques de l'enfant, de la mère et du ménage. Les indices de concentration de Wagstaff et d'Erreygers sont négatifs pour les trois indicateurs : la malnutrition se concentre chez les plus pauvres, et la richesse et l'éducation de la mère dominent sa décomposition. Une cartographie par État complète l'analyse des disparités territoriales.",
+ "question": "Dans quelle mesure les inégalités socio-économiques, géographiques et de genre influencent-elles les indicateurs anthropométriques de malnutrition infantile en Inde ?",
+ "kpis": [
+  {
+   "value": "163 135",
+   "label": "Enfants de 6 à 59 mois analysés",
+   "note": "Échantillon final après cinq filtres (organigramme de sélection)"
+  },
+  {
+   "value": "35,5 %",
+   "label": "Retard de croissance (stunting)",
+   "note": "Taille-pour-âge < −2 écarts-types"
+  },
+  {
+   "value": "32,1 %",
+   "label": "Insuffisance pondérale (underweight)",
+   "note": "Poids-pour-âge < −2 écarts-types"
+  },
+  {
+   "value": "19,3 %",
+   "label": "Émaciation (wasting)",
+   "note": "Poids-pour-taille < −2 écarts-types"
+  },
+  {
+   "value": "−0,188",
+   "label": "Indice de concentration de Wagstaff — stunting",
+   "note": "Négatif : malnutrition concentrée chez les plus pauvres (Erreygers : −0,143)"
+  },
+  {
+   "value": "> 60 %",
+   "label": "Part des inégalités de stunting liée à la richesse et à l'éducation de la mère",
+   "note": "Décomposition de l'indice de Wagstaff (discussion du mémoire)"
+  }
+ ],
+ "data": {
+  "source": "National Family Health Survey, 5e vague (NFHS-5, 2019–2021), conduite par l'International Institute for Population Sciences (IIPS) pour le ministère indien de la Santé et du Bien-être familial (programme DHS). Fichiers KR (enfants), IR (femmes de 15 à 49 ans) et HR (ménages).",
+  "unit": "Enfant de 6 à 59 mois, apparié à sa mère et à son ménage",
+  "period": "2019–2021",
+  "n": "163 135 enfants (organigramme de sélection)",
+  "variables": [
+   {
+    "name": "stunted",
+    "label": "Retard de croissance : score Z taille-pour-âge < −2",
+    "type": "binaire"
+   },
+   {
+    "name": "underweight",
+    "label": "Insuffisance pondérale : score Z poids-pour-âge < −2",
+    "type": "binaire"
+   },
+   {
+    "name": "wasted",
+    "label": "Émaciation : score Z poids-pour-taille < −2",
+    "type": "binaire"
+   },
+   {
+    "name": "age_mois",
+    "label": "Âge de l'enfant en mois",
+    "type": "continue"
+   },
+   {
+    "name": "b4",
+    "label": "Sexe de l'enfant (1 = garçon, 2 = fille)",
+    "type": "binaire"
+   },
+   {
+    "name": "v106",
+    "label": "Instruction de la mère (0 aucune, 1 primaire, 2 secondaire, 3 supérieur)",
+    "type": "ordinale"
+   },
+   {
+    "name": "v190",
+    "label": "Quintile de richesse du ménage (1 = plus pauvres, 5 = plus riches)",
+    "type": "ordinale"
+   },
+   {
+    "name": "v025",
+    "label": "Zone de résidence (urbain / rural)",
+    "type": "binaire"
+   },
+   {
+    "name": "v113",
+    "label": "Source d'eau de boisson (code DHS)",
+    "type": "catégorielle"
+   },
+   {
+    "name": "hv205",
+    "label": "Type de toilettes du ménage (code DHS)",
+    "type": "catégorielle"
+   },
+   {
+    "name": "v119",
+    "label": "Accès aux médias (libellé du tableau des modèles)",
+    "type": "catégorielle"
+   },
+   {
+    "name": "taille_menage",
+    "label": "Nombre de membres du ménage",
+    "type": "continue"
+   },
+   {
+    "name": "enfants_moins_5",
+    "label": "Nombre d'enfants de moins de 5 ans dans le ménage",
+    "type": "continue"
+   },
+   {
+    "name": "h11",
+    "label": "Diarrhée récente",
+    "type": "catégorielle"
+   },
+   {
+    "name": "v312",
+    "label": "Contraception",
+    "type": "catégorielle"
+   },
+   {
+    "name": "v024",
+    "label": "État de résidence (effets fixes)",
+    "type": "catégorielle"
+   },
+   {
+    "name": "sweight",
+    "label": "Poids de sondage DHS",
+    "type": "pondération"
+   }
+  ],
+  "cleaning": [
+   "Appariement des fichiers enfants (KR), femmes (IR) et ménages (HR) par grappe (v001), ménage (v002) et rang de naissance (bidx).",
+   "Base brute : 232 920 enfants recensés.",
+   "Enfants vivants au moment de l'enquête (b5 = 1) : 224 218 (8 702 exclus).",
+   "Âge de 6 à 59 mois : 201 016 (23 202 exclus).",
+   "Naissances uniques, jumeaux et triplés exclus (b0 = 0) : 198 193 (2 823 exclus).",
+   "Mère vivante et non enceinte (v213 = 0) : 183 100 (15 093 exclus).",
+   "Scores Z plausibles, entre −6 et +6 (hw70, hw71, hw72) : 163 135 enfants (19 965 exclus).",
+   "Codage des trois indicatrices de malnutrition au seuil de −2 écarts-types (normes OMS)."
+  ]
+ },
+ "sections": [
+  {
+   "id": "contexte",
+   "title": "Contexte",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "La santé infantile est un indicateur central du développement humain. Elle reflète les conditions de vie présentes et prépare la santé à l'âge adulte. En Inde, la malnutrition des jeunes enfants reste un défi majeur de santé publique, marqué par de fortes inégalités sociales, économiques et territoriales."
+    },
+    {
+     "type": "text",
+     "md": "Le sujet, proposé par Yves Arrighi, comportait deux temps : une revue de littérature, puis une étude statistique de trois marqueurs de malnutrition sur des données représentatives de l'Inde. L'analyse combine statistiques descriptives, régressions logit, décomposition d'indices de concentration et dimension spatiale par effets fixes d'État."
+    }
+   ]
+  },
+  {
+   "id": "problematique",
+   "title": "Problématique",
+   "blocks": [
+    {
+     "type": "callout",
+     "md": "**Dans quelle mesure les inégalités socio-économiques, géographiques et de genre influencent-elles les indicateurs anthropométriques de malnutrition infantile en Inde ?**"
+    },
+    {
+     "type": "text",
+     "md": "La soutenance décline cette question en quatre objectifs :"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Analyser les formes de malnutrition infantile en Inde.",
+      "Étudier les déterminants socio-économiques et environnementaux.",
+      "Mesurer les inégalités à l'aide d'indices de concentration.",
+      "Cartographier les disparités régionales."
+     ]
+    },
+    {
+     "type": "text",
+     "md": "La question a été recentrée en cours de travail. La revue de littérature de mai 2025 portait sur la capacité des indicateurs anthropométriques à *prédire les inégalités de mortalité infantile*. Le mémoire final étudie directement les déterminants de la malnutrition."
+    }
+   ]
+  },
+  {
+   "id": "revue",
+   "title": "Revue de littérature",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "La revue s'organise en trois axes : les forces et limites des indicateurs de santé infantile, le lien entre anthropométrie et mortalité, et les inégalités de santé infantile en Inde."
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Un indicateur de développement.** La santé infantile reflète les conditions de vie et influence durablement la santé adulte (UNICEF, 2023 ; Black et al., 2008).",
+      "**Trois familles d'indicateurs.** La mortalité infantile est simple et comparable, mais sous-enregistrée et rétrospective. Les mesures anthropométriques sont objectives et standardisées, mais sensibles aux erreurs de mesure et aux facteurs génétiques. Les symptômes rapportés (diarrhée, fièvre, toux) sont peu coûteux, mais subjectifs.",
+      "**Malnutrition et mortalité.** Un enfant en émaciation sévère a un risque de décès jusqu'à neuf fois plus élevé qu'un enfant bien nourri (Black et al., 2008 ; UNICEF, 2023). Le retard de croissance agit plus indirectement, par les infections et un développement cognitif ralenti. Référence complémentaire : Pelletier et al. (1995).",
+      "**Le score Z comme mesure commune.** Il compare taille et poids aux standards de l'OMS pour l'âge et le sexe. Sous −2, la malnutrition est modérée ; sous −3, elle est sévère.",
+      "**Un gradient socio-économique.** Les enfants des ménages pauvres, notamment des *Scheduled Castes* et *Scheduled Tribes*, sont les plus exposés. L'indice de concentration mesure ce gradient selon le rang de richesse (Wagstaff, 2002 ; Wagstaff, van Doorslaer et Watanabe, 2003).",
+      "**Une fracture territoriale.** Les États du sud (Kerala, Tamil Nadu) affichent une malnutrition plus faible que ceux du nord et du centre (Uttar Pradesh, Bihar, Madhya Pradesh, Rajasthan). Des effets fixes d'État captent cette hétérogénéité.",
+      "**Un biais de genre documenté.** La préférence pour les garçons peut réduire l'accès des filles à l'alimentation, à l'allaitement prolongé et aux soins (Jayachandran et Kuziemko, 2011).",
+      "**Un consensus.** La santé de l'enfant est enracinée dans les structures sociales. Les travaux appellent à cibler la nutrition et l'accès aux soins des groupes les plus défavorisés."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "donnees",
+   "title": "Données et échantillon",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Les données proviennent de la NFHS-5 (2019–2021), enquête stratifiée à deux degrés, représentative aux échelles nationale, étatique et urbaine/rurale. Trois fichiers sont appariés : enfants, femmes de 15 à 49 ans et ménages. Chaque enfant reçoit ainsi les caractéristiques de sa mère et de son foyer."
+    },
+    {
+     "type": "table",
+     "title": "Sélection de l'échantillon",
+     "columns": ["Étape", "Critère", "Effectif", "Exclus"],
+     "rows": [
+      ["1. Base brute", "Enfants recensés dans la NFHS-5", "232 920", "—"],
+      ["2. Survie", "Enfant vivant à l'enquête (b5 = 1)", "224 218", "8 702"],
+      ["3. Âge", "6 à 59 mois", "201 016", "23 202"],
+      ["4. Naissances uniques", "Jumeaux et triplés exclus (b0 = 0)", "198 193", "2 823"],
+      ["5. Mère", "Vivante et non enceinte (v213 = 0)", "183 100", "15 093"],
+      ["6. Valeurs aberrantes", "Scores Z entre −6 et +6", "163 135", "19 965"]
+     ],
+     "note": "Organigramme de sélection (annexe B du mémoire)."
+    },
+    {
+     "type": "text",
+     "md": "Les variables explicatives couvrent quatre blocs : l'enfant (âge, sexe, diarrhée récente), la mère (instruction, contraception), le ménage (quintile de richesse, taille, enfants de moins de 5 ans, source d'eau, toilettes, accès aux médias) et le contexte (zone de résidence, État)."
+    }
+   ]
+  },
+  {
+   "id": "methode",
+   "title": "Méthode",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Les trois indicatrices reposent sur les scores Z de l'OMS, qui mesurent l'écart d'un enfant à la référence de son âge et de son sexe."
+    },
+    {
+     "type": "formula",
+     "tex": "Z = \\frac{X - \\mu}{\\sigma}",
+     "caption": "X : mesure de l'enfant (taille ou poids) ; μ et σ : médiane (ou moyenne) et écart-type de la population de référence de même âge et de même sexe."
+    },
+    {
+     "type": "table",
+     "title": "Lecture des scores Z (normes OMS)",
+     "columns": ["Score Z", "Interprétation"],
+     "rows": [
+      ["Z ≥ 0", "Croissance dans la moyenne de référence"],
+      ["−2 ≤ Z < 0", "Légère insuffisance ou retard non sévère"],
+      ["−3 ≤ Z < −2", "Malnutrition modérée"],
+      ["Z < −3", "Malnutrition sévère"],
+      ["Z > +2", "Surpoids ou croissance excessive"]
+     ],
+     "note": "Taille-pour-âge → retard de croissance ; poids-pour-taille → émaciation ; poids-pour-âge → insuffisance pondérale."
+    },
+    {
+     "type": "text",
+     "md": "Pour chaque indicateur, un **logit binaire** est estimé avec glm() sous R (famille binomiale), pondéré par les poids de sondage DHS (sweight). Des **effets fixes d'État** captent l'hétérogénéité territoriale non observée. La multicolinéarité est contrôlée par le facteur d'inflation de la variance (VIF)."
+    },
+    {
+     "type": "formula",
+     "tex": "\\operatorname{logit}\\big(P(Y_i = 1)\\big) = \\beta_0 + \\sum_{k=1}^{K} \\beta_k X_{ki} + \\delta_s + \\varepsilon_i",
+     "caption": "Y_i : indicatrice de malnutrition ; X_ki : caractéristiques de l'enfant, de la mère et du ménage ; δ_s : effet fixe de l'État s."
+    },
+    {
+     "type": "text",
+     "md": "Les inégalités économiques sont mesurées par deux **indices de concentration** fondés sur le rang de richesse R_i (0 pour le plus pauvre, 1 pour le plus riche). Un indice négatif signifie que la malnutrition se concentre chez les pauvres. L'indice d'Erreygers corrige les bornes d'une variable binaire."
+    },
+    {
+     "type": "formula",
+     "tex": "CW = \\frac{2}{\\mu}\\,\\operatorname{Cov}(Y_i, R_i) \\qquad CE = \\frac{8\\mu}{b}\\, C(Y)",
+     "caption": "Indices de Wagstaff (CW) et d'Erreygers (CE), tels qu'écrits dans le mémoire : μ moyenne de l'indicateur, b = 1 borne supérieure, C(Y) indice de concentration standard."
+    },
+    {
+     "type": "text",
+     "md": "L'indice de Wagstaff est ensuite **décomposé** : la contribution d'un facteur combine son effet sur la malnutrition (élasticité) et sa répartition selon la richesse."
+    },
+    {
+     "type": "formula",
+     "tex": "CW = \\sum_k \\eta_k C_k + \\frac{GC_\\varepsilon}{\\mu}, \\qquad \\eta_k = \\frac{\\bar{X}_k\\,\\beta_k}{\\mu}",
+     "caption": "Décomposition de Wagstaff, van Doorslaer et Watanabe (2003) : η_k élasticité, C_k concentration du facteur k, GC_ε/μ résidu inexpliqué."
+    },
+    {
+     "type": "text",
+     "md": "Enfin, les prévalences moyennes par État sont cartographiées à partir des shapefiles GADM."
+    }
+   ]
+  },
+  {
+   "id": "descriptif",
+   "title": "Une malnutrition massive et socialement marquée",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Sur l'échantillon, **35,5 %** des enfants présentent un retard de croissance, **32,1 %** une insuffisance pondérale et **19,3 %** une émaciation. Ces niveaux placent l'Inde parmi les pays à malnutrition infantile élevée à très élevée selon les seuils de l'OMS. Le retard de croissance, marqueur d'une malnutrition chronique, est la forme la plus répandue."
+    },
+    {
+     "type": "text",
+     "md": "**Sexe.** Contre l'intuition, les garçons sont plus touchés que les filles pour les trois indicateurs. Le mémoire y voit une vulnérabilité physiologique : croissance plus rapide et besoins énergétiques plus élevés dans la petite enfance."
+    },
+    {
+     "type": "figure",
+     "src": "img/sante-infantile-inde/fig-2.png",
+     "caption": "Prévalence (%) du retard de croissance, de l'insuffisance pondérale et de l'émaciation selon l'instruction de la mère (v106 : 0 aucune, 1 primaire, 2 secondaire, 3 supérieur)."
+    },
+    {
+     "type": "text",
+     "md": "**Éducation de la mère.** Le gradient est net. Le retard de croissance passe d'environ 41,5 % chez les enfants de mères sans instruction à environ 19,4 % quand la mère a suivi des études supérieures. L'insuffisance pondérale suit la même pente (≈ 46,1 % → ≈ 22,9 %)."
+    },
+    {
+     "type": "figure",
+     "src": "img/sante-infantile-inde/fig-1.png",
+     "caption": "Prévalence (%) des trois indicateurs par quintile de richesse du ménage (v190 : 1 = plus pauvres, 5 = plus riches)."
+    },
+    {
+     "type": "text",
+     "md": "**Richesse.** La prévalence baisse de façon monotone du quintile le plus pauvre au plus riche : ≈ 41,5 % → ≈ 18,6 % pour le retard de croissance, ≈ 47,2 % → ≈ 21,6 % pour l'insuffisance pondérale, ≈ 19,8 % → ≈ 12,8 % pour l'émaciation."
+    },
+    {
+     "type": "text",
+     "md": "**Cadre de vie.** Les enfants des ménages privés d'eau potable, de sanitaires ou d'électricité présentent des taux de malnutrition plus élevés. Le mémoire y lit un *gradient social de vulnérabilité*, où se cumulent pauvreté, insalubrité et accès limité aux soins."
+    }
+   ]
+  },
+  {
+   "id": "determinants",
+   "title": "Déterminants : trois modèles logit",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Les trois modèles partagent les mêmes variables explicatives. Le tableau reprend les coefficients publiés (log-odds) : un coefficient négatif réduit la probabilité de malnutrition."
+    },
+    {
+     "type": "table",
+     "title": "Coefficients des modèles logistiques (log-odds)",
+     "columns": ["Variable", "Stunting", "Underweight", "Wasting"],
+     "rows": [
+      ["Constante", "−0,241 ***", "2,371 ***", "1,297 ***"],
+      ["Âge (mois)", "+0,0059 ***", "+0,0089 ***", "+0,0085 ***"],
+      ["Sexe (b4 : 1 garçon, 2 fille)", "−0,039 ***", "−0,195 ***", "−0,123 ***"],
+      ["Éducation de la mère (v106)", "−0,173 ***", "−0,127 ***", "−0,045 ***"],
+      ["Quintile de richesse (v190)", "−0,215 ***", "−0,221 ***", "−0,103 ***"],
+      ["Zone de résidence (v025)", "−0,097 ***", "+0,015 n.s.", "0,0009 n.s."],
+      ["Eau potable (v113)", "−0,0011 **", "+0,0021 ***", "+0,0015 ***"],
+      ["Type de latrines (hv205)", "+0,0029 ***", "+0,0084 ***", "+0,0058 ***"],
+      ["Accès médias (v119)", "+0,0344 ***", "+0,0138 n.s.", "−0,0009 n.s."],
+      ["Taille du ménage", "+0,0060 *", "+0,0178 ***", "+0,011 ***"],
+      ["Enfants de moins de 5 ans", "+0,118 ***", "+0,177 ***", "+0,059 ***"],
+      ["Diarrhée récente (h11)", "+0,0175 .", "+0,074 ***", "+0,055 ***"],
+      ["Contraception (v312)", "−0,0020 n.s.", "+0,0008 n.s.", "+0,0041 *"]
+     ],
+     "note": "*** p < 0,001 ; ** p < 0,01 ; * p < 0,05 ; . p < 0,10 ; n.s. non significatif. Modèles pondérés (sweight). Éducation et richesse entrent comme variables ordinales (effet par niveau ou par quintile supplémentaire)."
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Éducation de la mère** : effet protecteur pour les trois indicateurs (−0,173 pour le stunting).",
+      "**Richesse** : chaque quintile supplémentaire réduit le risque, surtout pour le stunting (−0,215) et l'underweight (−0,221).",
+      "**Sexe** : le coefficient de b4 (codé 2 pour les filles) est négatif ; les garçons sont plus exposés, en particulier à l'insuffisance pondérale (−0,195).",
+      "**Composition du ménage** : chaque enfant de moins de 5 ans supplémentaire accroît le risque (+0,118 pour le stunting, +0,177 pour l'underweight), signe d'une dilution des ressources.",
+      "**Morbidité** : la diarrhée récente est associée à l'insuffisance pondérale (+0,074) et à l'émaciation (+0,055)."
+     ]
+    },
+    {
+     "type": "text",
+     "md": "**Robustesse.** Toutes les variables ont un VIF inférieur à 2, bien en deçà du seuil usuel de 5. La plus forte corrélation entre variables continues vaut 0,35 (taille du ménage et nombre d'enfants de moins de 5 ans)."
+    }
+   ]
+  },
+  {
+   "id": "etats",
+   "title": "Disparités entre États",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Les effets fixes d'État restent significatifs après contrôle des caractéristiques individuelles et familiales. Selon le mémoire, les odds ratios sont significativement supérieurs à 1 au **Bihar**, en **Uttar Pradesh** et au **Jharkhand**, et inférieurs à 1 au **Kerala**, à **Goa** et au **Sikkim**."
+    },
+    {
+     "type": "text",
+     "md": "Le commentaire des cartes ajoute le Chhattisgarh et le Madhya Pradesh aux États les plus touchés, le Tamil Nadu et le Mizoram aux plus favorisés. Pour l'émaciation, le mémoire relève des niveaux relativement élevés dans des États riches de l'ouest, comme le Gujarat et le Maharashtra."
+    },
+    {
+     "type": "figure",
+     "src": "img/sante-infantile-inde/fig-3.png",
+     "caption": "Prévalence du retard de croissance par État, enfants de 6 à 59 mois (carte du mémoire, NFHS-5, shapefile GADM). Odisha et Delhi apparaissent sans donnée."
+    },
+    {
+     "type": "figure",
+     "src": "img/sante-infantile-inde/fig-4.png",
+     "caption": "Prévalence de l'insuffisance pondérale (à gauche) et de l'émaciation (à droite) par État (cartes du mémoire)."
+    }
+   ]
+  },
+  {
+   "id": "inegalites",
+   "title": "Mesurer et décomposer les inégalités",
+   "blocks": [
+    {
+     "type": "table",
+     "title": "Indices de concentration",
+     "columns": ["Indicateur", "Prévalence", "Wagstaff (CW)", "Erreygers (CE)", "Lecture"],
+     "rows": [
+      ["Stunting", "35,5 %", "−0,188", "−0,143", "Concentré chez les pauvres"],
+      ["Underweight", "32,1 %", "−0,205", "−0,120", "Inégalités socio-économiques marquées"],
+      ["Wasting", "19,3 %", "−0,141", "−0,110", "Inégalités plus modérées"]
+     ],
+     "note": "Tableau 4 du mémoire. Un indice négatif signifie que la malnutrition se concentre chez les enfants des ménages pauvres."
+    },
+    {
+     "type": "text",
+     "md": "Les six indices sont négatifs : les trois formes de malnutrition pèsent d'abord sur les enfants pauvres. L'émaciation est la moins inégalement répartie. Selon l'indice d'Erreygers, le retard de croissance est le plus concentré (−0,143), ce que le mémoire relie à sa nature cumulative."
+    },
+    {
+     "type": "table",
+     "title": "Décomposition de l'indice de Wagstaff : contributions",
+     "columns": ["Facteur", "C_k", "Stunting", "Underweight", "Wasting"],
+     "rows": [
+      ["Richesse (v190)", "−0,241", "−0,106", "−0,112", "−0,108"],
+      ["Éducation de la mère (v106)", "−0,291", "−0,061", "−0,057", "−0,041"],
+      ["Zone rurale (v025)", "−0,225", "−0,011", "—", "—"],
+      ["Taille du ménage", "−0,142", "−0,013", "−0,017", "−0,015"],
+      ["Enfants de moins de 5 ans", "−0,126", "−0,009", "−0,012", "−0,007"],
+      ["Diarrhée récente (h11)", "−0,128", "−0,002", "−0,003", "−0,003"],
+      ["Eau potable (v113)", "−0,058", "+0,000", "−0,001", "−0,000"],
+      ["Type de latrines (hv205)", "−0,025", "+0,000", "−0,000", "−0,000"],
+      ["Résiduel", "—", "−0,059", "−0,003", "−0,033"],
+      ["Total (CW)", "", "−0,188", "−0,205", "−0,141"]
+     ],
+     "note": "Tableaux 5 à 7 du mémoire (C_k : indice de concentration du facteur ; contribution = élasticité × C_k)."
+    },
+    {
+     "type": "text",
+     "md": "**Stunting et underweight.** L'inégalité tient d'abord à la richesse du ménage, puis à l'éducation de la mère, au lieu de résidence et aux conditions de logement. Ce sont des facteurs structurels, cohérents avec la nature chronique du retard de croissance."
+    },
+    {
+     "type": "text",
+     "md": "**Wasting.** L'indice reste négatif, mais une part plus importante de l'inégalité reste inexpliquée. Plus aiguë et plus instable, l'émaciation dépend davantage de chocs récents (maladies, carences ponctuelles) que des inégalités de long terme."
+    },
+    {
+     "type": "callout",
+     "md": "Richesse et éducation de la mère expliquent ensemble **plus de 60 %** de l'inégalité de retard de croissance mesurée par l'indice de Wagstaff."
+    }
+   ]
+  },
+  {
+   "id": "discussion",
+   "title": "Discussion et recommandations",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Le niveau de vie du ménage et l'éducation de la mère ressortent comme les deux leviers majeurs. Les ménages pauvres cumulent insécurité alimentaire, logement précaire, infections et accès limité aux soins préventifs. L'éducation maternelle favorise l'allaitement exclusif, la diversification alimentaire et le recours aux services de santé."
+    },
+    {
+     "type": "text",
+     "md": "La dimension territoriale reste forte : un programme national uniforme répondrait mal à des contextes aussi contrastés. Les conditions matérielles (eau potable, assainissement, électricité) pèsent aussi, ce qui plaide pour une approche multisectorielle."
+    },
+    {
+     "type": "list",
+     "items": [
+      "Renforcer l'éducation des filles et l'autonomie des femmes.",
+      "Réduire la pauvreté structurelle : transferts monétaires conditionnels, subventions alimentaires, programmes nutritionnels communautaires.",
+      "Améliorer l'eau, l'assainissement et l'électricité dans les zones défavorisées.",
+      "Territorialiser les politiques : ciblage géographique, décentralisation et coordination entre États.",
+      "Pour l'émaciation, privilégier des réponses rapides : prévention des maladies aiguës et prise en charge précoce."
+     ]
+    },
+    {
+     "type": "text",
+     "md": "**Perspectives.** Des données longitudinales permettraient de suivre les trajectoires nutritionnelles. Des enquêtes qualitatives éclaireraient les pratiques culturelles et les barrières d'accès aux soins."
+    }
+   ]
+  }
+ ],
+ "figures": {
+  "prevalence_overall": {
+   "description": "Prévalence des trois formes de malnutrition chez les enfants de 6 à 59 mois (NFHS-5, 2019–2021).",
+   "x": ["Retard de croissance (stunting)", "Insuffisance pondérale (underweight)", "Émaciation (wasting)"],
+   "keys": ["stunting", "underweight", "wasting"],
+   "y": [35.5, 32.1, 19.3],
+   "unit": "%",
+   "approx": false,
+   "source": "Section 5.1, tableau 4 et diaporama"
+  },
+  "prevalence_by_wealth_quintile": {
+   "description": "Prévalence (%) de chaque indicateur par quintile de richesse du ménage (v190).",
+   "x": ["Q1 – plus pauvres", "Q2", "Q3", "Q4", "Q5 – plus riches"],
+   "xCodes": [1, 2, 3, 4, 5],
+   "series": {
+    "stunting": [41.5, 34.5, 29.2, 23.7, 18.6],
+    "underweight": [47.2, 39.1, 34.1, 28.4, 21.6],
+    "wasting": [19.8, 17.2, 16.0, 15.1, 12.8]
+   },
+   "unit": "%",
+   "approx": true,
+   "source": "Figure 6 ; hauteurs mesurées dans le graphique vectoriel du PDF (précision ≈ ±0,1 point)"
+  },
+  "prevalence_by_mother_education": {
+   "description": "Prévalence (%) de chaque indicateur selon le niveau d'instruction de la mère (v106).",
+   "x": ["Aucune instruction", "Primaire", "Secondaire", "Supérieur"],
+   "xCodes": [0, 1, 2, 3],
+   "series": {
+    "stunting": [41.5, 37.3, 28.8, 19.4],
+    "underweight": [46.1, 41.6, 34.0, 22.9],
+    "wasting": [19.3, 17.6, 16.3, 13.6]
+   },
+   "unit": "%",
+   "approx": true,
+   "source": "Figure 5 ; hauteurs mesurées dans le graphique vectoriel du PDF (précision ≈ ±0,1 point)"
+  },
+  "prevalence_by_living_conditions": {
+   "description": "Prévalence (%) selon des variables de cadre de vie, par code DHS (codes non libellés dans le mémoire).",
+   "stunting_by_water_source_v113": {
+    "x": ["11", "12", "13", "14", "21", "31", "32", "41", "42", "43", "51", "61", "62", "71", "92", "96", "97"],
+    "y": [25.2, 29.0, 34.1, 33.2, 34.9, 30.9, 34.0, 30.8, 29.6, 32.5, 24.0, 27.4, 20.3, 23.9, 26.7, 28.8, 29.9]
+   },
+   "stunting_by_toilet_type_hv205": {
+    "x": ["11", "12", "13", "14", "15", "21", "22", "23", "31", "41", "44", "96"],
+    "y": [24.7, 26.8, 31.2, 29.6, 34.2, 30.0, 31.4, 33.2, 40.7, 36.0, 32.6, 32.9]
+   },
+   "underweight_by_v119": {
+    "x": ["0", "1", "7"],
+    "y": [46.8, 35.7, 35.2]
+   },
+   "unit": "%",
+   "approx": true,
+   "source": "Figure 7 (graphique vectoriel)"
+  },
+  "concentration_indices": {
+   "description": "Indices de concentration de Wagstaff (CW) et d'Erreygers (CE) ; une valeur négative signifie une malnutrition concentrée chez les plus pauvres.",
+   "x": ["Stunting", "Underweight", "Wasting"],
+   "meanPct": [35.5, 32.1, 19.3],
+   "series": {
+    "wagstaff": [-0.188, -0.205, -0.141],
+    "erreygers": [-0.143, -0.12, -0.11]
+   },
+   "interpretation": ["Concentré chez les pauvres", "Inégalités socio-économiques marquées", "Inégalités plus modérées"],
+   "approx": false,
+   "source": "Tableau 4 (annexe D)"
+  },
+  "wagstaff_decomposition": {
+   "description": "Décomposition de l'indice de Wagstaff : élasticité, concentration du facteur (C_k) et contribution, par indicateur.",
+   "x": ["Richesse (v190)", "Éducation de la mère (v106)", "Zone rurale (v025)", "Taille du ménage", "Enfants de moins de 5 ans", "Diarrhée récente (h11)", "Eau potable (v113)", "Type de latrines (hv205)", "Résiduel"],
+   "keys": ["v190", "v106", "v025", "taille_menage", "enfants_moins_5", "h11", "v113", "hv205", "residuel"],
+   "ci_k": [
+    -0.241,
+    -0.291,
+    -0.225,
+    -0.142,
+    -0.126,
+    -0.128,
+    -0.058,
+    -0.025,
+    null
+   ],
+   "elasticity": {
+    "stunting": [
+     -0.62,
+     -0.211,
+     -0.05,
+     0.095,
+     0.074,
+     0.015,
+     -0.002,
+     0.007,
+     null
+    ],
+    "underweight": [
+     -0.65,
+     -0.197,
+     null,
+     0.121,
+     0.098,
+     0.026,
+     0.009,
+     0.01,
+     null
+    ],
+    "wasting": [
+     -0.45,
+     -0.14,
+     null,
+     0.106,
+     0.056,
+     0.023,
+     0.005,
+     0.008,
+     null
+    ]
+   },
+   "contribution": {
+    "stunting": [-0.106, -0.061, -0.011, -0.013, -0.009, -0.002, 0.0, 0.0, -0.059],
+    "underweight": [
+     -0.112,
+     -0.057,
+     null,
+     -0.017,
+     -0.012,
+     -0.003,
+     -0.001,
+     0.0,
+     -0.003
+    ],
+    "wasting": [
+     -0.108,
+     -0.041,
+     null,
+     -0.015,
+     -0.007,
+     -0.003,
+     0.0,
+     0.0,
+     -0.033
+    ]
+   },
+   "total": {
+    "stunting": -0.188,
+    "underweight": -0.205,
+    "wasting": -0.141
+   },
+   "approx": false,
+   "source": "Tableaux 5 à 7 (annexe D) ; « −0,000 » du mémoire noté 0"
+  },
+  "sample_flow": {
+   "description": "Organigramme de sélection de l'échantillon.",
+   "x": ["Base brute NFHS-5", "Enfants vivants", "6 à 59 mois", "Naissances uniques", "Mère vivante et non enceinte", "Scores Z dans [−6 ; +6]"],
+   "y": [232920, 224218, 201016, 198193, 183100, 163135],
+   "excluded": [
+    null,
+    8702,
+    23202,
+    2823,
+    15093,
+    19965
+   ],
+   "approx": false,
+   "source": "Annexe B"
+  },
+  "correlation_continuous": {
+   "description": "Corrélations entre variables continues (valeurs imprimées sur la figure 10).",
+   "variables": ["age_mois", "taille_menage", "enfants_moins_5", "underweight"],
+   "matrix": [
+    [1.0, 0.12, 0.09, 0.04],
+    [0.12, 1.0, 0.35, 0.19],
+    [0.09, 0.35, 1.0, 0.26],
+    [0.04, 0.19, 0.26, 1.0]
+   ],
+   "approx": false,
+   "source": "Figure 10"
+  }
+ },
+ "model": {
+  "type": "Trois logits binaires pondérés (glm, family = binomial, poids sweight) avec effets fixes d'État",
+  "equation": "\\operatorname{logit}\\big(P(Y_i = 1)\\big) = \\beta_0 + \\sum_k \\beta_k X_{ki} + \\delta_s",
+  "scale": "Coefficients en log-odds (tableau 3, annexe C). orDerived = exp(β) calculé, non publié.",
+  "outcomes": [
+   {
+    "key": "stunting",
+    "label": "Retard de croissance",
+    "definition": "HAZ < −2",
+    "prevalencePct": 35.5
+   },
+   {
+    "key": "underweight",
+    "label": "Insuffisance pondérale",
+    "definition": "WAZ < −2",
+    "prevalencePct": 32.1
+   },
+   {
+    "key": "wasting",
+    "label": "Émaciation",
+    "definition": "WHZ < −2",
+    "prevalencePct": 19.3
+   }
+  ],
+  "variables": [
+   {
+    "key": "intercept",
+    "label": "Constante",
+    "coding": "—",
+    "unit": null,
+    "stunting": {
+     "beta": -0.241,
+     "sig": "***",
+     "orDerived": null
+    },
+    "underweight": {
+     "beta": 2.371,
+     "sig": "***",
+     "orDerived": null
+    },
+    "wasting": {
+     "beta": 1.297,
+     "sig": "***",
+     "orDerived": null
+    }
+   },
+   {
+    "key": "age_mois",
+    "label": "Âge de l'enfant",
+    "coding": "Continue, en mois (6 à 59)",
+    "unit": "+1 mois",
+    "stunting": {
+     "beta": 0.0059,
+     "sig": "***",
+     "orDerived": 1.006
+    },
+    "underweight": {
+     "beta": 0.0089,
+     "sig": "***",
+     "orDerived": 1.009
+    },
+    "wasting": {
+     "beta": 0.0085,
+     "sig": "***",
+     "orDerived": 1.009
+    }
+   },
+   {
+    "key": "b4",
+    "label": "Sexe de l'enfant",
+    "coding": "1 = garçon, 2 = fille ; le coefficient mesure le passage garçon → fille (référence : garçon)",
+    "unit": "garçon → fille",
+    "stunting": {
+     "beta": -0.039,
+     "sig": "***",
+     "orDerived": 0.962
+    },
+    "underweight": {
+     "beta": -0.195,
+     "sig": "***",
+     "orDerived": 0.823
+    },
+    "wasting": {
+     "beta": -0.123,
+     "sig": "***",
+     "orDerived": 0.884
+    }
+   },
+   {
+    "key": "v106",
+    "label": "Éducation de la mère",
+    "coding": "Ordinale 0 aucune, 1 primaire, 2 secondaire, 3 supérieur, entrée comme numérique",
+    "unit": "+1 niveau",
+    "stunting": {
+     "beta": -0.173,
+     "sig": "***",
+     "orDerived": 0.841
+    },
+    "underweight": {
+     "beta": -0.127,
+     "sig": "***",
+     "orDerived": 0.881
+    },
+    "wasting": {
+     "beta": -0.045,
+     "sig": "***",
+     "orDerived": 0.956
+    }
+   },
+   {
+    "key": "v190",
+    "label": "Quintile de richesse",
+    "coding": "Ordinale 1 (plus pauvres) à 5 (plus riches), entrée comme numérique",
+    "unit": "+1 quintile",
+    "stunting": {
+     "beta": -0.215,
+     "sig": "***",
+     "orDerived": 0.807
+    },
+    "underweight": {
+     "beta": -0.221,
+     "sig": "***",
+     "orDerived": 0.802
+    },
+    "wasting": {
+     "beta": -0.103,
+     "sig": "***",
+     "orDerived": 0.902
+    }
+   },
+   {
+    "key": "v025",
+    "label": "Zone de résidence",
+    "coding": "Codée 1/2 (zone de résidence urbaine / rurale)",
+    "unit": "+1 code",
+    "stunting": {
+     "beta": -0.097,
+     "sig": "***",
+     "orDerived": 0.908
+    },
+    "underweight": {
+     "beta": 0.015,
+     "sig": "n.s.",
+     "orDerived": 1.015
+    },
+    "wasting": {
+     "beta": 0.0009,
+     "sig": "n.s.",
+     "orDerived": 1.001
+    }
+   },
+   {
+    "key": "v113",
+    "label": "Eau potable (source d'eau)",
+    "coding": "Code DHS (11 à 97) entré comme numérique",
+    "unit": "+1 code",
+    "stunting": {
+     "beta": -0.0011,
+     "sig": "**",
+     "orDerived": 0.999
+    },
+    "underweight": {
+     "beta": 0.0021,
+     "sig": "***",
+     "orDerived": 1.002
+    },
+    "wasting": {
+     "beta": 0.0015,
+     "sig": "***",
+     "orDerived": 1.002
+    }
+   },
+   {
+    "key": "hv205",
+    "label": "Type de latrines",
+    "coding": "Code DHS (11 à 96) entré comme numérique",
+    "unit": "+1 code",
+    "stunting": {
+     "beta": 0.0029,
+     "sig": "***",
+     "orDerived": 1.003
+    },
+    "underweight": {
+     "beta": 0.0084,
+     "sig": "***",
+     "orDerived": 1.008
+    },
+    "wasting": {
+     "beta": 0.0058,
+     "sig": "***",
+     "orDerived": 1.006
+    }
+   },
+   {
+    "key": "v119",
+    "label": "Accès médias (libellé du tableau 3)",
+    "coding": "Codes 0, 1, 7 (figure 7) entrés comme numériques ; présenté ailleurs parmi les indicateurs d'infrastructure",
+    "unit": "+1 code",
+    "stunting": {
+     "beta": 0.0344,
+     "sig": "***",
+     "orDerived": 1.035
+    },
+    "underweight": {
+     "beta": 0.0138,
+     "sig": "n.s.",
+     "orDerived": 1.014
+    },
+    "wasting": {
+     "beta": -0.0009,
+     "sig": "n.s.",
+     "orDerived": 0.999
+    }
+   },
+   {
+    "key": "taille_menage",
+    "label": "Taille du ménage",
+    "coding": "Nombre de membres",
+    "unit": "+1 personne",
+    "stunting": {
+     "beta": 0.006,
+     "sig": "*",
+     "orDerived": 1.006
+    },
+    "underweight": {
+     "beta": 0.0178,
+     "sig": "***",
+     "orDerived": 1.018
+    },
+    "wasting": {
+     "beta": 0.011,
+     "sig": "***",
+     "orDerived": 1.011
+    }
+   },
+   {
+    "key": "enfants_moins_5",
+    "label": "Enfants de moins de 5 ans",
+    "coding": "Nombre dans le ménage",
+    "unit": "+1 enfant",
+    "stunting": {
+     "beta": 0.118,
+     "sig": "***",
+     "orDerived": 1.125
+    },
+    "underweight": {
+     "beta": 0.177,
+     "sig": "***",
+     "orDerived": 1.194
+    },
+    "wasting": {
+     "beta": 0.059,
+     "sig": "***",
+     "orDerived": 1.061
+    }
+   },
+   {
+    "key": "h11",
+    "label": "Diarrhée récente",
+    "coding": "Code DHS entré comme numérique",
+    "unit": "+1 code",
+    "stunting": {
+     "beta": 0.0175,
+     "sig": ".",
+     "orDerived": 1.018
+    },
+    "underweight": {
+     "beta": 0.074,
+     "sig": "***",
+     "orDerived": 1.077
+    },
+    "wasting": {
+     "beta": 0.055,
+     "sig": "***",
+     "orDerived": 1.057
+    }
+   },
+   {
+    "key": "v312",
+    "label": "Contraception",
+    "coding": "Code DHS entré comme numérique",
+    "unit": "+1 code",
+    "stunting": {
+     "beta": -0.002,
+     "sig": "n.s.",
+     "orDerived": 0.998
+    },
+    "underweight": {
+     "beta": 0.0008,
+     "sig": "n.s.",
+     "orDerived": 1.001
+    },
+    "wasting": {
+     "beta": 0.0041,
+     "sig": "*",
+     "orDerived": 1.004
+    }
+   }
+  ],
+  "significance": "*** p < 0,001 ; ** p < 0,01 ; * p < 0,05 ; . p < 0,10 ; n.s. non significatif",
+  "stateFixedEffects": {
+   "published": false,
+   "reference": "Moyenne nationale (selon le texte)",
+   "aboveOne": ["Bihar", "Uttar Pradesh", "Jharkhand"],
+   "belowOne": ["Kerala", "Goa", "Sikkim"],
+   "source": "Section 6.3 : OR significativement supérieurs ou inférieurs à 1",
+   "mapCommentary": {
+    "mostAffected": ["Bihar", "Jharkhand", "Uttar Pradesh", "Chhattisgarh", "Madhya Pradesh"],
+    "leastAffected": ["Kerala", "Goa", "Tamil Nadu", "Sikkim", "Mizoram"],
+    "stuntingAbove40PctText": ["Bihar", "Uttar Pradesh", "Jharkhand", "Chhattisgarh", "Madhya Pradesh"],
+    "stuntingBelow20PctText": ["Kerala", "Tamil Nadu", "Andhra Pradesh", "Sikkim"],
+    "underweightMostAffectedText": ["Bihar", "Jharkhand", "Chhattisgarh", "Madhya Pradesh"],
+    "wastingHighText": ["Gujarat", "Maharashtra"],
+    "specificLowDensity": ["Arunachal Pradesh", "Ladakh"],
+    "source": "Sections 8 à 8.4, discussion et conclusion"
+   }
+  },
+  "diagnostics": {
+   "vif": "Toutes les VIF < 2 (seuil usuel 5, voire 10)",
+   "maxCorrelation": 0.35,
+   "maxCorrelationPair": ["taille_menage", "enfants_moins_5"]
+  }
+ },
+ "conclusions": [
+  "La malnutrition touche massivement les enfants de 6 à 59 mois : 35,5 % de retard de croissance, 32,1 % d'insuffisance pondérale et 19,3 % d'émaciation.",
+  "Les trois formes se concentrent chez les plus pauvres : indices de Wagstaff (−0,188 ; −0,205 ; −0,141) et d'Erreygers (−0,143 ; −0,120 ; −0,110) tous négatifs.",
+  "La richesse du ménage et l'éducation de la mère sont les facteurs protecteurs les plus robustes ; ensemble, ils expliquent plus de 60 % de l'inégalité de retard de croissance.",
+  "Les garçons sont plus touchés que les filles, un résultat que le mémoire relie à une vulnérabilité physiologique en bas âge.",
+  "Les effets fixes d'État révèlent une fracture territoriale persistante : Bihar, Uttar Pradesh et Jharkhand au-dessus de la moyenne ; Kerala, Goa et Sikkim en dessous.",
+  "L'émaciation, forme aiguë, est moins structurée par les inégalités de long terme et appelle des réponses plus réactives.",
+  "La lutte contre la malnutrition doit être multisectorielle et territorialisée : éducation des filles, réduction de la pauvreté, soins primaires, eau, assainissement et électricité."
+ ],
+ "limits": [
+  "Données transversales : les relations estimées sont des associations, pas des effets causaux.",
+  "La NFHS-5 renseigne mal la qualité de l'alimentation, les infections récentes ou l'allaitement, pourtant décisifs pour l'émaciation.",
+  "Les effets fixes d'État ignorent les écarts internes aux États (districts, milieu urbain ou rural, castes et communautés).",
+  "Une part notable des inégalités reste inexpliquée (résidus des modèles et de la décomposition)."
+ ]
+}

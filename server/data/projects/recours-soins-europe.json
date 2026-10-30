@@ -1,0 +1,1047 @@
+{
+ "slug": "recours-soins-europe",
+ "title": "Recours aux soins des 50 ans et plus en Europe",
+ "subtitle": "Généraliste et hôpital, migrants et non-migrants : 27 246 répondants de l'enquête SHARE dans 11 pays",
+ "course": "M1 Économétrie appliquée — Projet Personnel et Professionnel (PPP)",
+ "level": "M1",
+ "date": "—",
+ "authors": ["François Pichon", "Julien Pot", "Pierre Normand"],
+ "supervisor": null,
+ "tools": ["R", "ggplot2"],
+ "methods": ["Statistiques descriptives", "Modèle en deux parties : accès puis intensité", "Moindres carrés ordinaires (MCO)", "Modèles emboîtés M1 → M4", "Effets fixes pays", "Test du rapport de vraisemblance", "Régression locale (LOESS)"],
+ "abstract": "Ce projet étudie le recours au médecin généraliste et à l'hôpital des personnes de 50 ans et plus dans 11 pays européens, à partir de l'enquête SHARE. Il compare migrants et non-migrants et mesure le poids des facteurs démographiques, socio-économiques et de santé. L'analyse sépare l'accès aux soins et l'intensité du recours une fois l'accès obtenu, avec quatre modèles emboîtés estimés par MCO. Sur 27 246 répondants, 78,9 % ont consulté un généraliste ; être migrant n'est associé qu'à un léger surcroît d'accès, significatif seulement au seuil de 10 %.",
+ "question": "Qu'est-ce qui pousse les personnes de 50 ans et plus à consulter un généraliste ou à aller à l'hôpital en Europe, et les migrants y recourent-ils autrement que les non-migrants ?",
+ "kpis": [
+  {
+   "value": "27 246",
+   "label": "Répondants de 50 ans et plus",
+   "note": "Enquête SHARE"
+  },
+  {
+   "value": "11",
+   "label": "Pays européens",
+   "note": "Référence des effets fixes : Autriche"
+  },
+  {
+   "value": "78,9 %",
+   "label": "Ont consulté un généraliste",
+   "note": "21 504 consultants (GP > 0) sur 27 246"
+  },
+  {
+   "value": "8,1 %",
+   "label": "De migrants",
+   "note": "2 197 répondants ; de 1,5 % (Italie) à 18,7 % (Allemagne)"
+  },
+  {
+   "value": "4",
+   "label": "Modèles emboîtés",
+   "note": "M1 → M4, pour l'accès et pour l'intensité"
+  }
+ ],
+ "data": {
+  "source": "Enquête SHARE (Survey of Health, Ageing and Retirement in Europe), 11 pays européens aux niveaux de richesse proches",
+  "unit": "Individu de 50 ans et plus",
+  "period": "Non précisée dans le rapport (vague SHARE non indiquée)",
+  "n": "27 246 répondants : 21 504 consultants GP (GP > 0) et 5 742 non-consultants ; 3 541 personnes hospitalisées (N du modèle d'intensité hôpital)",
+  "variables": [
+   {
+    "name": "GP",
+    "label": "Nombre de consultations chez le médecin généraliste",
+    "type": "comptage"
+   },
+   {
+    "name": "log_gp",
+    "label": "Logarithme du nombre de consultations, calculé pour les consultants (GP > 0)",
+    "type": "continue"
+   },
+   {
+    "name": "Hosp",
+    "label": "Nombre de séjours hospitaliers",
+    "type": "comptage"
+   },
+   {
+    "name": "migrant",
+    "label": "Migrant (réf. natif)",
+    "type": "binaire"
+   },
+   {
+    "name": "Age",
+    "label": "Âge en années (50 ans et plus)",
+    "type": "continue"
+   },
+   {
+    "name": "Femme (vs Homme)",
+    "label": "Sexe féminin",
+    "type": "binaire"
+   },
+   {
+    "name": "En couple (vs vit seul)",
+    "label": "Vit en couple",
+    "type": "binaire"
+   },
+   {
+    "name": "Etat de Santé (vs excellent)",
+    "label": "Santé autodéclarée : excellente (réf.), très bonne, bonne, moyenne, mauvaise",
+    "type": "catégorielle"
+   },
+   {
+    "name": "Maladies chroniques (#)",
+    "label": "Nombre de maladies chroniques",
+    "type": "comptage"
+   },
+   {
+    "name": "Limitations ADL (#)",
+    "label": "Nombre de limitations dans les activités de la vie quotidienne (ADL)",
+    "type": "comptage"
+   },
+   {
+    "name": "Education (vs primaire)",
+    "label": "Niveau d'éducation : primaire (réf.), secondaire, supérieur",
+    "type": "catégorielle"
+   },
+   {
+    "name": "Statut dans l'emploi (vs occupé)",
+    "label": "En emploi (réf.), chômeur ou inactif, retraité",
+    "type": "catégorielle"
+   },
+   {
+    "name": "Contrainte financière (vs très forte)",
+    "label": "Contrainte financière : très forte (réf.), forte, moyenne, faible",
+    "type": "catégorielle"
+   },
+   {
+    "name": "labels_pays",
+    "label": "Pays de résidence (11 pays, réf. Autriche)",
+    "type": "catégorielle"
+   }
+  ],
+  "cleaning": [
+   "Repérage des utilisateurs et des non-utilisateurs de soins : GP > 0 pour le généraliste, Hosp > 0 pour l'hôpital.",
+   "Intensité mesurée par le logarithme du nombre de recours, chez les seuls utilisateurs (log_gp).",
+   "Variables qualitatives codées avec une modalité de référence : Autriche, natif, homme, vit seul, santé excellente, éducation primaire, en emploi, contrainte financière très forte.",
+   "Agrégats par pays (tableau 1) et comparaison des consultants et des non-consultants (tableau 2)."
+  ]
+ },
+ "sections": [
+  {
+   "id": "contexte",
+   "title": "Contexte et objectif",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "L'accès aux services médicaux et leur usage restent très inégaux. Ce projet cherche ce qui pousse les personnes de **50 ans et plus** à consulter un médecin, en comparant la population **migrante** et **non migrante**."
+    },
+    {
+     "type": "text",
+     "md": "Deux recours sont étudiés : le **médecin généraliste** (GP) et l'**hôpital** (Hosp). Le rapport mesure l'effet des caractéristiques démographiques, socio-économiques et de santé sur ces recours. Le but : mettre en évidence les inégalités persistantes et les leviers d'action possibles."
+    }
+   ]
+  },
+  {
+   "id": "donnees",
+   "title": "Les données : 11 pays, 27 246 répondants",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Les données proviennent de l'enquête **SHARE**. Elle interroge les personnes de 50 ans et plus sur leur santé, leur situation socio-économique et leur usage des soins. L'échantillon couvre **11 pays** européens aux niveaux de richesse proches."
+    },
+    {
+     "type": "text",
+     "md": "Le recours au généraliste va de **64,4 %** en Grèce à **88,7 %** en France. La part de migrants va de **1,5 %** en Italie à **18,7 %** en Allemagne. Le log moyen du nombre de consultations, qui mesure l'intensité du recours, est le plus élevé en Italie (1,623) et le plus faible en Suède (0,713)."
+    },
+    {
+     "type": "table",
+     "title": "Tableau 1 — Migrants et recours au généraliste par pays",
+     "columns": ["Pays", "Répondants¹", "Consultants GP²", "Migrants", "Part de migrants", "Recours au GP", "log(#GP) moyen³"],
+     "rows": [
+      ["Autriche", "1 838", "1 485", "171", "9,3 %", "80,8 %", "1,308"],
+      ["Allemagne", "2 933", "2 511", "548", "18,7 %", "85,6 %", "1,302"],
+      ["Suède", "2 988", "1 952", "251", "8,4 %", "65,3 %", "0,713"],
+      ["Pays-Bas", "2 855", "2 147", "170", "6,0 %", "75,2 %", "0,932"],
+      ["Espagne", "2 333", "1 942", "51", "2,2 %", "83,2 %", "1,596"],
+      ["Italie", "2 496", "1 939", "37", "1,5 %", "77,7 %", "1,623"],
+      ["France", "2 940", "2 607", "439", "14,9 %", "88,7 %", "1,450"],
+      ["Danemark", "1 606", "1 249", "59", "3,7 %", "77,8 %", "1,020"],
+      ["Grèce", "2 663", "1 715", "64", "2,4 %", "64,4 %", "1,313"],
+      ["Suisse", "957", "733", "154", "16,1 %", "76,6 %", "0,997"],
+      ["Belgique", "3 637", "3 224", "253", "7,0 %", "88,6 %", "1,489"],
+      ["**Total**", "**27 246**", "**21 504**", "**2 197**", "**8,1 %**", "**78,9 %**", "**1,287**"]
+     ],
+     "note": "¹ Calculé : migrants ÷ part de migrants (soit consultants ÷ taux de recours) ; la somme des 11 pays redonne 27 246. ² Répondants ayant consulté un généraliste au moins une fois (GP > 0). ³ Moyenne du logarithme du nombre de consultations, parmi les consultants."
+    }
+   ]
+  },
+  {
+   "id": "methode",
+   "title": "Méthode : l'accès, puis l'intensité",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Le rapport commence par une analyse descriptive. Il distingue ensuite les utilisateurs et les non-utilisateurs de soins, puis modélise deux décisions : **recourir ou non** aux soins (GP > 0, Hosp > 0), puis **combien** consommer une fois l'accès obtenu."
+    },
+    {
+     "type": "formula",
+     "tex": "\\underbrace{\\Pr\\left(\\#\\text{GP}_i > 0\\right)}_{\\text{accès}} \\qquad \\underbrace{E\\left[\\log(\\#\\text{GP}_i) \\mid \\#\\text{GP}_i > 0\\right]}_{\\text{intensité}}",
+     "caption": "Les deux marges, écrites pour le généraliste ; même structure pour l'hôpital (#Hosp)."
+    },
+    {
+     "type": "text",
+     "md": "Quatre modèles emboîtés ajoutent les variables par blocs. Ils sont estimés par les **moindres carrés ordinaires** (MCO). Leur ajustement est comparé par le R², la log-vraisemblance et un test du rapport de vraisemblance (LR)."
+    },
+    {
+     "type": "list",
+     "items": [
+      "**M1** : constante ; le modèle d'accès ajoute des effets fixes pays (référence : Autriche).",
+      "**M2** : + migrant (réf. natif), âge, femme (réf. homme), en couple (réf. vit seul).",
+      "**M3** : + état de santé autodéclaré (réf. excellent), nombre de maladies chroniques, nombre de limitations dans les activités de la vie quotidienne (ADL).",
+      "**M4** : + éducation (réf. primaire), statut d'emploi (réf. en emploi), contrainte financière (réf. très forte)."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "profils",
+   "title": "Qui consulte un généraliste ?",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "**21 504** répondants (78,9 %) ont consulté un généraliste au moins une fois ; **5 742** ne l'ont pas fait. Les consultants sont plus âgés : **65,3 ans** en moyenne, contre **62,4 ans**."
+    },
+    {
+     "type": "table",
+     "title": "Tableau 2 — Profil des consultants et des non-consultants",
+     "columns": ["Caractéristique", "Ensemble", "Sans consultation (GP = 0)", "Consultants (GP > 0)"],
+     "rows": [
+      ["Effectif", "27 246", "5 742", "21 504"],
+      ["Immigré", "8,1 %", "7,0 %", "8,3 %"],
+      ["Âge moyen (écart-type)", "64,7 (10,1)", "62,4 (9,6)", "65,3 (10,2)"],
+      ["Femme", "54,3 %", "49,3 %", "55,6 %"],
+      ["Vit en couple", "73,3 %", "76,0 %", "72,6 %"],
+      ["Éducation primaire", "52,8 %", "49,7 %", "53,6 %"],
+      ["Éducation secondaire", "27,0 %", "26,1 %", "27,2 %"],
+      ["Éducation supérieure", "20,2 %", "24,2 %", "19,1 %"],
+      ["En emploi", "27,7 %", "38,3 %", "24,9 %"],
+      ["Chômeur ou inactif", "22,5 %", "20,6 %", "23,0 %"],
+      ["Retraité", "49,7 %", "41,1 %", "52,0 %"]
+     ],
+     "note": "Parts calculées dans chaque groupe. Le rapport donne aussi les effectifs correspondants, par exemple 1 794 immigrés parmi les consultants et 403 parmi les non-consultants."
+    },
+    {
+     "type": "text",
+     "md": "L'écart le plus net concerne l'activité : 24,9 % des consultants sont en emploi, contre 38,3 % des non-consultants, et 52,0 % sont retraités, contre 41,1 %. Les consultants sont aussi plus souvent des femmes (55,6 % contre 49,3 %) et un peu moins souvent diplômés du supérieur (19,1 % contre 24,2 %)."
+    },
+    {
+     "type": "figure",
+     "src": "img/recours-soins-europe/fig-1.png",
+     "caption": "Log du nombre de consultations selon l'âge, chez les consultants, avec régression locale (courbe rouge) et son intervalle de confiance. La courbe monte d'environ 1,0 à 50 ans à 1,6 vers 80–85 ans, puis redescend."
+    },
+    {
+     "type": "figure",
+     "src": "img/recours-soins-europe/fig-2.png",
+     "caption": "Log du nombre de consultations selon le statut migratoire (0 = non-migrant, 1 = migrant). Médianes identiques ; la boîte des migrants monte un peu plus haut."
+    },
+    {
+     "type": "callout",
+     "md": "**Lecture graphique.** Les points s'alignent sur le logarithme de nombres entiers de consultations. Dans les deux groupes, la médiane correspond à 4 consultations et le premier quartile à 2. Le troisième quartile correspond à 6 consultations chez les non-migrants et à 7 chez les migrants. *Valeurs lues sur les graphiques.*"
+    }
+   ]
+  },
+  {
+   "id": "acces",
+   "title": "Accès aux soins : les quatre modèles",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Le tableau 3 porte sur l'**accès aux soins**, pour les 27 246 répondants : quatre modèles emboîtés, de M1 à M4."
+    },
+    {
+     "type": "table",
+     "title": "Tableau 3 — Coefficients du modèle d'accès (MCO)",
+     "columns": ["Variable", "M1", "M2", "M3", "M4"],
+     "rows": [
+      ["Constante", "0,0615", "0,0966", "0,0631", "0,0596"],
+      ["Effets fixes pays (réf. Autriche)", "0,0076 *(p = 0,199)*", "0,0061 *(p = 0,099)*", "0,0127 *(p < 0,001)*", "0,0061"],
+      ["Migrant (réf. natif)", "—", "0,0099 *(p = 0,075)*", "0,0097 *(p = 0,080)*", "0,0065"],
+      ["Âge", "—", "−0,0075 *(p = 0,245)*", "0,0004 *(p = 0,010)*", "−0,0010"],
+      ["Femme (réf. homme)", "—", "0,0018 *(p = 0,556)*", "0,0037 *(p = 0,234)*", "0,0151"],
+      ["En couple (réf. vit seul)", "—", "−0,0421 *(p < 0,001)*", "−0,0428 *(p < 0,001)*", "−0,0463"],
+      ["État de santé (réf. excellent)", "—", "—", "0,0238 *(p = 0,051)*", "0,0218"],
+      ["· très bon", "—", "—", "0,0111 *(p = 0,354)*", "0,0109"],
+      ["· bon", "—", "—", "0,0224 *(p = 0,064)*", "0,0269"],
+      ["· moyen", "—", "—", "0,0270 *(p = 0,034)*", "0,0349"],
+      ["· mauvais", "—", "—", "−0,0130 *(p = 0,348)*", "−0,0126"],
+      ["Nombre de maladies chroniques", "—", "—", "−0,0037 *(p = 0,003)*", "−0,0007"],
+      ["Nombre de limitations ADL", "—", "—", "—", "0,0733"],
+      ["Éducation (réf. primaire)", "—", "—", "—", "0,0451"],
+      ["· secondaire", "—", "—", "—", "0,0278"],
+      ["· supérieure", "—", "—", "—", "0,0742"],
+      ["Statut d'emploi (réf. en emploi)", "—", "—", "—", "0,0157"],
+      ["· chômeur ou inactif", "—", "—", "—", "0,0484"],
+      ["· retraité", "—", "—", "—", "0,0138"]
+     ],
+     "note": "Coefficients MCO, p-value entre parenthèses (M1 à M3). « — » : variable absente du modèle. Effets fixes pays résumés par un coefficient (référence : Autriche)."
+    },
+    {
+     "type": "table",
+     "title": "Ajustement du modèle d'accès",
+     "columns": ["Statistique", "M1", "M2", "M3", "M4"],
+     "rows": [
+      ["N", "27 246", "27 246", "27 246", "27 246"],
+      ["R²", "0,0001", "0,0056", "0,0105", "0,0420"],
+      ["Log-vraisemblance", "−976,1", "−898,7", "−829,1", "−384,2"]
+     ],
+     "note": "Valeurs du rapport."
+    },
+    {
+     "type": "text",
+     "md": "**Migrant.** Le coefficient est faible et positif : 0,0099 en M2 et 0,0097 en M3. Il n'est significatif qu'au seuil de 10 % (p = 0,075 puis 0,080) et descend à 0,0065 en M4."
+    },
+    {
+     "type": "text",
+     "md": "**Vie en couple.** C'est l'effet le plus net : −0,042 en M2, −0,043 en M3 et −0,046 en M4, avec une p-value inférieure à 0,001."
+    },
+    {
+     "type": "text",
+     "md": "**Santé.** En M3, une santé « bonne » est associée à un coefficient faiblement positif (0,022 ; p = 0,064) et une santé « mauvaise » à un coefficient faiblement négatif (−0,013 ; p = 0,348). Seule la santé « moyenne » est significative à 5 % (0,027 ; p = 0,034). Le rapport juge ces résultats contre-intuitifs. Le nombre de maladies chroniques a un effet très faible mais significatif (−0,0037 ; p = 0,003)."
+    },
+    {
+     "type": "text",
+     "md": "**Âge et sexe.** Le coefficient de l'âge change de signe entre M2 (−0,0075 ; p = 0,245) et M3 (0,0004 ; p = 0,010). Être une femme n'a pas d'effet significatif (p = 0,556 puis 0,234)."
+    },
+    {
+     "type": "callout",
+     "md": "**Ajustement.** Le R² progresse à chaque bloc, de 0,0001 (M1) à 0,042 (M4), et la log-vraisemblance passe de −976,1 à −384,2. Le rapport conclut que **M4** offre le meilleur ajustement."
+    }
+   ]
+  },
+  {
+   "id": "intensite",
+   "title": "Intensité du recours : généraliste et hôpital",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Le tableau 4 modélise le **nombre de recours** chez ceux qui consultent : E(log #GP | #GP > 0) sur les 21 504 consultants, et E(log #Hosp | #Hosp > 0) sur les 3 541 personnes hospitalisées. Les variables entrent par les mêmes blocs que pour l'accès."
+    },
+    {
+     "type": "table",
+     "title": "Tableau 4 — Composition des modèles d'intensité (généraliste et hôpital)",
+     "columns": ["Bloc de variables", "M1", "M2", "M3", "M4"],
+     "rows": [
+      ["Constante", "✓", "✓", "✓", "✓"],
+      ["Migrant, âge, femme, en couple", "", "✓", "✓", "✓"],
+      ["État de santé, maladies chroniques, limitations ADL", "", "", "✓", "✓"],
+      ["Éducation, statut d'emploi, contrainte financière", "", "", "", "✓"]
+     ],
+     "note": "Même composition pour le généraliste et pour l'hôpital ; pas d'effets fixes pays dans ces modèles."
+    }
+   ]
+  },
+  {
+   "id": "discussion",
+   "title": "Discussion",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Le recours au généraliste est massif après 50 ans, mais il varie fortement d'un pays à l'autre, en fréquence comme en intensité. Une fois les autres facteurs pris en compte, le statut de migrant ne pèse que faiblement sur l'accès."
+    },
+    {
+     "type": "text",
+     "md": "Les variables de santé ont des effets faibles, que le rapport juge contre-intuitifs. Le pouvoir explicatif du modèle d'accès reste limité (R² de 0,042 au mieux), même si chaque bloc de variables améliore l'ajustement."
+    }
+   ]
+  }
+ ],
+ "figures": {
+  "pays": {
+   "description": "Tableau 1 — répondants, migrants et recours au généraliste par pays (SHARE, 50 ans et plus)",
+   "x": ["Autriche", "Allemagne", "Suède", "Pays-Bas", "Espagne", "Italie", "France", "Danemark", "Grèce", "Suisse", "Belgique"],
+   "code": [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 23],
+   "iso2": ["AT", "DE", "SE", "NL", "ES", "IT", "FR", "DK", "GR", "CH", "BE"],
+   "nom_rapport": ["Austria", "Germany", "Sweden", "Netherlands", "Spain", "Italy", "France", "Denmark", "Greece", "Switzerland", "Belgium"],
+   "repondants": [1838, 2933, 2988, 2855, 2333, 2496, 2940, 1606, 2663, 957, 3637],
+   "consultants_gp": [1485, 2511, 1952, 2147, 1942, 1939, 2607, 1249, 1715, 733, 3224],
+   "migrants": [171, 548, 251, 170, 51, 37, 439, 59, 64, 154, 253],
+   "part_migrants": [0.09303591, 0.18683941, 0.08400268, 0.05954466, 0.02186027, 0.01482372, 0.14931973, 0.03673724, 0.02403305, 0.16091954, 0.06956283],
+   "taux_recours_gp": [0.8079434, 0.85612, 0.6532798, 0.752014, 0.8324046, 0.7768429, 0.8867347, 0.7777086, 0.6440105, 0.7659352, 0.8864449],
+   "log_gp_moyen": [1.308, 1.302, 0.713, 0.932, 1.596, 1.623, 1.45, 1.02, 1.313, 0.997, 1.489],
+   "hospitalisation": null,
+   "total": {
+    "repondants": 27246,
+    "consultants_gp": 21504,
+    "migrants": 2197,
+    "part_migrants": 0.081,
+    "taux_recours_gp": 0.789,
+    "log_gp_moyen": 1.287
+   },
+   "derived": {
+    "repondants": true
+   },
+   "approx": false,
+   "note": "« code » = codes pays SHARE. repondants = migrants / part_migrants = consultants_gp / taux_recours_gp (calculé ; somme = 27 246). log_gp_moyen = moyenne de log(#GP) parmi les consultants."
+  },
+  "recours_gp": {
+   "description": "Consultants et non-consultants du généraliste (tableau 2)",
+   "x": ["Consultants (GP > 0)", "Sans consultation (GP = 0)"],
+   "y": [21504, 5742],
+   "approx": false
+  },
+  "profils": {
+   "description": "Tableau 2 — profil des consultants (GP > 0) et des non-consultants (GP = 0)",
+   "groups": {
+    "ensemble": "Ensemble",
+    "gp0": "Sans consultation (GP = 0)",
+    "gp1": "Consultants (GP > 0)"
+   },
+   "n": {
+    "ensemble": 27246,
+    "gp0": 5742,
+    "gp1": 21504
+   },
+   "rows": [
+    {
+     "variable": "Immigré",
+     "libelle_rapport": "Immigré",
+     "type": "part",
+     "ensemble": 0.0806356896425163,
+     "gp0": 0.0701846046673633,
+     "gp1": 0.0834263392857143,
+     "n_gp0": 403,
+     "n_gp1": 1794
+    },
+    {
+     "variable": "Âge (années)",
+     "libelle_rapport": "Âge",
+     "type": "moyenne",
+     "unite": "années",
+     "ensemble": 64.71,
+     "gp0": 62.41,
+     "gp1": 65.33,
+     "ecart_type": {
+      "ensemble": 10.14,
+      "gp0": 9.59,
+      "gp1": 10.19
+     }
+    },
+    {
+     "variable": "Femme",
+     "libelle_rapport": "Femme",
+     "type": "part",
+     "ensemble": 0.542758570065331,
+     "gp0": 0.492511320097527,
+     "gp1": 0.556175595238095,
+     "n_gp0": 2828,
+     "n_gp1": 11960
+    },
+    {
+     "variable": "Vit en couple",
+     "libelle_rapport": "Vit en couple",
+     "type": "part",
+     "ensemble": 0.732841518020994,
+     "gp0": 0.759665621734587,
+     "gp1": 0.725678943452381,
+     "n_gp0": 4362,
+     "n_gp1": 15605
+    },
+    {
+     "variable": "Éducation primaire",
+     "libelle_rapport": "Educ Primaire",
+     "type": "part",
+     "ensemble": 0.528077515965646,
+     "gp0": 0.496865203761755,
+     "gp1": 0.536411830357143,
+     "n_gp0": 2853,
+     "n_gp1": 11535
+    },
+    {
+     "variable": "Éducation secondaire",
+     "libelle_rapport": "Educ Secondaire",
+     "type": "part",
+     "ensemble": 0.269727666446451,
+     "gp0": 0.260710553814002,
+     "gp1": 0.272135416666667,
+     "n_gp0": 1497,
+     "n_gp1": 5852
+    },
+    {
+     "variable": "Éducation supérieure",
+     "libelle_rapport": "Educ Supérieur",
+     "type": "part",
+     "ensemble": 0.202194817587903,
+     "gp0": 0.242424242424242,
+     "gp1": 0.19145275297619,
+     "n_gp0": 1392,
+     "n_gp1": 4117
+    },
+    {
+     "variable": "En emploi",
+     "libelle_rapport": "En emploi",
+     "type": "part",
+     "ensemble": 0.277398517213536,
+     "gp0": 0.382793451758969,
+     "gp1": 0.249255952380952,
+     "n_gp0": 2198,
+     "n_gp1": 5360
+    },
+    {
+     "variable": "Chômeur ou inactif",
+     "libelle_rapport": "Chômeur/Inactif",
+     "type": "part",
+     "ensemble": 0.225244072524407,
+     "gp0": 0.205851619644723,
+     "gp1": 0.23042224702381,
+     "n_gp0": 1182,
+     "n_gp1": 4955
+    },
+    {
+     "variable": "Retraité",
+     "libelle_rapport": "Retraité",
+     "type": "part",
+     "ensemble": 0.497357410262057,
+     "gp0": 0.411354928596308,
+     "gp1": 0.520321800595238,
+     "n_gp0": 2362,
+     "n_gp1": 11189
+    }
+   ],
+   "approx": false,
+   "note": "Parts dans chaque groupe (proportions 0–1), sauf l'âge (moyenne et écart-type)."
+  },
+  "acces_modeles": {
+   "description": "Tableau 3 — modèle d'accès aux soins, MCO, quatre modèles emboîtés (N = 27 246)",
+   "marge": "accès",
+   "recours": "accès aux soins (tableau 3)",
+   "estimateur": "MCO",
+   "models": ["M1", "M2", "M3", "M4"],
+   "terms": [
+    {
+     "term": "constante",
+     "label": "Constante",
+     "reference": null,
+     "group": "Constante",
+     "coef": [0.06148, 0.09655, 0.0631394, 0.0596021],
+     "t_abs": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "p": [
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "term": "effets_fixes_pays",
+     "label": "Effets fixes pays",
+     "reference": "Autriche",
+     "group": "Contexte",
+     "coef": [0.007581, 0.006121, 0.0127381, 0.0061276],
+     "t_abs": [
+      13.29534,
+      1.651159,
+      3.311305,
+      null
+     ],
+     "p": [
+      0.1988121,
+      0.09871755,
+      0.0009298248,
+      null
+     ]
+    },
+    {
+     "term": "migrant",
+     "label": "Migrant",
+     "reference": "Natif",
+     "group": "Socio-démographique",
+     "coef": [
+      null,
+      0.009893,
+      0.0097363,
+      0.0064748
+     ],
+     "t_abs": [
+      null,
+      1.779544,
+      1.750959,
+      null
+     ],
+     "p": [
+      null,
+      0.0751618,
+      0.07996419,
+      null
+     ]
+    },
+    {
+     "term": "age",
+     "label": "Âge",
+     "reference": null,
+     "group": "Socio-démographique",
+     "coef": [
+      null,
+      -0.007458,
+      0.0004191,
+      -0.0010392
+     ],
+     "t_abs": [
+      null,
+      1.163495,
+      2.559889,
+      null
+     ],
+     "p": [
+      null,
+      0.2446389,
+      0.01047591,
+      null
+     ]
+    },
+    {
+     "term": "femme",
+     "label": "Femme",
+     "reference": "Homme",
+     "group": "Socio-démographique",
+     "coef": [
+      null,
+      0.001793,
+      0.0037051,
+      0.0151401
+     ],
+     "t_abs": [
+      null,
+      0.5886315,
+      1.189758,
+      null
+     ],
+     "p": [
+      null,
+      0.5561134,
+      0.234152,
+      null
+     ]
+    },
+    {
+     "term": "en_couple",
+     "label": "En couple",
+     "reference": "Vit seul",
+     "group": "Socio-démographique",
+     "coef": [
+      null,
+      -0.04212,
+      -0.042757,
+      -0.0463184
+     ],
+     "t_abs": [
+      null,
+      13.29534,
+      11.7648,
+      null
+     ],
+     "p": [
+      null,
+      0.0,
+      0.0,
+      null
+     ]
+    },
+    {
+     "term": "etat_sante_entete",
+     "label": "État de santé (ligne d'en-tête)",
+     "reference": "Excellent",
+     "group": "Santé",
+     "coef": [
+      null,
+      null,
+      0.0238316,
+      0.0218029
+     ],
+     "t_abs": [
+      null,
+      null,
+      1.952237,
+      null
+     ],
+     "p": [
+      null,
+      null,
+      0.05092028,
+      null
+     ]
+    },
+    {
+     "term": "sante_tres_bon",
+     "label": "Santé très bonne",
+     "reference": "Excellent",
+     "group": "Santé",
+     "coef": [
+      null,
+      null,
+      0.0110843,
+      0.0108688
+     ],
+     "t_abs": [
+      null,
+      null,
+      0.9273377,
+      null
+     ],
+     "p": [
+      null,
+      null,
+      0.3537594,
+      null
+     ]
+    },
+    {
+     "term": "sante_bon",
+     "label": "Santé bonne",
+     "reference": "Excellent",
+     "group": "Santé",
+     "coef": [
+      null,
+      null,
+      0.0224383,
+      0.0269019
+     ],
+     "t_abs": [
+      null,
+      null,
+      1.850189,
+      null
+     ],
+     "p": [
+      null,
+      null,
+      0.06429712,
+      null
+     ]
+    },
+    {
+     "term": "sante_moyen",
+     "label": "Santé moyenne",
+     "reference": "Excellent",
+     "group": "Santé",
+     "coef": [
+      null,
+      null,
+      0.0270265,
+      0.0348665
+     ],
+     "t_abs": [
+      null,
+      null,
+      2.125056,
+      null
+     ],
+     "p": [
+      null,
+      null,
+      0.03359095,
+      null
+     ]
+    },
+    {
+     "term": "sante_mauvais",
+     "label": "Santé mauvaise",
+     "reference": "Excellent",
+     "group": "Santé",
+     "coef": [
+      null,
+      null,
+      -0.0130072,
+      -0.0125824
+     ],
+     "t_abs": [
+      null,
+      null,
+      0.9385219,
+      null
+     ],
+     "p": [
+      null,
+      null,
+      0.3479846,
+      null
+     ]
+    },
+    {
+     "term": "maladies_chroniques",
+     "label": "Nombre de maladies chroniques",
+     "reference": null,
+     "group": "Santé",
+     "coef": [
+      null,
+      null,
+      -0.0037467,
+      -0.0007339
+     ],
+     "t_abs": [
+      null,
+      null,
+      2.965336,
+      null
+     ],
+     "p": [
+      null,
+      null,
+      0.003026141,
+      null
+     ]
+    },
+    {
+     "term": "limitations_adl",
+     "label": "Nombre de limitations ADL",
+     "reference": null,
+     "group": "Santé",
+     "coef": [
+      null,
+      null,
+      null,
+      0.0732852
+     ],
+     "t_abs": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "p": [
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "term": "education_entete",
+     "label": "Éducation (ligne d'en-tête)",
+     "reference": "Primaire",
+     "group": "Socio-économique",
+     "coef": [
+      null,
+      null,
+      null,
+      0.0450508
+     ],
+     "t_abs": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "p": [
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "term": "education_secondaire",
+     "label": "Éducation secondaire",
+     "reference": "Primaire",
+     "group": "Socio-économique",
+     "coef": [
+      null,
+      null,
+      null,
+      0.0278257
+     ],
+     "t_abs": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "p": [
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "term": "education_superieure",
+     "label": "Éducation supérieure",
+     "reference": "Primaire",
+     "group": "Socio-économique",
+     "coef": [
+      null,
+      null,
+      null,
+      0.0742068
+     ],
+     "t_abs": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "p": [
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "term": "emploi_entete",
+     "label": "Statut d'emploi (ligne d'en-tête)",
+     "reference": "En emploi",
+     "group": "Socio-économique",
+     "coef": [
+      null,
+      null,
+      null,
+      0.0157009
+     ],
+     "t_abs": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "p": [
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "term": "chomeur_inactif",
+     "label": "Chômeur ou inactif",
+     "reference": "En emploi",
+     "group": "Socio-économique",
+     "coef": [
+      null,
+      null,
+      null,
+      0.0483641
+     ],
+     "t_abs": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "p": [
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "term": "retraite",
+     "label": "Retraité",
+     "reference": "En emploi",
+     "group": "Socio-économique",
+     "coef": [
+      null,
+      null,
+      null,
+      0.0137713
+     ],
+     "t_abs": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "p": [
+      null,
+      null,
+      null,
+      null
+     ]
+    }
+   ],
+   "fit": {
+    "N": [27246, 27246, 27246, 27246],
+    "R2": [0.0001152, 0.00564, 0.01049, 0.04204],
+    "logLik": [-976.1397, -898.6636, -829.068, -384.1579]
+   },
+   "approx": false,
+   "note": "Coefficients, |t| et p-values tels qu'imprimés (M1 à M3) ; coefficients seuls pour M4."
+  },
+  "intensite_modeles": {
+   "description": "Tableau 4 — modèles d'intensité : E(log #GP | #GP > 0) et E(log #Hosp | #Hosp > 0)",
+   "marge": "intensité",
+   "models": ["M1", "M2", "M3", "M4"],
+   "specification": {
+    "variables": ["Intercept", "Effets fixes pays (Ref : Autriche)", "Migrant (vs Natif)", "Age", "Femme (vs Homme)", "En couple (vs vit seul)", "Etat de Santé (vs excellent)", "# Maladies chroniques", "# Limitations ADL", "Education (vs primaire)", "Statut dans l'emploi (vs occupé)", "Contrainte financière (vs très forte) — ligne « Forte »"],
+    "inclus": [
+     [1, 1, 1, 1],
+     [0, 0, 0, 0],
+     [0, 1, 1, 1],
+     [0, 1, 1, 1],
+     [0, 1, 1, 1],
+     [0, 1, 1, 1],
+     [0, 0, 1, 1],
+     [0, 0, 1, 1],
+     [0, 0, 1, 1],
+     [0, 0, 0, 1],
+     [0, 0, 0, 1],
+     [0, 0, 0, 1]
+    ],
+    "note": "1 = case cochée (X) dans le tableau 4 ; grille identique pour le généraliste et pour l'hôpital."
+   },
+   "gp": {
+    "N": [21504, 21504, 21504, 21504]
+   },
+   "hosp": {
+    "N": [3541, 3541, 3541, 3541]
+   },
+   "coefficients": null,
+   "approx": false
+  },
+  "loess_age_log_gp": {
+   "description": "Régression locale de log(#GP) selon l'âge, chez les consultants (figure « Scatterplot et régression locale »)",
+   "x": [50, 52, 54, 56, 58, 60, 62, 64, 66, 68, 70, 72, 74, 76, 78, 80, 82, 84, 86, 88, 90, 92, 94, 96, 98, 100, 102, 103],
+   "y": [0.97, 1.01, 1.05, 1.1, 1.14, 1.17, 1.21, 1.24, 1.28, 1.34, 1.38, 1.44, 1.48, 1.52, 1.56, 1.58, 1.6, 1.6, 1.6, 1.6, 1.58, 1.58, 1.54, 1.52, 1.48, 1.42, 1.38, 1.34],
+   "x_label": "Âge (années)",
+   "y_label": "log(#GP)",
+   "approx": true,
+   "note": "Courbe rouge lue sur la figure (précision ≈ ±0,02). Les rangées de points tombent sur ln 1, ln 2, ln 3… : log_gp est le logarithme népérien du nombre de consultations. L'intervalle de confiance s'élargit nettement après 90 ans (peu d'observations). Âges observés de 50 à environ 104 ans."
+  },
+  "boxplot_migrant": {
+   "description": "Distribution de log(#GP) selon le statut migratoire, chez les consultants (boxplot du rapport)",
+   "x": ["Non-migrant (0)", "Migrant (1)"],
+   "lowerWhisker": [0.0, 0.0],
+   "q1": [0.69, 0.69],
+   "median": [1.39, 1.39],
+   "q3": [1.79, 1.95],
+   "upperWhisker": [3.4, 3.68],
+   "outliers_max": [4.6, 4.6],
+   "en_consultations": {
+    "lowerWhisker": [1, 1],
+    "q1": [2, 2],
+    "median": [4, 4],
+    "q3": [6, 7],
+    "upperWhisker": [30, 40]
+   },
+   "approx": true,
+   "derived": {
+    "en_consultations": true
+   },
+   "note": "Lu sur la figure (≈ ±0,02 en log). en_consultations = exp(valeur lue), arrondi à l'entier : les niveaux lus coïncident avec ln 2, ln 4, ln 6 et ln 7. Valeurs atypiques au-dessus des moustaches dans les deux groupes."
+  }
+ },
+ "conclusions": [
+  "Le recours au généraliste est massif : **78,9 %** des 27 246 répondants ont consulté au moins une fois, de 64,4 % (Grèce) à 88,7 % (France).",
+  "La part de migrants va de 1,5 % (Italie) à 18,7 % (Allemagne) ; elle atteint 8,1 % sur l'ensemble des 11 pays.",
+  "Les consultants sont plus âgés (65,3 ans contre 62,4), plus souvent des femmes (55,6 % contre 49,3 %) et des retraités (52,0 % contre 41,1 %), moins souvent en emploi (24,9 % contre 38,3 %).",
+  "Être migrant n'est associé qu'à un léger surcroît d'accès (0,0099 en M2, 0,0097 en M3), significatif seulement au seuil de 10 % (p = 0,075 et 0,080).",
+  "Vivre en couple est l'effet le plus robuste sur l'accès : coefficient de −0,042 à −0,046, p < 0,001.",
+  "Les effets de l'état de santé sont faibles et jugés contre-intuitifs par le rapport ; le nombre de maladies chroniques est significatif mais très faible (−0,0037 ; p = 0,003).",
+  "L'ajustement progresse à chaque bloc de variables (log-vraisemblance de −976,1 à −384,2, R² de 0,0001 à 0,042) : **M4** est le modèle retenu.",
+  "L'intensité du recours croît avec l'âge jusqu'à 80–85 ans puis fléchit ; les migrants consultants ont la même médiane que les non-migrants, avec une distribution un peu plus étalée vers le haut (lecture graphique)."
+ ],
+ "limits": [
+  "Le modèle d'accès explique peu la variance : R² de 0,0001 (M1) à 0,042 (M4)."
+ ]
+}

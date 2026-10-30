@@ -1,0 +1,1171 @@
+{
+ "slug": "immobilier-maine-et-loire",
+ "title": "Le marché immobilier du Maine-et-Loire",
+ "subtitle": "Angers au centre du jeu : volumes, saisonnalité et prix hédoniques à partir des ventes notariales 2014–2018",
+ "course": "M1 Économétrie appliquée — Étude de cas (semestre 2, 2025)",
+ "level": "M1",
+ "date": "01/04/2025",
+ "authors": ["Maxime Gourguechon", "Servan Le Mee", "Pierre Normand", "François Pichon", "Julien Pot"],
+ "supervisor": null,
+ "tools": ["R", "Google Maps"],
+ "methods": ["Statistiques descriptives", "Nuage de mots", "Courbe lissée transactions–distance", "Cartographie choroplèthe", "Analyse de saisonnalité", "Filtrage par écart interquartile", "Régression linéaire (MCO)", "Prix hédoniques", "Comparaison de spécifications par R²", "Variables indicatrices avec modalité de référence"],
+ "abstract": "Étude de cas menée à cinq en M1 pour décrire le marché immobilier résidentiel du Maine-et-Loire à partir de la base notariale 2014–2018 (75 695 transactions). Les volumes confirment une organisation monocentrique : Angers concentre 14 431 transactions et l'activité décroît avec la distance, malgré un rebond périurbain vers 15 km. Le marché progresse jusqu'en 2017, avec un pic saisonnier en juin–juillet ; la baisse de 2018 est un artefact d'enregistrement. Des régressions hédoniques estimées séparément montrent que surface, pièces et nature du terrain expliquent les prix, mais différemment selon le type de bien.",
+ "question": "Quel est l'état actuel du marché immobilier résidentiel dans le Maine-et-Loire, et de quelle manière l'organisation monocentrique autour d'Angers en structure-t-elle les dynamiques ?",
+ "kpis": [
+  {
+   "value": "75 695",
+   "label": "Transactions dans la base notariale",
+   "note": "2014–2018, 67 variables"
+  },
+  {
+   "value": "14 431",
+   "label": "Transactions à Angers",
+   "note": "contre 4 672 à Cholet et 2 469 à Saumur"
+  },
+  {
+   "value": "> 17 500",
+   "label": "Transactions en 2017, année record",
+   "note": "environ 13 500 en 2014"
+  },
+  {
+   "value": "+985,8 €",
+   "label": "par m² bâti supplémentaire (maisons)",
+   "note": "modèle 1 ; −569,5 € pour les appartements, à pièces égales"
+  },
+  {
+   "value": "+6 847 €",
+   "label": "par pièce supplémentaire (maisons)",
+   "note": "+11 348 € pour les appartements"
+  },
+  {
+   "value": "0,144 / 0,2988",
+   "label": "R² du modèle 1 (maisons / appartements)",
+   "note": "meilleur des quatre modèles testés"
+  }
+ ],
+ "data": {
+  "source": "Base de données des notaires sur les transactions immobilières du Maine-et-Loire, confiée par la CPI",
+  "unit": "Transaction immobilière ; prix de vente en euros nominaux",
+  "period": "2014–2018 (2018 exclue des analyses temporelles)",
+  "n": "75 695 observations et 67 variables ; 22 048 observations et 12 variables après sélection",
+  "variables": [
+   {
+    "name": "valeur_fonciere",
+    "label": "Prix nominal de vente du bien (€) — variable expliquée",
+    "type": "continue"
+   },
+   {
+    "name": "type_local",
+    "label": "Type de bien (maison, appartement)",
+    "type": "catégorielle"
+   },
+   {
+    "name": "surface_reelle_bati",
+    "label": "Surface habitable réellement bâtie (m²)",
+    "type": "continue"
+   },
+   {
+    "name": "n_piece",
+    "label": "Nombre de pièces principales",
+    "type": "discrète"
+   },
+   {
+    "name": "nature_culture",
+    "label": "Type de culture du terrain (jardins, sols, terres, terrains d'agrément…)",
+    "type": "catégorielle"
+   },
+   {
+    "name": "surface_terrain",
+    "label": "Surface totale du terrain (m²)",
+    "type": "continue"
+   },
+   {
+    "name": "st_tab",
+    "label": "Surface de terrain à bâtir (m²)",
+    "type": "continue"
+   },
+   {
+    "name": "st_tnat",
+    "label": "Surface de terrain à usage naturel (m²)",
+    "type": "continue"
+   },
+   {
+    "name": "st_tag",
+    "label": "Surface de terrain à usage agricole (m²)",
+    "type": "continue"
+   },
+   {
+    "name": "st_tvi",
+    "label": "Surface de terrain à usage viticole (m²)",
+    "type": "continue"
+   },
+   {
+    "name": "st_tart",
+    "label": "Surface de terrain à usage artificiel (m²)",
+    "type": "continue"
+   },
+   {
+    "name": "nature_mutation",
+    "label": "Nature de la mutation",
+    "type": "catégorielle"
+   },
+   {
+    "name": "nom_commune",
+    "label": "Commune de la transaction (analyses descriptives)",
+    "type": "catégorielle"
+   },
+   {
+    "name": "date_mutation",
+    "label": "Date de la transaction (analyses temporelles)",
+    "type": "date"
+   }
+  ],
+  "cleaning": [
+   "Recensement de 1 370 842 valeurs manquantes dans la base initiale.",
+   "Suppression des variables redondantes (date_mutation et mois) et non pertinentes (code postal, ancien identifiant de parcelle).",
+   "Contrôle de la multicolinéarité : suppression de sb_carrez.",
+   "Suppression ligne à ligne impossible (toutes les observations ont au moins une valeur manquante) ; imputation par plus proches voisins testée puis abandonnée.",
+   "Restriction aux maisons et aux appartements ; dépendances retirées car trop rares.",
+   "Séparation en deux bases : maisons et appartements.",
+   "Filtrage des valeurs aberrantes de prix et de surface bâtie par l'écart interquartile, bornes négatives ramenées à 0.",
+   "Exclusion de 2018 des analyses temporelles (sous-enregistrement lié à la nouvelle base centralisée)."
+  ]
+ },
+ "sections": [
+  {
+   "id": "contexte",
+   "title": "Angers, cœur d'un département monocentrique",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Le Maine-et-Loire est fortement polarisé par **Angers**. La ville accueille la préfecture, le conseil départemental, les principaux tribunaux et les chambres consulaires. Cholet et Saumur structurent l'espace sans rivaliser avec elle."
+    },
+    {
+     "type": "list",
+     "items": [
+      "Environ **30 %** de la population du département vit dans l'agglomération angevine.",
+      "Angers concentre **45 %** des emplois du département, d'où d'importants flux domicile–travail.",
+      "Nœud de transport : gare TGV à 1 h 30 de Paris, autoroute A11 entre Paris et Nantes."
+     ]
+    },
+    {
+     "type": "callout",
+     "md": "**Problématique.** Quel est l'état du marché immobilier résidentiel du Maine-et-Loire, et comment l'organisation monocentrique autour d'Angers en structure-t-elle les dynamiques ?"
+    }
+   ]
+  },
+  {
+   "id": "donnees",
+   "title": "Une base notariale très lacunaire",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "La CPI a confié au groupe la base des notaires couvrant les transactions immobilières du département de 2014 à 2018 : **75 695 observations** et **67 variables**. Toutes les analyses sont réalisées sous R."
+    },
+    {
+     "type": "text",
+     "md": "La base compte **1 370 842 valeurs manquantes**. Chaque observation en contient au moins une : supprimer les lignes incomplètes aurait vidé l'échantillon. Une imputation par plus proches voisins a été testée, puis écartée car ses résultats n'étaient pas vraisemblables."
+    },
+    {
+     "type": "list",
+     "items": [
+      "Suppression des variables redondantes (date_mutation et mois) et non pertinentes (code postal, ancien identifiant de parcelle).",
+      "Contrôle de la multicolinéarité : la surface Carrez (sb_carrez) est retirée.",
+      "Restriction aux maisons et aux appartements ; les dépendances, trop rares, sont écartées.",
+      "Base de travail : **22 048 observations** et **12 variables** (prix, type de bien, surface bâtie, pièces, nature et surfaces de terrain par usage)."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "monocentrisme",
+   "title": "Le monocentrisme vu par les volumes",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Un nuage de mots des 100 communes les plus actives rend la hiérarchie lisible d'un coup d'œil. **Angers** domine avec **14 431 transactions**, environ trois fois plus que Cholet."
+    },
+    {
+     "type": "figure",
+     "src": "img/immobilier-maine-et-loire/fig-1.png",
+     "caption": "Fréquence des communes dans la base 2014–2018 : plus le nom est grand et central, plus les transactions sont nombreuses."
+    },
+    {
+     "type": "table",
+     "title": "Transactions par commune citées dans le rapport",
+     "columns": ["Commune", "Transactions", "Couleur dans le nuage"],
+     "rows": [
+      ["Angers", "14 431", "noir, au centre"],
+      ["Cholet", "4 672", "bleu"],
+      ["Saumur", "2 469", "orange (haut du groupe)"],
+      ["Chemillé-en-Anjou", "1 875", "orange (bas du groupe)"],
+      ["Mauges-sur-Loire", "1 764", "vert (haut du groupe)"],
+      ["La Lande-Chasles", "13", "vert (bas du groupe)"]
+     ],
+     "note": "Orée d'Anjou, Sèvremoine et Beaupréau-en-Mauges, également en orange, se situent entre 1 875 et 2 469 transactions."
+    },
+    {
+     "type": "figure",
+     "src": "img/immobilier-maine-et-loire/fig-2.png",
+     "caption": "Nombre de transactions par commune selon la distance moyenne à Angers, dans un rayon de 20 km. Angers, valeur extrême à plus de 14 000, n'est pas représentée."
+    },
+    {
+     "type": "text",
+     "md": "Le volume chute d'environ 1 000 transactions près d'Angers à environ 250 vers 12 km. Il remonte légèrement jusqu'à 15 km : ces communes périurbaines combinent prix plus abordables, bonne accessibilité et constructions récentes. Il devient quasi nul à 20 km."
+    }
+   ]
+  },
+  {
+   "id": "dynamique",
+   "title": "Des volumes en hausse, une saisonnalité marquée",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Le nombre de transactions passe d'environ **13 500 en 2014** à **plus de 17 500 en 2017**, porté par des taux bas et des dispositifs comme le PTZ ou la loi Pinel. La chute à environ 15 000 en 2018 est un artefact : la nouvelle base centralisée n'a pas été entièrement saisie avant la clôture. **2018 est donc exclue** des analyses temporelles."
+    },
+    {
+     "type": "text",
+     "md": "En moyenne mensuelle (hors 2018), l'activité culmine en **juin et juillet** : les familles achètent avant la rentrée scolaire. Août recule nettement avec les congés, septembre reprend modérément et novembre est le mois le plus calme. Décembre rebondit, sans doute pour des raisons fiscales."
+    },
+    {
+     "type": "text",
+     "md": "Les maisons restent majoritaires : environ 3 500 ventes en 2014 et 5 000 en 2017, soit **+40 %**. Les appartements, concentrés à Angers, progressent plus vite encore en proportion et atteignent environ 2 200 ventes en 2017."
+    }
+   ]
+  },
+  {
+   "id": "prix-distance",
+   "title": "Prix au m² et temps de trajet vers Angers",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Hypothèse de départ, inspirée du comportement des navetteurs : plus on s'éloigne d'Angers, plus le prix au m² baisse. Le groupe a relevé sur Google Maps le temps de trajet en voiture de chaque commune vers Angers, puis calculé le prix moyen au m² par commune."
+    },
+    {
+     "type": "figure",
+     "src": "img/immobilier-maine-et-loire/fig-3.png",
+     "caption": "Temps de trajet en voiture vers Angers par commune, relevé sur Google Maps (de 5 à plus de 65 minutes)."
+    },
+    {
+     "type": "figure",
+     "src": "img/immobilier-maine-et-loire/fig-4.png",
+     "caption": "Prix moyen des logements au m² par commune, en 11 classes. Angers et sa couronne dépassent 2 100 €/m² ; Saumur et Cholet ressortent comme pôles secondaires."
+    },
+    {
+     "type": "text",
+     "md": "La tendance générale valide l'hypothèse, avec de nettes exceptions. **Saumur**, à plus de 40 minutes, affiche un prix moyen au m² comparable à celui des communes proches d'Angers. Au sud-est, des communes à plus d'une heure ont des prix proches de communes à moins de 30 minutes."
+    },
+    {
+     "type": "callout",
+     "md": "Ces écarts tiennent à la proximité d'autres pôles : **Nantes**, **Cholet** et le **Parc naturel régional Loire-Anjou-Touraine**. La distance à Angers ne suffit pas : il faut un modèle à plusieurs variables."
+    }
+   ]
+  },
+  {
+   "id": "preparation",
+   "title": "Préparer les données du modèle hédonique",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Le nuage brut des prix est illisible : un bien de 1 500 m² vendu au prix de biens de 250 m², un bien d'environ 200 m² évalué à plus de 50 millions d'euros. Maisons et appartements obéissant à des logiques différentes, la base est **scindée en deux**."
+    },
+    {
+     "type": "text",
+     "md": "Les valeurs aberrantes de prix et de surface bâtie sont écartées par la règle de l'écart interquartile, appliquée à chaque type de bien. Les bornes négatives sont ramenées à zéro."
+    },
+    {
+     "type": "formula",
+     "tex": "\\left[\\,Q_1 - 1{,}5\\,(Q_3 - Q_1)\\;;\\;Q_3 + 1{,}5\\,(Q_3 - Q_1)\\,\\right]",
+     "caption": "Intervalle conservé pour le prix et pour la surface bâtie."
+    },
+    {
+     "type": "table",
+     "title": "Plages conservées après filtrage",
+     "columns": ["Type de bien", "Prix de vente", "Surface bâtie"],
+     "rows": [
+      ["Appartements", "]0 ; 494 125] €", "]0 ; 115] m²"],
+      ["Maisons", "]0 ; 337 500] €", "[15 ; 183] m²"]
+     ],
+     "note": "Bornes brutes : appartements [−116 875 ; 494 125] € et [−19 ; 115] m² ; maisons [−42 500 ; 337 500] € et [15 ; 183] m²."
+    },
+    {
+     "type": "figure",
+     "src": "img/immobilier-maine-et-loire/fig-5.png",
+     "caption": "Nuages prix–surface après filtrage : pente négative pour les appartements, positive pour les maisons (droites de tendance en rouge)."
+    },
+    {
+     "type": "text",
+     "md": "Côté appartements, les petites surfaces se vendent plus cher au m² : elles sont surtout en centre-ville, près des commerces, des transports et de l'emploi. Ces variables de localisation ne figurent pas dans la base."
+    }
+   ]
+  },
+  {
+   "id": "modeles",
+   "title": "Quatre spécifications comparées",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Le prix de vente est régressé par les moindres carrés ordinaires, **séparément pour les maisons et les appartements**. Le modèle 1 inclut toutes les variables jugées pertinentes ; les suivants en retirent progressivement."
+    },
+    {
+     "type": "formula",
+     "tex": "\\text{Prix}_i = \\beta_0 + \\beta_1\\,\\text{Surface}_i + \\beta_2\\,\\text{Pièces}_i + \\sum_{k \\neq \\text{jardins}} \\gamma_k\\,\\mathbf{1}[\\text{Nature}_i = k] + \\sum_{j} \\delta_j\\,\\text{ST}_{j,i} + \\varepsilon_i",
+     "caption": "Modèle 1 : prix en euros, surfaces en m² ; j parcourt les surfaces de terrain à bâtir, naturel, agricole, viticole et artificiel."
+    },
+    {
+     "type": "table",
+     "title": "Spécifications testées",
+     "columns": ["Modèle", "Variables explicatives"],
+     "rows": [
+      [
+       "Modèle 1",
+       "Surface bâtie, pièces, nature du terrain, surfaces de terrain (naturel, viticole, à bâtir, agricole, artificiel)"
+      ],
+      ["Modèle 2", "Modèle 1 sans la nature du terrain"],
+      ["Modèle 3", "Surface bâtie, pièces, nature du terrain"],
+      ["Modèle 4", "Surface bâtie, pièces"]
+     ]
+    },
+    {
+     "type": "table",
+     "title": "Qualité d'ajustement (R²)",
+     "columns": ["Type de bien", "Modèle 1", "Modèle 2", "Modèle 3", "Modèle 4"],
+     "rows": [
+      ["Maison", "0,144", "0,136", "0,1303", "0,114"],
+      ["Appartement", "0,2988", "0,2961", "0,2979", "0,2953"]
+     ],
+     "note": "Le modèle 1 s'ajuste le mieux pour les deux types de bien."
+    },
+    {
+     "type": "text",
+     "md": "L'ajustement reste modeste : le modèle 1 explique environ **14 %** de la variance des prix des maisons et **30 %** de celle des appartements."
+    }
+   ]
+  },
+  {
+   "id": "resultats",
+   "title": "Résultats du modèle 1",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "**Appartements.** À nombre de pièces donné, chaque m² bâti supplémentaire est associé à un prix plus bas de **569 €** (p = 0,000775). Une pièce de plus ajoute **11 348 €**. Par rapport aux jardins, un terrain de nature « terres » ajoute 214 814 €, et chaque m² de terrain naturel 52,8 €."
+    },
+    {
+     "type": "table",
+     "title": "Modèle 1 — appartements",
+     "columns": ["Variable", "Coefficient (€)", "Erreur-type", "t", "p-value", "Signif."],
+     "rows": [
+      ["Constante (réf. : jardins)", "66 737,935", "64 874,314", "1,029", "0,303990", ""],
+      ["Surface bâtie (par m²)", "−569,487", "168,606", "−3,378", "0,000775", "∗∗∗"],
+      ["Nombre de pièces", "11 348,499", "1 140,200", "9,953", "< 2·10⁻¹⁶", "∗∗∗"],
+      ["Nature : sols", "77 531,786", "63 950,805", "1,212", "0,225812", ""],
+      ["Nature : terres", "214 813,621", "82 916,357", "2,591", "0,009792", "∗∗"],
+      ["Nature : terrains d'agrément", "132 461,026", "76 127,386", "1,740", "0,082333", "."],
+      ["Terrain à bâtir (par m²)", "275,759", "317,935", "0,867", "0,386073", ""],
+      ["Terrain naturel (par m²)", "52,829", "21,433", "2,465", "0,013964", "∗"],
+      ["Terrain agricole (par m²)", "−2,020", "1,588", "−1,272", "0,203779", ""],
+      ["Terrain viticole (par m²)", "1 290,611", "908,267", "1,421", "0,155807", ""],
+      ["Terrain artificiel (par m²)", "−7,259", "3,769", "−1,926", "0,054535", "."]
+     ],
+     "note": "Variable expliquée : prix de vente (€). Référence : nature du terrain = jardins. Erreurs-types MCO. *** p < 0,001 ; ** p < 0,01 ; * p < 0,05 ; . p < 0,1. R² = 0,2988."
+    },
+    {
+     "type": "text",
+     "md": "**Maisons.** Chaque m² bâti ajoute **985,8 €** et chaque pièce **6 847 €**. Par rapport à un jardin, un terrain d'agrément ajoute 18 440 € et un terrain de nature « terres » retire 13 230 €. Chaque m² de terrain naturel ajoute 0,73 €."
+    },
+    {
+     "type": "table",
+     "title": "Modèle 1 — maisons",
+     "columns": ["Variable", "Coefficient (€)", "Erreur-type", "t", "p-value", "Signif."],
+     "rows": [
+      ["Constante (réf. : jardins)", "19 440", "2 913", "6,673", "2,56·10⁻¹¹", "∗∗∗"],
+      ["Surface bâtie (par m²)", "985,8", "16,21", "60,823", "< 2·10⁻¹⁶", "∗∗∗"],
+      ["Nombre de pièces", "6 847", "313,4", "21,846", "< 2·10⁻¹⁶", "∗∗∗"],
+      ["Nature : sols", "1 301", "2 546", "0,511", "0,60942", ""],
+      ["Nature : terres", "−13 230", "4 072", "−3,250", "0,00116", "∗∗"],
+      ["Nature : terrains à bâtir", "−6 140", "13 400", "−0,458", "0,64693", ""],
+      ["Nature : terrains d'agrément", "18 440", "3 344", "5,515", "3,54·10⁻⁸", "∗∗∗"],
+      ["Nature : vignes", "1 611", "16 110", "0,100", "0,92031", ""],
+      ["Nature : landes", "−15 960", "17 690", "−0,902", "0,36696", ""],
+      ["Nature : prés", "−5 202", "6 907", "−0,753", "0,45138", ""],
+      ["Nature : eaux", "11,21", "18 600", "0,001", "0,99952", ""],
+      ["Nature : vergers", "−7 009", "19 680", "−0,356", "0,72176", ""],
+      ["Nature : bois", "−12 310", "10 730", "−1,146", "0,25166", ""],
+      ["Terrain à bâtir (par m²)", "12,69", "9,895", "1,283", "0,19961", ""],
+      ["Terrain naturel (par m²)", "0,7343", "0,1386", "5,300", "1,17·10⁻⁷", "∗∗∗"],
+      ["Terrain agricole (par m²)", "−0,02907", "0,02976", "−0,977", "0,32869", ""],
+      ["Terrain viticole (par m²)", "0,03706", "0,4889", "0,076", "0,93957", ""],
+      ["Terrain artificiel (par m²)", "−0,1729", "0,3670", "−0,471", "0,63766", ""]
+     ],
+     "note": "Variable expliquée : prix de vente (€). Référence : nature du terrain = jardins. Coefficients imprimés par R à 4 chiffres significatifs. Erreurs-types MCO. *** p < 0,001 ; ** p < 0,01. R² = 0,144."
+    },
+    {
+     "type": "callout",
+     "md": "**Mêmes variables, lectures opposées.** La surface bâtie augmente le prix des maisons mais, à nombre de pièces donné, diminue celui des appartements. Le type de bien conditionne l'interprétation des prix hédoniques."
+    }
+   ]
+  }
+ ],
+ "figures": {
+  "transactions_par_annee": {
+   "description": "Nombre total de transactions immobilières par année (toutes natures de biens).",
+   "x": [2014, 2015, 2016, 2017, 2018],
+   "y": [13460, 14340, 15250, 17570, 15070],
+   "unit": "transactions",
+   "approx": true,
+   "note": "Lu sur le graphique du rapport (arrondi à 10). 2018 est sous-enregistrée (nouvelle base centralisée) et exclue des analyses temporelles."
+  },
+  "saisonnalite_mensuelle": {
+   "description": "Moyenne mensuelle du nombre de transactions, hors 2018.",
+   "x": ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
+   "y": [2030, 2300, 2010, 2070, 2140, 2850, 3440, 2240, 2700, 2400, 1970, 2860],
+   "mean": 2420,
+   "unit": "transactions",
+   "approx": true,
+   "index": [84, 95, 83, 86, 89, 118, 142, 93, 112, 99, 81, 118],
+   "note": "Lu sur le graphique du rapport (arrondi à 10) ; la ligne pointillée du graphique est la moyenne (≈ 2 420). Indice : base 100 = moyenne des 12 mois (calculé sur les valeurs lues)."
+  },
+  "transactions_par_type": {
+   "description": "Nombre de transactions de maisons et d'appartements par année (2014–2017).",
+   "x": [2014, 2015, 2016, 2017],
+   "series": [
+    {
+     "name": "Maison",
+     "y": [3550, 4250, 4430, 4990]
+    },
+    {
+     "name": "Appartement",
+     "y": [1350, 1720, 1860, 2170]
+    }
+   ],
+   "unit": "transactions",
+   "approx": true,
+   "note": "Lu sur le graphique du rapport (arrondi à 10)."
+  },
+  "transactions_communes": {
+   "description": "Nombre de transactions 2014–2018 des communes citées dans le rapport.",
+   "x": ["Angers", "Cholet", "Saumur", "Chemillé-en-Anjou", "Mauges-sur-Loire", "La Lande-Chasles"],
+   "y": [14431, 4672, 2469, 1875, 1764, 13],
+   "unit": "transactions",
+   "approx": false,
+   "note": "Valeurs du texte (p. 7–8). Orée d'Anjou, Sèvremoine et Beaupréau-en-Mauges, en orange dans le nuage, sont entre 1 875 et 2 469."
+  },
+  "transactions_selon_distance": {
+   "description": "Courbe lissée du nombre de transactions par commune selon la distance moyenne à Angers (communes à moins de 20 km, Angers exclue).",
+   "x": [3.25, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10, 10.5, 11, 11.5, 12, 12.5, 13, 13.5, 14, 14.5, 15, 15.5, 16, 16.5, 17, 17.5, 18, 18.5, 19, 19.5, 19.9],
+   "y": [975, 935, 860, 780, 710, 645, 585, 525, 475, 430, 395, 360, 330, 310, 285, 270, 255, 240, 235, 240, 255, 275, 295, 300, 305, 300, 290, 275, 250, 220, 180, 140, 90, 40, 0],
+   "xUnit": "km",
+   "unit": "transactions",
+   "approx": true,
+   "keyPoints": {
+    "minimumLocal": [11.8, 235],
+    "maximumLocal": [14.8, 305],
+    "fin": [20.0, 0]
+   },
+   "note": "Lu sur le graphique du rapport (arrondi à 5). Angers (plus de 14 000 transactions) est exclue."
+  },
+  "prix_m2_classes_legende": {
+   "description": "Classes de la carte « Prix moyens des logements par commune » (prix moyen au m²).",
+   "classes": ["< 1 000 (légende : « >1000 »)", "1 000–1 150", "1 150–1 263", "1 263–1 295", "1 295–1 355", "1 355–1 542", "1 542–1 578", "1 578–1 613", "1 613–1 652", "1 652–2 100", "> 2 100"],
+   "bounds": [
+    [
+     null,
+     1000
+    ],
+    [1000, 1150],
+    [1150, 1263],
+    [1263, 1295],
+    [1295, 1355],
+    [1355, 1542],
+    [1542, 1578],
+    [1578, 1613],
+    [1613, 1652],
+    [1652, 2100],
+    [
+     2100,
+     null
+    ]
+   ],
+   "unit": "€/m²",
+   "approx": false
+  },
+  "tendances_nuages_filtres": {
+   "description": "Droites de tendance (rouge) des nuages prix–surface après filtrage interquartile.",
+   "series": [
+    {
+     "name": "Appartement",
+     "x": [9.0, 113.8],
+     "y": [202300, 153200],
+     "slope": -470
+    },
+    {
+     "name": "Maison",
+     "x": [7.9, 182.1],
+     "y": [39400, 246600],
+     "slope": 1190
+    }
+   ],
+   "xUnit": "m²",
+   "unit": "€",
+   "approx": true,
+   "note": "Lu sur les graphiques p. 17 ; pente en € par m². Régressions simples prix ~ surface, distinctes du modèle 1 multivarié."
+  },
+  "r2_specifications": {
+   "description": "R² des quatre spécifications hédoniques.",
+   "x": ["Modèle 1", "Modèle 2", "Modèle 3", "Modèle 4"],
+   "series": [
+    {
+     "name": "Maison",
+     "y": [0.144, 0.136, 0.1303, 0.114]
+    },
+    {
+     "name": "Appartement",
+     "y": [0.2988, 0.2961, 0.2979, 0.2953]
+    }
+   ],
+   "approx": false
+  },
+  "bornes_filtrage_iqr": {
+   "description": "Bornes de l'écart interquartile appliquées au prix et à la surface bâtie.",
+   "rows": [
+    {
+     "type": "Appartement",
+     "variable": "prix (€)",
+     "brut": [-116875, 494125],
+     "retenu": [0, 494125]
+    },
+    {
+     "type": "Appartement",
+     "variable": "surface bâtie (m²)",
+     "brut": [-19, 115],
+     "retenu": [0, 115]
+    },
+    {
+     "type": "Maison",
+     "variable": "prix (€)",
+     "brut": [-42500, 337500],
+     "retenu": [0, 337500]
+    },
+    {
+     "type": "Maison",
+     "variable": "surface bâtie (m²)",
+     "brut": [15, 183],
+     "retenu": [15, 183]
+    }
+   ],
+   "approx": false
+  }
+ },
+ "model": {
+  "kind": "Régression linéaire par moindres carrés ordinaires (prix hédoniques), estimée séparément pour les appartements et pour les maisons",
+  "sourcePages": "Spécifications p. 17–18, tableau des R² p. 18, sorties R des coefficients p. 19 (appartements) et p. 20 (maisons)",
+  "software": "R — sortie summary(lm) (en-tête « Coefficients: Estimate / Std. Error / t value / Pr(>|t|) »)",
+  "dependentVariable": {
+   "name": "valeur_fonciere",
+   "label": "Prix de vente du bien (valeur foncière)",
+   "unit": "€ nominaux (non déflatés)",
+   "transformation": "aucune : prix en niveau, pas de logarithme, pas de prix au m²"
+  },
+  "standardErrors": "Erreurs-types MCO classiques (homoscédastiques) de summary(lm). Aucune correction robuste (HC) ni clustering mentionné.",
+  "fixedEffects": {
+   "annee": false,
+   "commune": false,
+   "localisation": false,
+   "note": "Aucun effet fixe et aucune variable de localisation (commune, distance, temps de trajet) ni de date dans les régressions."
+  },
+  "selectedSpecification": "M1",
+  "specifications": [
+   {
+    "id": "M1",
+    "formula": "Prix ~ surface_bâtiment + nb_pieces + nature_culture + surface_terrain(naturel + viticole + à bâtir + agricole + artificiel)",
+    "rhs": ["surface_reelle_bati", "n_piece", "nature_culture", "st_tnat", "st_tvi", "st_tab", "st_tag", "st_tart"],
+    "r2": {
+     "maison": 0.144,
+     "appartement": 0.2988
+    },
+    "coefficientsPublished": true
+   },
+   {
+    "id": "M2",
+    "formula": "Prix ~ surface_bâtiment + nb_pieces + surface_terrain(naturel + viticole + à bâtir + agricole + artificiel)",
+    "rhs": ["surface_reelle_bati", "n_piece", "st_tnat", "st_tvi", "st_tab", "st_tag", "st_tart"],
+    "r2": {
+     "maison": 0.136,
+     "appartement": 0.2961
+    },
+    "coefficientsPublished": false
+   },
+   {
+    "id": "M3",
+    "formula": "Prix ~ surface_bâtiment + nb_pieces + nature_culture",
+    "rhs": ["surface_reelle_bati", "n_piece", "nature_culture"],
+    "r2": {
+     "maison": 0.1303,
+     "appartement": 0.2979
+    },
+    "coefficientsPublished": false
+   },
+   {
+    "id": "M4",
+    "formula": "Prix ~ surface_bâtiment + nb_pieces",
+    "rhs": ["surface_reelle_bati", "n_piece"],
+    "r2": {
+     "maison": 0.114,
+     "appartement": 0.2953
+    },
+    "coefficientsPublished": false
+   }
+  ],
+  "r2Note": "Le rapport parle du « coefficient de détermination R² » ; aucun R² ajusté, erreur-type résiduelle ni statistique F n'est publié.",
+  "variables": {
+   "surface_reelle_bati": {
+    "label": "Surface habitable réellement bâtie",
+    "unit": "m²"
+   },
+   "n_piece": {
+    "label": "Nombre de pièces principales",
+    "unit": "pièces"
+   },
+   "nature_culture": {
+    "label": "Nature (type de culture) du terrain",
+    "unit": "catégorie"
+   },
+   "st_tab": {
+    "label": "Surface du terrain de type terrain à bâtir",
+    "unit": "m²"
+   },
+   "st_tnat": {
+    "label": "Surface du terrain à usage naturel",
+    "unit": "m²"
+   },
+   "st_tag": {
+    "label": "Surface du terrain à usage agricole",
+    "unit": "m²"
+   },
+   "st_tvi": {
+    "label": "Surface du terrain à usage viticole",
+    "unit": "m²"
+   },
+   "st_tart": {
+    "label": "Surface du terrain à usage artificiel",
+    "unit": "m²"
+   }
+  },
+  "natureCulture": {
+   "reference": 1,
+   "referenceLabel": "jardins",
+   "levels": {
+    "1": "jardins",
+    "2": "sols",
+    "3": "terres",
+    "4": "terrains à bâtir",
+    "5": "terrains d'agrément",
+    "6": "vignes",
+    "7": "landes",
+    "8": "prés",
+    "10": "eaux",
+    "13": "vergers",
+    "18": "bois"
+   },
+   "levelsInApartmentModel": [1, 2, 3, 5],
+   "levelsInHouseModel": [1, 2, 3, 4, 5, 6, 7, 8, 10, 13, 18],
+   "note": "Référence : jardins (absorbée dans la constante)."
+  },
+  "equations": {
+   "appartement": {
+    "r2": 0.2988,
+    "n": null,
+    "precision": "Coefficients imprimés à 3 décimales.",
+    "coefficients": [
+     {
+      "term": "(Intercept)",
+      "label": "Constante (nature du terrain = jardins, tout le reste à 0)",
+      "unit": "€",
+      "estimate": 66737.935,
+      "se": 64874.314,
+      "t": 1.029,
+      "p": 0.30399,
+      "pText": "0.303990",
+      "signif": ""
+     },
+     {
+      "term": "surface_reelle_bati",
+      "label": "Surface réelle bâtie",
+      "unit": "€ par m² bâti",
+      "estimate": -569.487,
+      "se": 168.606,
+      "t": -3.378,
+      "p": 0.000775,
+      "pText": "0.000775",
+      "signif": "***"
+     },
+     {
+      "term": "n_piece",
+      "label": "Nombre de pièces principales",
+      "unit": "€ par pièce",
+      "estimate": 11348.499,
+      "se": 1140.2,
+      "t": 9.953,
+      "p": 2e-16,
+      "pText": "< 2e-16",
+      "signif": "***"
+     },
+     {
+      "term": "nature_culture2",
+      "label": "Nature du terrain : sols (vs jardins)",
+      "unit": "€ (écart à la référence)",
+      "estimate": 77531.786,
+      "se": 63950.805,
+      "t": 1.212,
+      "p": 0.225812,
+      "pText": "0.225812",
+      "signif": ""
+     },
+     {
+      "term": "nature_culture3",
+      "label": "Nature du terrain : terres (vs jardins)",
+      "unit": "€ (écart à la référence)",
+      "estimate": 214813.621,
+      "se": 82916.357,
+      "t": 2.591,
+      "p": 0.009792,
+      "pText": "0.009792",
+      "signif": "**"
+     },
+     {
+      "term": "nature_culture5",
+      "label": "Nature du terrain : terrains d'agrément (vs jardins)",
+      "unit": "€ (écart à la référence)",
+      "estimate": 132461.026,
+      "se": 76127.386,
+      "t": 1.74,
+      "p": 0.082333,
+      "pText": "0.082333",
+      "signif": "."
+     },
+     {
+      "term": "st_tab",
+      "label": "Surface de terrain à bâtir",
+      "unit": "€ par m² de terrain",
+      "estimate": 275.759,
+      "se": 317.935,
+      "t": 0.867,
+      "p": 0.386073,
+      "pText": "0.386073",
+      "signif": ""
+     },
+     {
+      "term": "st_tnat",
+      "label": "Surface de terrain à usage naturel",
+      "unit": "€ par m² de terrain",
+      "estimate": 52.829,
+      "se": 21.433,
+      "t": 2.465,
+      "p": 0.013964,
+      "pText": "0.013964",
+      "signif": "*"
+     },
+     {
+      "term": "st_tag",
+      "label": "Surface de terrain à usage agricole",
+      "unit": "€ par m² de terrain",
+      "estimate": -2.02,
+      "se": 1.588,
+      "t": -1.272,
+      "p": 0.203779,
+      "pText": "0.203779",
+      "signif": ""
+     },
+     {
+      "term": "st_tvi",
+      "label": "Surface de terrain à usage viticole",
+      "unit": "€ par m² de terrain",
+      "estimate": 1290.611,
+      "se": 908.267,
+      "t": 1.421,
+      "p": 0.155807,
+      "pText": "0.155807",
+      "signif": ""
+     },
+     {
+      "term": "st_tart",
+      "label": "Surface de terrain à usage artificiel",
+      "unit": "€ par m² de terrain",
+      "estimate": -7.259,
+      "se": 3.769,
+      "t": -1.926,
+      "p": 0.054535,
+      "pText": "0.054535",
+      "signif": "."
+     }
+    ]
+   },
+   "maison": {
+    "r2": 0.144,
+    "n": null,
+    "precision": "Coefficients imprimés en notation scientifique à 4 chiffres significatifs (ex. 1.944e+04 = 19 440).",
+    "coefficients": [
+     {
+      "term": "(Intercept)",
+      "label": "Constante (nature du terrain = jardins, tout le reste à 0)",
+      "unit": "€",
+      "estimate": 19440.0,
+      "se": 2913.0,
+      "t": 6.673,
+      "p": 2.56e-11,
+      "pText": "2.56e-11",
+      "signif": "***",
+      "printed": "1.944e+04 (SE 2.913e+03)"
+     },
+     {
+      "term": "surface_reelle_bati",
+      "label": "Surface réelle bâtie",
+      "unit": "€ par m² bâti",
+      "estimate": 985.8,
+      "se": 16.21,
+      "t": 60.823,
+      "p": 2e-16,
+      "pText": "< 2e-16",
+      "signif": "***",
+      "printed": "9.858e+02 (SE 1.621e+01)"
+     },
+     {
+      "term": "n_piece",
+      "label": "Nombre de pièces principales",
+      "unit": "€ par pièce",
+      "estimate": 6847.0,
+      "se": 313.4,
+      "t": 21.846,
+      "p": 2e-16,
+      "pText": "< 2e-16",
+      "signif": "***",
+      "printed": "6.847e+03 (SE 3.134e+02)"
+     },
+     {
+      "term": "nature_culture2",
+      "label": "Nature du terrain : sols (vs jardins)",
+      "unit": "€ (écart à la référence)",
+      "estimate": 1301.0,
+      "se": 2546.0,
+      "t": 0.511,
+      "p": 0.60942,
+      "pText": "0.60942",
+      "signif": "",
+      "printed": "1.301e+03 (SE 2.546e+03)"
+     },
+     {
+      "term": "nature_culture3",
+      "label": "Nature du terrain : terres (vs jardins)",
+      "unit": "€ (écart à la référence)",
+      "estimate": -13230.0,
+      "se": 4072.0,
+      "t": -3.25,
+      "p": 0.00116,
+      "pText": "0.00116",
+      "signif": "**",
+      "printed": "-1.323e+04 (SE 4.072e+03)"
+     },
+     {
+      "term": "nature_culture4",
+      "label": "Nature du terrain : terrains à bâtir (vs jardins)",
+      "unit": "€ (écart à la référence)",
+      "estimate": -6140.0,
+      "se": 13400.0,
+      "t": -0.458,
+      "p": 0.64693,
+      "pText": "0.64693",
+      "signif": "",
+      "printed": "-6.140e+03 (SE 1.340e+04)"
+     },
+     {
+      "term": "nature_culture5",
+      "label": "Nature du terrain : terrains d'agrément (vs jardins)",
+      "unit": "€ (écart à la référence)",
+      "estimate": 18440.0,
+      "se": 3344.0,
+      "t": 5.515,
+      "p": 3.54e-08,
+      "pText": "3.54e-08",
+      "signif": "***",
+      "printed": "1.844e+04 (SE 3.344e+03)"
+     },
+     {
+      "term": "nature_culture6",
+      "label": "Nature du terrain : vignes (vs jardins)",
+      "unit": "€ (écart à la référence)",
+      "estimate": 1611.0,
+      "se": 16110.0,
+      "t": 0.1,
+      "p": 0.92031,
+      "pText": "0.92031",
+      "signif": "",
+      "printed": "1.611e+03 (SE 1.611e+04)"
+     },
+     {
+      "term": "nature_culture7",
+      "label": "Nature du terrain : landes (vs jardins)",
+      "unit": "€ (écart à la référence)",
+      "estimate": -15960.0,
+      "se": 17690.0,
+      "t": -0.902,
+      "p": 0.36696,
+      "pText": "0.36696",
+      "signif": "",
+      "printed": "-1.596e+04 (SE 1.769e+04)"
+     },
+     {
+      "term": "nature_culture8",
+      "label": "Nature du terrain : prés (vs jardins)",
+      "unit": "€ (écart à la référence)",
+      "estimate": -5202.0,
+      "se": 6907.0,
+      "t": -0.753,
+      "p": 0.45138,
+      "pText": "0.45138",
+      "signif": "",
+      "printed": "-5.202e+03 (SE 6.907e+03)"
+     },
+     {
+      "term": "nature_culture10",
+      "label": "Nature du terrain : eaux (vs jardins)",
+      "unit": "€ (écart à la référence)",
+      "estimate": 11.21,
+      "se": 18600.0,
+      "t": 0.001,
+      "p": 0.99952,
+      "pText": "0.99952",
+      "signif": "",
+      "printed": "1.121e+01 (SE 1.860e+04)"
+     },
+     {
+      "term": "nature_culture13",
+      "label": "Nature du terrain : vergers (vs jardins)",
+      "unit": "€ (écart à la référence)",
+      "estimate": -7009.0,
+      "se": 19680.0,
+      "t": -0.356,
+      "p": 0.72176,
+      "pText": "0.72176",
+      "signif": "",
+      "printed": "-7.009e+03 (SE 1.968e+04)"
+     },
+     {
+      "term": "nature_culture18",
+      "label": "Nature du terrain : bois (vs jardins)",
+      "unit": "€ (écart à la référence)",
+      "estimate": -12310.0,
+      "se": 10730.0,
+      "t": -1.146,
+      "p": 0.25166,
+      "pText": "0.25166",
+      "signif": "",
+      "printed": "-1.231e+04 (SE 1.073e+04)"
+     },
+     {
+      "term": "st_tab",
+      "label": "Surface de terrain à bâtir",
+      "unit": "€ par m² de terrain",
+      "estimate": 12.69,
+      "se": 9.895,
+      "t": 1.283,
+      "p": 0.19961,
+      "pText": "0.19961",
+      "signif": "",
+      "printed": "1.269e+01 (SE 9.895e+00)"
+     },
+     {
+      "term": "st_tnat",
+      "label": "Surface de terrain à usage naturel",
+      "unit": "€ par m² de terrain",
+      "estimate": 0.7343,
+      "se": 0.1386,
+      "t": 5.3,
+      "p": 1.17e-07,
+      "pText": "1.17e-07",
+      "signif": "***",
+      "printed": "7.343e-01 (SE 1.386e-01)"
+     },
+     {
+      "term": "st_tag",
+      "label": "Surface de terrain à usage agricole",
+      "unit": "€ par m² de terrain",
+      "estimate": -0.02907,
+      "se": 0.02976,
+      "t": -0.977,
+      "p": 0.32869,
+      "pText": "0.32869",
+      "signif": "",
+      "printed": "-2.907e-02 (SE 2.976e-02)"
+     },
+     {
+      "term": "st_tvi",
+      "label": "Surface de terrain à usage viticole",
+      "unit": "€ par m² de terrain",
+      "estimate": 0.03706,
+      "se": 0.4889,
+      "t": 0.076,
+      "p": 0.93957,
+      "pText": "0.93957",
+      "signif": "",
+      "printed": "3.706e-02 (SE 4.889e-01)"
+     },
+     {
+      "term": "st_tart",
+      "label": "Surface de terrain à usage artificiel",
+      "unit": "€ par m² de terrain",
+      "estimate": -0.1729,
+      "se": 0.367,
+      "t": -0.471,
+      "p": 0.63766,
+      "pText": "0.63766",
+      "signif": "",
+      "printed": "-1.729e-01 (SE 3.670e-01)"
+     }
+    ]
+   }
+  },
+  "regressionSample": "Bases maisons et appartements issues de la base de travail (22 048 observations, 12 variables).",
+  "prediction": {
+   "formula": "prix (€) = constante + b_surface × surface (m²) + b_pieces × pièces + b_nature[k] (0 si k = jardins) + b_tab × st_tab + b_tnat × st_tnat + b_tag × st_tag + b_tvi × st_tvi + b_tart × st_tart (surfaces de terrain en m²)",
+   "inputsSupported": {
+    "type": "choisit l'équation (maison ou appartement)",
+    "surface": "surface_reelle_bati, en m²",
+    "pieces": "n_piece",
+    "terrain": "pas de coefficient pour la surface de terrain totale : utiliser les surfaces par usage (st_tnat, seule significative dans les deux modèles, est le choix le plus défendable pour un champ « terrain »)",
+    "natureTerrain": "nature_culture, défaut = jardins (référence)"
+   },
+   "inputsNotSupported": {
+    "annee": "Aucun effet année dans les régressions et aucune série de prix par année dans le rapport (seulement des volumes de transactions).",
+    "distanceAngers": "Aucune variable de distance ou de temps de trajet dans les régressions : la dimension spatiale est traitée de façon descriptive (cartes et courbe transactions–distance)."
+   },
+   "cautions": [
+    "Le modèle ne contient aucune variable de localisation ni de date : le prix ajusté est le même partout dans le département.",
+    "R² modestes (0,144 pour les maisons, 0,2988 pour les appartements) : un ordre de grandeur, sans intervalle de prédiction.",
+    "Rester dans les plages conservées après filtrage : maisons 15–183 m² et prix ≤ 337 500 € ; appartements ≤ 115 m² et prix ≤ 494 125 €."
+   ],
+   "validationExamples": [
+    {
+     "type": "maison",
+     "surface": 100,
+     "pieces": 4,
+     "nature_culture": 1,
+     "terrains": {},
+     "prix": 145408.0
+    },
+    {
+     "type": "maison",
+     "surface": 120,
+     "pieces": 5,
+     "nature_culture": 5,
+     "terrains": {},
+     "prix": 190411.0
+    },
+    {
+     "type": "maison",
+     "surface": 100,
+     "pieces": 4,
+     "nature_culture": 1,
+     "terrains": {
+      "st_tnat": 1000
+     },
+     "prix": 146142.3
+    },
+    {
+     "type": "appartement",
+     "surface": 60,
+     "pieces": 3,
+     "nature_culture": 1,
+     "terrains": {},
+     "prix": 66614.21
+    },
+    {
+     "type": "appartement",
+     "surface": 60,
+     "pieces": 3,
+     "nature_culture": 2,
+     "terrains": {},
+     "prix": 144146.0
+    }
+   ],
+   "validationNote": "Exemples calculés à partir des coefficients publiés (non présents dans le rapport), pour tester l'implémentation de l'estimateur."
+  },
+  "ranges": {
+   "appartement": {
+    "prix": {
+     "min": 0,
+     "minExclusive": true,
+     "max": 494125,
+     "unit": "€",
+     "q1Deduced": 112250,
+     "q3Deduced": 265000
+    },
+    "surface": {
+     "min": 0,
+     "minExclusive": true,
+     "max": 115,
+     "unit": "m²",
+     "q1Deduced": 31.25,
+     "q3Deduced": 64.75
+    },
+    "iqrBoundsRaw": {
+     "prix": [-116875, 494125],
+     "surface": [-19, 115]
+    },
+    "observedOnFilteredScatter": {
+     "surface": [9, 114],
+     "approx": true
+    }
+   },
+   "maison": {
+    "prix": {
+     "min": 0,
+     "minExclusive": true,
+     "max": 337500,
+     "unit": "€",
+     "q1Deduced": 100000,
+     "q3Deduced": 195000
+    },
+    "surface": {
+     "min": 15,
+     "max": 183,
+     "unit": "m²",
+     "q1Deduced": 78,
+     "q3Deduced": 120
+    },
+    "iqrBoundsRaw": {
+     "prix": [-42500, 337500],
+     "surface": [15, 183]
+    },
+    "observedOnFilteredScatter": {
+     "surface": [8, 182],
+     "approx": true
+    }
+   },
+   "pieces": null,
+   "terrain": null,
+   "prixM2Communes": {
+    "min": "< 1 000 €/m²",
+    "max": "> 2 100 €/m²",
+    "note": "Prix moyen au m² par commune, en classes (carte du rapport)."
+   },
+   "note": "Q1 et Q3 déduits algébriquement des bornes publiées [Q1 − 1,5·IQR ; Q3 + 1,5·IQR] : IQR = (borne haute − borne basse)/4. Ils décrivent les bases maisons / appartements avant filtrage. Aucune statistique publiée pour le nombre de pièces ni pour les surfaces de terrain."
+  }
+ },
+ "conclusions": [
+  "Angers domine le marché : 14 431 transactions, environ trois fois plus que Cholet (4 672).",
+  "Le nombre de transactions décroît avec la distance à Angers, avec un léger rebond périurbain vers 15 km.",
+  "Le marché progresse de 2014 à 2017 (environ 13 500 puis plus de 17 500 transactions) ; la baisse de 2018 est un artefact d'enregistrement.",
+  "La saisonnalité est marquée : pic en juin–juillet, creux en août et en novembre, rebond en décembre.",
+  "Le prix au m² baisse globalement avec l'éloignement d'Angers, mais Saumur, Cholet, l'ouest proche de Nantes et le Parc naturel régional font exception.",
+  "Surface bâtie, nombre de pièces, terrain naturel et nature du terrain expliquent les prix, avec des effets différents pour les maisons et les appartements."
+ ],
+ "limits": [
+  "Les régressions ne contiennent aucune variable de localisation ni de date : la dimension spatiale reste descriptive.",
+  "Les R² sont modestes (0,144 pour les maisons, 0,2988 pour les appartements).",
+  "La base est très lacunaire : toutes les observations ont au moins une valeur manquante et l’imputation par plus proches voisins n’a pas donné de résultats vraisemblables.",
+  "Des déterminants cités dans l’étude sont absents de la base : pollution atmosphérique et sonore, bien-être, proximité des commerces, des transports et de l’emploi.",
+  "2018 est sous-enregistrée et exclue des analyses temporelles.",
+  "Erreurs-types MCO classiques, sans correction de l’hétéroscédasticité."
+ ],
+ "codeSnippet": null
+}

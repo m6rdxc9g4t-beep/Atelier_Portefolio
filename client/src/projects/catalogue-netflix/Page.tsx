@@ -566,7 +566,7 @@ function Talents({ f, kind }: { f: Record<string, any>; kind: Kind }) {
           </li>
         ))}
       </ol>
-      {who === 'realisateurs' && kind === 'series' && <p className="nf-note">Nombreux ex aequo à 2 séries : la liste s’arrête au dixième nom.</p>}
+      {who === 'realisateurs' && kind === 'series' && <p className="nf-note">Les huit derniers noms comptent 2 séries chacun (classés par ordre alphabétique).</p>}
     </Reveal>
   );
 }

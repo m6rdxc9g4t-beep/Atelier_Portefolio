@@ -11,6 +11,8 @@ export const IND: { key: IndKey; label: string; short: string; color: string; in
 ];
 const indOf = (k: IndKey) => IND.find((i) => i.key === k)!;
 const sign = (v: number, d = 3) => `${v > 0 ? '+' : v < 0 ? '−' : ''}${fmt(Math.abs(v), d, d)}`;
+/** Nombre de décimales de la valeur publiée (0,0344 → 4), pour afficher les coefficients sans les tronquer. */
+const decimalsOf = (v: number) => (String(Math.abs(v)).split('.')[1] ?? '').length;
 
 export function IndTabs({ value, onChange, label = 'Indicateur affiché' }: { value: IndKey; onChange: (k: IndKey) => void; label?: string }) {
   return (
@@ -391,9 +393,7 @@ export function Decomposition({ f, ind, setInd }: { f: Record<string, any>; ind:
   const dec = f.wagstaff_decomposition;
   const labels = dec.x as string[];
   const contrib = dec.contribution[ind] as (number | null)[];
-  const elas = dec.elasticity[ind] as (number | null)[];
-  const ck = dec.ci_k as (number | null)[];
-  const rows = labels.map((l, i) => ({ l, c: contrib[i], e: elas[i], k: ck[i], resid: dec.keys[i] === 'residuel' }));
+  const rows = labels.map((l, i) => ({ l, c: contrib[i], resid: dec.keys[i] === 'residuel' }));
   const min = -0.12;
   const max = 0.02;
   const x = (v: number) => ((v - min) / (max - min)) * 100;
@@ -408,8 +408,6 @@ export function Decomposition({ f, ind, setInd }: { f: Record<string, any>; ind:
       <div className="si-dec-head" aria-hidden>
         <span>Facteur</span>
         <span>Contribution à l’indice</span>
-        <span>Élasticité</span>
-        <span>C_k</span>
       </div>
       <ul className="si-dec-rows">
         {rows.map((r, i) => (
@@ -436,23 +434,18 @@ export function Decomposition({ f, ind, setInd }: { f: Record<string, any>; ind:
               )}
               <b style={{ left: `${r.c !== null && r.c < 0 ? x(r.c) : x(0)}%` }}>{r.c === null ? 'hors modèle' : sign(r.c)}</b>
             </span>
-            <span className="num">{r.e === null || r.e === undefined ? '—' : sign(r.e)}</span>
-            <span className="num">{r.k === null || r.k === undefined ? '—' : sign(r.k)}</span>
           </li>
         ))}
       </ul>
       <div className="si-dec-foot">
-        <span>
-          Indice de Wagstaff total : <b>{sign(dec.total[ind])}</b>
-        </span>
         <span className="si-note" aria-live="polite">
           {h
             ? h.resid
               ? 'Part de l’indice que les facteurs du modèle n’expliquent pas.'
               : h.c === null
                 ? `${h.l} : non retenu dans ce modèle de décomposition.`
-                : `${h.l} : contribution ${sign(h.c)} = élasticité × concentration du facteur (C_k = ${h.k === null ? '—' : sign(h.k)}).`
-            : 'Survolez ou touchez un facteur. Contribution = élasticité η_k × indice de concentration C_k du facteur (tableaux 5 à 7 du mémoire).'}
+                : `${h.l} : contribution ${sign(h.c)} à l’indice de Wagstaff.`
+            : 'Survolez ou touchez un facteur. Contributions publiées dans les tableaux 5 à 7 du mémoire ; « Résiduel » : part que les facteurs n’expliquent pas.'}
         </span>
       </div>
     </Reveal>
@@ -480,7 +473,8 @@ export function LogitTable({ vars, ind, setInd }: { vars: Var[]; ind: IndKey; se
     const c = v[k];
     const sig = c.sig !== 'n.s.' && c.sig !== '.';
     const tone = v.key === 'intercept' ? 'base' : !sig ? 'ns' : c.beta < 0 ? 'prot' : 'risk';
-    const txt = mode === 'beta' ? sign(c.beta, Math.abs(c.beta) < 0.01 ? 4 : 3) : c.orDerived === null ? '—' : fmt(c.orDerived, 3, 3);
+    // précision du tableau 3 : 4 décimales sous 0,01 (0,0060), sinon au moins 3, sans tronquer les valeurs publiées à 4 décimales (0,0344)
+    const txt = mode === 'beta' ? sign(c.beta, Math.max(Math.abs(c.beta) < 0.01 ? 4 : 3, decimalsOf(c.beta))) : c.orDerived === null ? '—' : fmt(c.orDerived, 3, 3);
     return (
       <td key={k} className={`${tone} ${ind === k ? 'is-col' : ''}`}>
         <span className="b">{txt}</span>

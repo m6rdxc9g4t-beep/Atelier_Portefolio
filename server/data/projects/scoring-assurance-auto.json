@@ -646,8 +646,8 @@
    "description": "Sensibilité, taux de faux positifs et part d'assurés classés « à risque » selon le seuil (apprentissage)",
    "threshold": [0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12, 0.13, 0.1394, 0.15, 0.16, 0.17, 0.18, 0.2, 0.22, 0.25, 0.28, 0.3, 0.35, 0.4, 0.45, 0.5],
    "fpr": [0.93, 0.86, 0.787, 0.717, 0.648, 0.586, 0.535, 0.484, 0.434, 0.394, 0.356, 0.32, 0.294, 0.265, 0.24, 0.219, 0.199, 0.163, 0.136, 0.101, 0.075, 0.064, 0.035, 0.02, 0.01, 0.005],
-   "tpr": [0.99, 0.974, 0.954, 0.932, 0.905, 0.879, 0.853, 0.826, 0.793, 0.766, 0.739, 0.708, 0.683, 0.652, 0.625, 0.597, 0.571, 0.519, 0.473, 0.405, 0.333, 0.295, 0.215, 0.16, 0.111, 0.075],
-   "shareFlagged": [0.938, 0.875, 0.809, 0.745, 0.682, 0.625, 0.577, 0.53, 0.482, 0.444, 0.407, 0.372, 0.345, 0.317, 0.291, 0.269, 0.248, 0.21, 0.181, 0.141, 0.109, 0.095, 0.059, 0.039, 0.023, 0.014],
+   "tpr": [0.99, 0.974, 0.954, 0.932, 0.905, 0.879, 0.853, 0.826, 0.793, 0.766, 0.739, 0.708, 0.684, 0.652, 0.625, 0.597, 0.571, 0.519, 0.473, 0.405, 0.333, 0.295, 0.215, 0.16, 0.111, 0.075],
+   "shareFlagged": [0.938, 0.875, 0.809, 0.745, 0.682, 0.625, 0.577, 0.53, 0.482, 0.444, 0.407, 0.372, 0.346, 0.317, 0.291, 0.269, 0.248, 0.21, 0.181, 0.141, 0.109, 0.095, 0.059, 0.039, 0.023, 0.014],
    "anchor": {
     "threshold": 0.1394,
     "fpr": 0.294,
@@ -728,7 +728,7 @@
    "gainsLift": false,
    "calibration": false,
    "scoreHistogram": false,
-   "note": "Le rapport (12 pages de texte + 9 pages de script R) ne reproduit ni la sortie de summary(logit_2) ni le tableau exp(cbind(OR = coef(logit_2), confint(logit_2))). Les champs beta, oddsRatio et pValue sont des gabarits à null : le simulateur de profil ne peut pas être alimenté par le rapport seul."
+   "note": "Le rapport (13 pages de texte, page de titre comprise, et 8 pages de script R) ne reproduit ni la sortie de summary(logit_2) ni le tableau exp(cbind(OR = coef(logit_2), confint(logit_2))). Les champs beta, oddsRatio et pValue sont des gabarits à null : le simulateur de profil ne peut pas être alimenté par le rapport seul."
   },
   "retained": {
    "id": "logit_2",

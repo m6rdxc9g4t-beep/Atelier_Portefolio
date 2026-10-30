@@ -193,8 +193,8 @@
      "items": [
       "**M1** : constante ; le modèle d'accès ajoute des effets fixes pays (référence : Autriche).",
       "**M2** : + migrant (réf. natif), âge, femme (réf. homme), en couple (réf. vit seul).",
-      "**M3** : + état de santé autodéclaré (réf. excellent), nombre de maladies chroniques, nombre de limitations dans les activités de la vie quotidienne (ADL).",
-      "**M4** : + éducation (réf. primaire), statut d'emploi (réf. en emploi), contrainte financière (réf. très forte)."
+      "**M3** : + état de santé autodéclaré (réf. excellent), nombre de maladies chroniques ; les limitations dans les activités de la vie quotidienne (ADL) n'entrent qu'en M4 dans le modèle d'accès.",
+      "**M4** : + éducation (réf. primaire), statut d'emploi (réf. en emploi) ; la contrainte financière (réf. très forte) n'a pas d'estimation publiée dans le modèle d'accès."
      ]
     }
    ]
@@ -298,7 +298,7 @@
     },
     {
      "type": "text",
-     "md": "**Vie en couple.** C'est l'effet le plus net : −0,042 en M2, −0,043 en M3 et −0,046 en M4, avec une p-value inférieure à 0,001."
+     "md": "**Vie en couple.** C'est l'effet le plus net : −0,042 en M2 et −0,043 en M3, avec une p-value inférieure à 0,001, puis −0,046 en M4 (p-value non publiée)."
     },
     {
      "type": "text",
@@ -320,7 +320,7 @@
    "blocks": [
     {
      "type": "text",
-     "md": "Le tableau 4 modélise le **nombre de recours** chez ceux qui consultent : E(log #GP | #GP > 0) sur les 21 504 consultants, et E(log #Hosp | #Hosp > 0) sur les 3 541 personnes hospitalisées. Les variables entrent par les mêmes blocs que pour l'accès."
+     "md": "Le tableau 4 modélise le **nombre de recours** chez ceux qui consultent : E(log #GP | #GP > 0) sur les 21 504 consultants, et E(log #Hosp | #Hosp > 0) sur les 3 541 personnes hospitalisées. Leur composition diffère un peu de celle de l'accès : pas d'effets fixes pays, limitations ADL dès M3 et contrainte financière en M4."
     },
     {
      "type": "table",
@@ -1036,7 +1036,7 @@
   "La part de migrants va de 1,5 % (Italie) à 18,7 % (Allemagne) ; elle atteint 8,1 % sur l'ensemble des 11 pays.",
   "Les consultants sont plus âgés (65,3 ans contre 62,4), plus souvent des femmes (55,6 % contre 49,3 %) et des retraités (52,0 % contre 41,1 %), moins souvent en emploi (24,9 % contre 38,3 %).",
   "Être migrant n'est associé qu'à un léger surcroît d'accès (0,0099 en M2, 0,0097 en M3), significatif seulement au seuil de 10 % (p = 0,075 et 0,080).",
-  "Vivre en couple est l'effet le plus robuste sur l'accès : coefficient de −0,042 à −0,046, p < 0,001.",
+  "Vivre en couple est l'effet le plus net sur l'accès : coefficient de −0,042 à −0,046 selon le modèle, p < 0,001 en M2 et M3.",
   "Les effets de l'état de santé sont faibles et jugés contre-intuitifs par le rapport ; le nombre de maladies chroniques est significatif mais très faible (−0,0037 ; p = 0,003).",
   "L'ajustement progresse à chaque bloc de variables (log-vraisemblance de −976,1 à −384,2, R² de 0,0001 à 0,042) : **M4** est le modèle retenu.",
   "L'intensité du recours croît avec l'âge jusqu'à 80–85 ans puis fléchit ; les migrants consultants ont la même médiane que les non-migrants, avec une distribution un peu plus étalée vers le haut (lecture graphique)."

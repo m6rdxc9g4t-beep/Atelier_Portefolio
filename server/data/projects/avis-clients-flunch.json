@@ -261,7 +261,7 @@
     },
     {
      "type": "callout",
-     "md": "**Piste : un thème « fidélité ».** « Points », « ticket », « compte », « carte » et « fidélité » se regroupent près du pôle prix. Faute de fréquence suffisante, les auteurs ne l'ont pas retenu comme famille. Il reflète sans doute la carte de fidélité lancée par l'enseigne il y a quelques années."
+     "md": "**Piste : un thème « fidélité ».** « Points », « ticket », « compte », « carte » et « fidélité » se regroupent près du pôle prix. Faute de fréquence suffisante, les auteurs ne l'ont pas retenu comme famille. Selon les auteurs, il reflète la carte de fidélité, mise en avant par le restaurant depuis quelques années."
     }
    ]
   },
@@ -300,7 +300,7 @@
     },
     {
      "type": "text",
-     "md": "La famille service/personnel reste positive d'un bout à l'autre. Les trois autres commencent par des adjectifs positifs, puis glissent vers des termes négatifs. Surtout, les adjectifs négatifs sont plus variés et plus extrêmes : « immangeable », « médiocre », « horrible »."
+     "md": "La famille service/personnel reste globalement positive. Les trois autres commencent par des adjectifs positifs, puis glissent vers des termes négatifs. Surtout, les adjectifs négatifs sont plus variés et plus extrêmes : « immangeable », « médiocre », « horrible »."
     },
     {
      "type": "callout",
@@ -365,11 +365,11 @@
    "source": "p. 3"
   },
   "families": {
-   "description": "Les quatre familles thématiques, de la plus à la moins représentée selon le texte. Le rapport ne publie pas le nombre d'avis par famille ; « tone » résume son appréciation qualitative.",
+   "description": "Les quatre familles thématiques, de la plus à la moins représentée selon le texte. Le rapport ne publie pas le nombre d'avis par famille ; « tone » résume sa lecture de chaque thème (p. 6-7).",
    "keys": ["service_personnel", "nourriture", "environnement", "prix"],
    "labels": ["Service / personnel", "Nourriture", "Environnement", "Prix"],
    "rank": [1, 2, 3, 4],
-   "tone": ["positif", "négatif", "plutôt positif", "mitigé : « cher » domine"],
+   "tone": ["positive : le point clé selon les clients", "qualité à travailler en priorité", "plutôt positive (« propre » > « sale »)", "peu abordé ; « cher » ressort"],
    "reportColors": ["#C77CFF", "#7CAE00", "#F8766D", "#00BFC4"],
    "approx": false,
    "source": "Texte, p. 6-7"
@@ -743,7 +743,7 @@
  },
  "model": {
   "type": "lexique-demo",
-  "description": "Base pour la démo « classez un avis ». Le rapport ne publie ni le dictionnaire des familles ni le lexique du score : ces listes sont reconstituées à partir des mots que le rapport affiche (graphiques par famille, AFC, adjectifs, texte). À présenter comme une démo simplifiée, pas comme le modèle original.",
+  "description": "Base pour la démo « classez un avis ». Familles : dictionnaire dico_fam du code Python du projet. Polarité : petit lexique d'opinion construit pour la démo (le projet utilise textblob-fr). À présenter comme une démo simplifiée, pas comme le modèle original.",
   "score": {
    "min": -1,
    "max": 1,
@@ -833,7 +833,7 @@
  ],
  "limits": [
   "Les fautes d'orthographe et de frappe ne sont pas corrigées : elles peuvent fausser la fréquence de certains mots.",
-  "Beaucoup de mots généraux (« bon », « personnel », « plat ») apparaissent à la fois dans les avis positifs et négatifs, ce qui brouille la lecture des nuages.",
+  "Des mots généraux comme « personnel » ou « plat » apparaissent à la fois dans les avis positifs et négatifs, ce qui brouille la lecture des nuages.",
   "« Bon », omniprésent dans toutes les familles, écrase la hiérarchie des autres mots.",
   "Le rapport ne chiffre ni le nombre d'avis par famille ni le croisement famille × polarité : la lecture par thème repose sur les fréquences de mots.",
   "Le thème « fidélité » n'a pas été retenu, faute de fréquence suffisante.",

@@ -290,7 +290,7 @@
 @media (max-width: 760px) { .si-conc-grid { grid-template-columns: 1fr; } }
 
 /* décomposition */
-.si-dec-head, .si-dec-rows li { display: grid; grid-template-columns: minmax(150px, 1.15fr) minmax(0, 2fr) 70px 70px; gap: 12px; align-items: center; }
+.si-dec-head, .si-dec-rows li { display: grid; grid-template-columns: minmax(150px, 1.15fr) minmax(0, 2.6fr); gap: 12px; align-items: center; }
 .si-dec-head { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-faint); padding: 0 8px 6px; border-bottom: 1px solid var(--line); }
 .si-dec-head span:nth-child(n + 3) { text-align: right; }
 .si-dec-rows { list-style: none; }

@@ -54,6 +54,8 @@ const POLARITY: Record<string, number> = {
   impolie: -0.8, fade: -0.5, sec: -0.4, sèche: -0.4, brûlé: -0.6, cru: -0.4, bruyant: -0.4,
   bruyante: -0.4, catastrophique: -1, pire: -0.9, inadmissible: -0.9, attente: -0.3, vide: -0.3,
   manque: -0.4, rien: -0.2, jamais: -0.3, scandaleux: -0.9, honteux: -0.9, arnaque: -0.9,
+  // adjectifs négatifs mis en avant par le rapport
+  médiocre: -0.8, immangeable: -1, dommage: -0.5,
 };
 
 const NEGATIONS = new Set(['pas', 'jamais', 'plus', 'aucun', 'aucune', 'ni', 'sans']);

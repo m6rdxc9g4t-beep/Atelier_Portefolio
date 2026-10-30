@@ -56,7 +56,7 @@ export default function Page({ project }: { project: ProjectResponse }) {
         </>
       }
       nav={NAV}
-      closing={<>Le service fait revenir les clients ; l’assiette décide de ce qu’ils écrivent.</>}
+      closing={<>Une image portée par le service ; les critiques se concentrent sur l’assiette, le prix et la salle.</>}
     >
       <EdHero
         project={project}
@@ -144,8 +144,8 @@ export default function Page({ project }: { project: ProjectResponse }) {
         </div>
         <h3 className="fl-h3">À vous : classez un avis</h3>
         <p className="fl-lab-intro">
-          Démo simplifiée : les familles reprennent le dictionnaire du code du projet (<code>dico_fam</code>) ; la polarité suit un petit lexique d’adjectifs tirés du rapport.
-          Ce n’est pas le score textblob-fr du projet, seulement une illustration de la démarche.
+          Démo simplifiée : les familles reprennent le dictionnaire du code du projet (<code>dico_fam</code>) ; la polarité suit un petit lexique d’opinion construit pour
+          la démo. Ce n’est pas le score textblob-fr du projet, seulement une illustration de la démarche.
         </p>
         <ReviewLab />
       </EdSection>
@@ -305,7 +305,7 @@ function Families({ f }: { f: Record<string, any> }) {
         <div className="fl-fam-card" style={{ ['--fam' as string]: FAM_COLOR[fam] }}>
           <span className="lab">Famille</span>
           <strong>{s.label}</strong>
-          <span className="lab">Tonalité dans le rapport</span>
+          <span className="lab">Lecture du rapport</span>
           <em>{tone}</em>
           <span className="lab">Mot n° 1</span>
           <b>

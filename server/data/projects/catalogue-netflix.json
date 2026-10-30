@@ -20,7 +20,7 @@
   {
    "value": "70 % / 30 %",
    "label": "Films / séries",
-   "note": "6 131 films et 2 676 séries"
+   "note": "6 131 films et 2 676 séries (calculé : tableau de la diapositive 6)"
   },
   {
    "value": "3 092",
@@ -136,7 +136,7 @@
     },
     {
      "type": "text",
-     "md": "Le catalogue compte environ **70 % de films** et **30 % de séries**, soit 6 131 films et 2 676 séries. La durée se mesure en minutes pour les films et en saisons pour les séries : les deux formats sont donc analysés séparément, puis comparés."
+     "md": "Le catalogue compte environ **70 % de films** et **30 % de séries**, soit 6 131 films et 2 676 séries (calculé à partir de la diapositive 6). La durée se mesure en minutes pour les films et en saisons pour les séries : les deux formats sont donc analysés séparément, puis comparés."
     }
    ]
   },
@@ -157,7 +157,7 @@
     },
     {
      "type": "callout",
-     "md": "La règle « États-Unis prioritaires » classe un titre en zone US dès que les États-Unis figurent parmi ses pays. C'est pourquoi la zone US pèse **48,4 %** des films au pays renseigné, alors que les États-Unis ne sont le premier pays cité que pour **38,6 %** des films."
+     "md": "La règle « États-Unis prioritaires » classe un titre en zone US dès que les États-Unis figurent parmi ses pays : la zone US pèse **48,4 %** des films au pays renseigné. Les États-Unis sont le premier pays cité pour **38,6 %** de l'ensemble des films, pays manquants compris, soit ≈ 41,5 % des films au pays renseigné (calculé : 2 364 / 5 690)."
     }
    ]
   },

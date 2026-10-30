@@ -403,7 +403,7 @@
     {
      "type": "formula",
      "tex": "\\begin{aligned}\\ln\\frac{p}{1-p} = {} & 3{,}0769 - 0{,}0415\\,\\text{AGE} - 0{,}00492\\,\\text{FICO} \\\\ & - 0{,}5438\\,\\mathbf{1}_{\\{\\text{MARRIED}=0\\}} + 0{,}4582\\,\\mathbf{1}_{\\{\\text{OWNHOME}=0\\}} \\\\ & - 0{,}2294\\,\\text{BUY6} - 0{,}3175\\,\\text{BUY12} + 0{,}6465\\,\\text{BUY18}\\end{aligned}",
-     "caption": "Formule de score : logit de la probabilité de répondre. AGE en années, FICO en points, BUY = nombres de commandes ; l'indicatrice vaut 1 si la condition est vraie."
+     "caption": "Formule de score : logit de la probabilité de répondre. AGE en années, FICO en points, BUY = nombres de commandes. Lecture retenue pour MARRIED et OWNHOME : indicatrice de la modalité 0 (le rapport ne précise pas le codage SAS)."
     },
     {
      "type": "formula",
@@ -461,7 +461,7 @@
      "items": [
       "Cibler en priorité les clients des 3 premiers déciles du score, la population la plus réceptive.",
       "Adapter les messages aux segments clés : clients jeunes et acheteurs récents.",
-      "Exclure les déciles 8 à 10, dont le taux de réponse est inférieur à 5 %.",
+      "Exclure les déciles 8 à 10, les moins réceptifs.",
       "Combiner la fidélisation des clients actifs et la réactivation des clients sans achat récent."
      ]
     }

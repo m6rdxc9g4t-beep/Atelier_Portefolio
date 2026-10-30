@@ -223,7 +223,7 @@ export default function Page({ project }: { project: ProjectResponse }) {
               <div className="ar-lambda-bar">
                 <i style={{ width: '77.4%' }} />
               </div>
-              <small>écart-type 0,021 · z = 37,09 · p &lt; 2,2 × 10⁻¹⁶</small>
+              <small>écart-type 0,021 · z = 37,09 · p &lt; 2,22 × 10⁻¹⁶</small>
             </Reveal>
             {findBlocks('sdem', 'callout').map((b, i) => (
               <Reveal key={i} className="ar-mt">

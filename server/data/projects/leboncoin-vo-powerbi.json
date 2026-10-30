@@ -1,6 +1,6 @@
 {
  "slug": "leboncoin-vo-powerbi",
- "title": "Architecture décisionnelle — véhicules d’occasion à Lille (Leboncoin)",
+ "title": "Architecture décisionnelle — véhicules d’occasion en région lilloise (Leboncoin)",
  "subtitle": "Du fichier d'annonces brut au tableau de bord Power BI, via un pipeline Databricks et un modèle en étoile",
  "course": "M2 Économétrie appliquée — Architecture décisionnelle & analyse de données",
  "level": "M2",
@@ -230,7 +230,7 @@
      "items": [
       "le prix est manquant ;",
       "le prix est inférieur ou égal à **500 €** ;",
-      "le titre ou la description contient « pièce(s) », « pour pièces », « épave », « casse », « moteur », « boîte », « jantes » ou « en l'état »."
+      "le titre ou la description contient « pièce(s) », « pour pièces », « épave », « casse », « moteur », « boîte », « jantes » ou « en l'etat » (sans accent, comme dans le notebook)."
      ]
     },
     {
@@ -540,7 +540,7 @@
    "prix_max_eur": 500,
    "prix_manquant": true,
    "champs_texte": ["title", "description"],
-   "mots_cles": ["pièce(s)", "pour pièces", "épave", "casse", "moteur", "boîte", "jantes", "en l'état"],
+   "mots_cles": ["pièce(s)", "pour pièces", "épave", "casse", "moteur", "boîte", "jantes", "en l'etat"],
    "regex": "(pi[eè]ces?|pour pi[eè]ces?|epave|épave|casse|moteur|bo[iî]te|boite|jantes?|en l[' ]?etat)",
    "usage": "Les annonces signalées restent dans fact_listing ; un filtre les exclut des calculs de prix dans Power BI.",
    "approx": false

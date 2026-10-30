@@ -566,7 +566,7 @@ function ScoreCalculator({ logit, examples, slug }: { logit: LogitModel; example
         <div>
           <span className="sm-calc-kicker">Calculateur</span>
           <h3>Noter un client</h3>
-          <p>La formule exacte du rapport : réglez le profil, le logit z et la probabilité de répondre se recalculent.</p>
+          <p>Les coefficients du modèle final du rapport : réglez le profil, le logit z et la probabilité de répondre se recalculent.</p>
         </div>
         <div className="sm-presets" role="group" aria-label="Profils d’exemple">
           {examples.slice(0, 3).map((e, i) => (
@@ -698,7 +698,9 @@ function ScoreCalculator({ logit, examples, slug }: { logit: LogitModel; example
         </div>
       </div>
       <p className="sm-note sm-calc-foot">
-        MARRIED et OWNHOME : la modalité OUI sert de référence (les paramètres SAS portent sur la modalité 0). Les commandes entrent comme des nombres, avec un coefficient chacune.
+        MARRIED et OWNHOME : la sortie SAS ne donne qu’un paramètre, pour la modalité 0, sans préciser le codage. Lecture retenue ici : indicatrice de la
+        modalité 0, la modalité OUI servant de référence. Avec le codage par défaut de PROC LOGISTIC (effets ± 1), l’écart entre les deux modalités serait
+        deux fois plus grand. Les commandes entrent comme des nombres, avec un coefficient chacune.
       </p>
     </Reveal>
   );

@@ -78,7 +78,7 @@ client/   React 19 + Vite : accueil, projets, CV imprimable, une page thématis�
 - **Ordre, couleurs, rapports, liens Power BI** : `shared/src/catalog.ts`
 - **Ajouter un projet** : une fiche JSON + une entrée au catalogue suffisent (la page générique l’affiche) ; une page thématisée peut ensuite être ajoutée dans `client/src/projects/<slug>/` et déclarée dans `registry.ts`.
 
-Les fiches ont été rédigées à partir des rapports de chaque projet : tous les chiffres viennent des documents.
+Les fiches ont été rédigées à partir des rapports de chaque projet : tous les chiffres viennent des documents. Sans rapport fourni, les fiches ARIMA / SARIMA, Porsche, stage ECM et DataMind reprennent le contenu de l’ancien site.
 Les marques citées (Netflix, Flunch, Leboncoin, Porsche…) sont les sujets des études ; leurs logos ne sont pas reproduits.
 
 ---

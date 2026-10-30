@@ -644,7 +644,7 @@ export function StateGroups({ fe }: { fe: StateFE }) {
     () => [
       { id: 'fe', label: 'Effets fixes d’État', hi: fe.aboveOne, lo: fe.belowOne, hiL: 'Odds ratio > 1 (risque supérieur)', loL: 'Odds ratio < 1 (risque inférieur)', src: 'Effets fixes d’État des modèles logit (section 6.3)' },
       { id: 'map', label: 'Commentaire des cartes', hi: fe.mapCommentary.mostAffected, lo: fe.mapCommentary.leastAffected, hiL: 'Les plus touchés', loL: 'Les moins touchés', src: 'Commentaire des cartes de prévalence' },
-      { id: 'st', label: 'Retard de croissance', hi: fe.mapCommentary.stuntingAbove40PctText, lo: fe.mapCommentary.stuntingBelow20PctText, hiL: 'Plus de 40 % (selon le mémoire)', loL: 'Moins de 20 % (selon le mémoire)', src: 'Texte du mémoire (sections 8 et suivantes)' },
+      { id: 'st', label: 'Retard de croissance', hi: fe.mapCommentary.stuntingAbove40PctText, lo: fe.mapCommentary.stuntingBelow20PctText, hiL: 'Les plus touchés', loL: 'Les moins touchés', src: 'Commentaire de la carte du retard de croissance (section 8.1)' },
       { id: 'uw', label: 'Insuffisance pondérale', hi: fe.mapCommentary.underweightMostAffectedText, lo: [] as string[], hiL: 'Les plus touchés', loL: '', src: 'Texte du mémoire' },
       { id: 'wa', label: 'Émaciation', hi: fe.mapCommentary.wastingHighText, lo: [] as string[], hiL: 'Niveaux relativement élevés dans des États riches de l’ouest', loL: '', src: 'Texte du mémoire' },
     ],

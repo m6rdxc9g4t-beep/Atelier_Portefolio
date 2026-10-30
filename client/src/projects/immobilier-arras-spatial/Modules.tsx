@@ -1,6 +1,20 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { fmt, fmtSci } from '@atelier/shared';
 import { LineChart } from '../../components/charts';
+
+/** Vrai sous `max` px de large : les graphiques SVG passent à une géométrie « mobile » (texte à taille lisible). */
+export function useNarrow(max = 640) {
+  const query = `(max-width: ${max}px)`;
+  const [narrow, setNarrow] = useState(() => typeof window !== 'undefined' && window.matchMedia(query).matches);
+  useEffect(() => {
+    const mq = window.matchMedia(query);
+    const sync = () => setNarrow(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, [query]);
+  return narrow;
+}
 
 /** Espace fine insécable → insécable classique (les polices d'affichage n'ont pas toujours U+202F). */
 export const nb = (t: string) => t.replace(/\u202f/g, '\u00a0');
@@ -118,11 +132,13 @@ const CHI2_5 = 3.841;
 
 export function TestDuel({ tests }: { tests: SpatialTest[] }) {
   const [w, setW] = useState<'knn' | 'sections'>('knn');
+  const narrow = useNarrow();
   const moran = tests.find((t) => t.id === 'moran');
   const rao = tests.filter((t) => t.id !== 'moran');
-  const W = 980;
+  // mobile : libellé et valeur au-dessus de chaque barre, barres sur toute la largeur
+  const W = narrow ? 340 : 980;
   const rowH = 50;
-  const m = { l: 170, r: 120, t: 34, b: 28 };
+  const m = narrow ? { l: 8, r: 10, t: 40, b: 28 } : { l: 170, r: 120, t: 34, b: 28 };
   const H = m.t + m.b + rao.length * rowH;
   const lo = Math.log10(0.05);
   const hi = Math.log10(5000);
@@ -149,7 +165,7 @@ export function TestDuel({ tests }: { tests: SpatialTest[] }) {
           </div>
         )}
       </div>
-      <svg viewBox={`0 0 ${W} ${H}`} className="ar-tests-svg" role="img" aria-label="Statistiques des tests de Rao, échelle logarithmique">
+      <svg viewBox={`0 0 ${W} ${H}`} className={`ar-tests-svg ${narrow ? 'is-narrow' : ''}`} role="img" aria-label="Statistiques des tests de Rao, échelle logarithmique">
         {ticks.map((t) => (
           <g key={t}>
             <line x1={x(t)} x2={x(t)} y1={m.t - 8} y2={H - m.b} className="grid" />
@@ -164,23 +180,43 @@ export function TestDuel({ tests }: { tests: SpatialTest[] }) {
         </text>
         {rao.map((t, i) => {
           const s = t[w];
-          const y = m.t + i * rowH + rowH / 2;
           const robust = t.id.includes('robust');
           const lag = t.id.includes('lag');
+          const name = `${robust ? 'Robuste' : 'Simple'} ${lag ? 'Lag' : 'Error'}`;
+          const val = fmt(s.statistic, s.statistic < 10 ? 3 : 1);
+          const mark = s.significant_5pct ? '★' : 'n.s.';
+          const barW = Math.max(2, x(s.statistic) - m.l);
+          const cls = `${s.significant_5pct ? 'sig' : 'ns'} ${lag ? 'lag' : 'err'}`;
+          const title = `${t.label} : ${fmt(s.statistic, 3)} (${pText(s)})`;
+          if (narrow) {
+            const top = m.t + i * rowH;
+            return (
+              <g key={t.id} className={cls}>
+                <text x={m.l} y={top + 14} className="lab">
+                  {name}
+                </text>
+                <text x={W - m.r} y={top + 14} textAnchor="end" className="val">
+                  {val} <tspan className="p">{mark}</tspan>
+                </text>
+                <rect x={m.l} y={top + 21} width={barW} height={14} rx={2} className="bar" />
+                <title>{title}</title>
+              </g>
+            );
+          }
+          const y = m.t + i * rowH + rowH / 2;
           return (
-            <g key={t.id} className={`${s.significant_5pct ? 'sig' : 'ns'} ${lag ? 'lag' : 'err'}`}>
+            <g key={t.id} className={cls}>
               <text x={m.l - 12} y={y + 4} textAnchor="end" className="lab">
-                {robust ? 'Robuste ' : 'Simple '}
-                {lag ? 'Lag' : 'Error'}
+                {name}
               </text>
-              <rect x={m.l} y={y - 9} width={Math.max(2, x(s.statistic) - m.l)} height={18} rx={2} className="bar" />
+              <rect x={m.l} y={y - 9} width={barW} height={18} rx={2} className="bar" />
               <text x={x(s.statistic) + 6} y={y + 4} className="val">
-                {fmt(s.statistic, s.statistic < 10 ? 3 : 1)}
+                {val}
               </text>
               <text x={W - 4} y={y + 4} textAnchor="end" className="p">
-                {s.significant_5pct ? '★' : 'n.s.'}
+                {mark}
               </text>
-              <title>{`${t.label} : ${fmt(s.statistic, 3)} (${pText(s)})`}</title>
+              <title>{title}</title>
             </g>
           );
         })}
@@ -197,9 +233,10 @@ export function TestDuel({ tests }: { tests: SpatialTest[] }) {
 
 export function AicDots({ models, knn, sections }: { models: string[]; knn: number[]; sections: number[] }) {
   const [hover, setHover] = useState<number | null>(null);
-  const W = 980;
-  const rowH = 52;
-  const m = { l: 90, r: 30, t: 30, b: 36 };
+  const narrow = useNarrow();
+  const W = narrow ? 340 : 980;
+  const rowH = narrow ? 50 : 52;
+  const m = narrow ? { l: 64, r: 18, t: 30, b: 34 } : { l: 90, r: 30, t: 30, b: 36 };
   const H = m.t + m.b + models.length * rowH;
   const lo = 1950;
   const hi = 3050;
@@ -236,7 +273,7 @@ export function AicDots({ models, knn, sections }: { models: string[]; knn: numb
                 </text>
               )}
               {k !== s && (hover === i || s === minS) && (
-                <text x={x(s)} y={y - 15} textAnchor="middle" className="val sec-t">
+                <text x={x(s)} y={narrow ? y + 26 : y - 15} textAnchor="middle" className="val sec-t">
                   {fmt(s, 1, 1)}
                 </text>
               )}
@@ -266,9 +303,11 @@ export interface CoefPlotData {
 }
 
 export function CoefPlot({ data }: { data: CoefPlotData }) {
-  const W = 980;
-  const rowH = 60;
-  const m = { l: 250, r: 30, t: 18, b: 38 };
+  const narrow = useNarrow();
+  // mobile : libellé au-dessus des deux intervalles, axe sur toute la largeur
+  const W = narrow ? 340 : 980;
+  const rowH = narrow ? 66 : 60;
+  const m = narrow ? { l: 12, r: 16, t: 10, b: 34 } : { l: 250, r: 30, t: 18, b: 38 };
   const H = m.t + m.b + data.labels.length * rowH;
   const lo = -1.0;
   const hi = 0.6;
@@ -279,20 +318,22 @@ export function CoefPlot({ data }: { data: CoefPlotData }) {
   ];
   return (
     <figure className="ar-coef">
-      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Coefficients et intervalles à 95 % de l’OLS et du SDEM">
+      <svg viewBox={`0 0 ${W} ${H}`} className={narrow ? 'is-narrow' : ''} role="img" aria-label="Coefficients et intervalles à 95 % de l’OLS et du SDEM">
         {[-1, -0.75, -0.5, -0.25, 0, 0.25, 0.5].map((t) => (
           <g key={t}>
             <line x1={x(t)} x2={x(t)} y1={m.t - 4} y2={H - m.b} className={t === 0 ? 'zero' : 'grid'} />
-            <text x={x(t)} y={H - 14} textAnchor="middle" className="tick">
-              {fmt(t, 2, t % 0.5 === 0 ? 1 : 2)}
-            </text>
+            {(!narrow || t % 0.5 === 0) && (
+              <text x={x(t)} y={H - 14} textAnchor="middle" className="tick">
+                {fmt(t, 2, t % 0.5 === 0 ? 1 : 2)}
+              </text>
+            )}
           </g>
         ))}
         {data.labels.map((label, i) => {
-          const y = m.t + i * rowH + rowH / 2;
+          const y = narrow ? m.t + i * rowH + 40 : m.t + i * rowH + rowH / 2;
           return (
             <g key={label}>
-              <text x={m.l - 14} y={y + 4} textAnchor="end" className="lab">
+              <text x={narrow ? m.l : m.l - 14} y={narrow ? y - 22 : y + 4} textAnchor={narrow ? 'start' : 'end'} className="lab">
                 {label}
               </text>
               {series.map((s) => {
@@ -304,8 +345,8 @@ export function CoefPlot({ data }: { data: CoefPlotData }) {
                 const sig = a > 0 || b < 0;
                 return (
                   <g key={s.key} className={`${s.cls} ${sig ? 'sig' : 'ns'}`}>
-                    <line x1={x(Math.max(lo, a))} x2={x(Math.min(hi, b))} y1={y + s.dy} y2={y + s.dy} className="ar-ci" />
-                    <circle cx={x(est)} cy={y + s.dy} r={5.5} className="pt" />
+                    <line x1={x(Math.max(lo, a))} x2={x(Math.min(hi, b))} y1={y + s.dy * (narrow ? 0.75 : 1)} y2={y + s.dy * (narrow ? 0.75 : 1)} className="ar-ci" />
+                    <circle cx={x(est)} cy={y + s.dy * (narrow ? 0.75 : 1)} r={5.5} className="pt" />
                     <title>{`${s.name} — ${label} : ${fmt(est, 3, 3)} [${fmt(a, 3, 3)} ; ${fmt(b, 3, 3)}]`}</title>
                   </g>
                 );
@@ -338,6 +379,7 @@ interface PredCoefs {
 }
 
 export function SizeSimulator({ ols, sdem }: { ols: PredCoefs; sdem: PredCoefs }) {
+  const narrow = useNarrow();
   const [s, setS] = useState(50);
   const [p, setP] = useState(2);
   const [same, setSame] = useState(true);
@@ -415,14 +457,14 @@ export function SizeSimulator({ ols, sdem }: { ols: PredCoefs; sdem: PredCoefs }
           ariaLabel="Prix au m² ajusté selon la surface, OLS et SDEM"
           xDomain={[15, 140]}
           yDomain={[0, ymax]}
-          height={300}
-          width={600}
-          margin={{ top: 12, right: 14, bottom: 40, left: 62 }}
+          height={narrow ? 250 : 300}
+          width={narrow ? 340 : 600}
+          margin={narrow ? { top: 12, right: 10, bottom: 40, left: 52 } : { top: 12, right: 14, bottom: 40, left: 62 }}
           xFormat={(v) => `${v}`}
           yFormat={(v) => fmt(v)}
           xLabel="surface (m²)"
           vlines={[{ x: s, color: 'var(--ed-ink)', dash: '3 4' }]}
-          hlines={[{ y: 2766, label: 'médiane observée 2 766 €/m²', color: 'var(--ed-muted)', dash: '2 5' }]}
+          hlines={[{ y: 2766, label: narrow ? 'médiane 2 766 €/m²' : 'médiane observée 2 766 €/m²', color: 'var(--ed-muted)', dash: '2 5' }]}
           series={[
             { id: 'ols', points: curveOls, color: 'var(--ed-gold)', width: 2.4 },
             { id: 'sdem', points: curveSdem, color: 'var(--ed-accent)', width: 2.8 },

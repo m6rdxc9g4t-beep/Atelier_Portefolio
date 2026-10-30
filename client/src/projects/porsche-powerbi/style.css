@@ -29,7 +29,8 @@
 .pw-stage-title { font-stretch: 125%; font-size: 26px; font-weight: 700; text-transform: uppercase; margin-top: 4px; }
 .pw-ext { font-size: 13px; color: var(--pw-muted); border-bottom: 1px solid var(--pw-red); padding-bottom: 2px; }
 .pw-ext:hover { color: var(--pw-ink); }
-.pw-frame { position: relative; aspect-ratio: 16 / 9.4; min-height: 360px; }
+.pw-frame { position: relative; width: 100%; min-width: 0; aspect-ratio: 16 / 9.4; min-height: 360px; }
+@media (max-width: 640px) { .pw-frame { aspect-ratio: auto; height: 440px; min-height: 0; } }
 .pw-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #fff; }
 .pw-gate { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; text-align: center; padding: 24px; }
 .pw-gauge { width: 220px; color: var(--pw-ink); }

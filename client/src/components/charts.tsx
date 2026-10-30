@@ -70,7 +70,8 @@ export interface LineChartProps {
   onHoverX?: (x: number | null) => void;
   vlines?: { x: number; label?: string; color?: string; dash?: string; anchor?: 'start' | 'end' }[];
   hlines?: { y: number; label?: string; color?: string; dash?: string }[];
-  markers?: { x: number; y: number; color?: string; r?: number; label?: string }[];
+  /** label placé en haut à droite du point par défaut ; dx / dy / anchor pour le déplacer (ex. sous le point). */
+  markers?: { x: number; y: number; color?: string; r?: number; label?: string; dx?: number; dy?: number; anchor?: 'start' | 'middle' | 'end' }[];
   className?: string;
   ariaLabel: string;
   /** Dessine les points sous les courbes (nuages de points denses). */
@@ -119,7 +120,7 @@ export function LineChart({
     <g key={`m${i}`} className="chart-marker">
       <circle cx={x(m.x)} cy={y(m.y)} r={m.r ?? 5} fill={m.color ?? 'currentColor'} />
       {m.label && (
-        <text x={x(m.x) + 9} y={y(m.y) - 9} fill={m.color}>
+        <text x={x(m.x) + (m.dx ?? 9)} y={y(m.y) + (m.dy ?? -9)} fill={m.color} textAnchor={m.anchor ?? 'start'}>
           {m.label}
         </text>
       )}

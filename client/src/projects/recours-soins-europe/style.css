@@ -69,7 +69,8 @@
 .rs-dumb .track .dot.g0 { background: var(--rs-g0); }
 .rs-dumb .track .dot.g1 { background: var(--rs-g1); }
 .rs-dumb .axis { position: relative; height: 16px; font-family: var(--ed-mono); font-size: 10.5px; color: var(--ed-muted); }
-.rs-dumb .axis em { position: absolute; transform: translateX(-50%); font-style: normal; }
+.rs-dumb .axis em { position: absolute; transform: translateX(-50%); font-style: normal; white-space: nowrap; }
+.rs-dumb .axis em:last-child { transform: translateX(-100%); }
 .rs-dumb .d { font-family: var(--ed-mono); font-size: 12px; color: var(--ed-muted); }
 .rs-dumb.head .d { font-size: 10.5px; }
 .rs-dumb .d.big { color: var(--ed-brick); font-weight: 600; }

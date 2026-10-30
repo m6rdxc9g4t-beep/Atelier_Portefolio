@@ -11,8 +11,9 @@ import { config } from './config.js';
 let cache: Map<string, ProjectContent> | null = null;
 let profileCache: unknown = null;
 
+/** U+202F (espace fine insécable) n'existe dans aucune police du site : on sert U+00A0 à la place. */
 function readJson<T>(file: string): T {
-  return JSON.parse(fs.readFileSync(file, 'utf8')) as T;
+  return JSON.parse(fs.readFileSync(file, 'utf8').replace(/\u202f/g, '\u00a0')) as T;
 }
 
 function load(): Map<string, ProjectContent> {

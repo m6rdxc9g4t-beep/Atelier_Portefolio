@@ -392,16 +392,6 @@
     {
      "type": "text",
      "md": "Le commentaire des cartes ajoute le Chhattisgarh et le Madhya Pradesh aux États les plus touchés, le Tamil Nadu et le Mizoram aux plus favorisés. Pour l'émaciation, le mémoire relève des niveaux relativement élevés dans des États riches de l'ouest, comme le Gujarat et le Maharashtra."
-    },
-    {
-     "type": "figure",
-     "src": "img/sante-infantile-inde/fig-3.png",
-     "caption": "Prévalence du retard de croissance par État, enfants de 6 à 59 mois (carte du mémoire, NFHS-5, shapefile GADM). Odisha et Delhi apparaissent sans donnée."
-    },
-    {
-     "type": "figure",
-     "src": "img/sante-infantile-inde/fig-4.png",
-     "caption": "Prévalence de l'insuffisance pondérale (à gauche) et de l'émaciation (à droite) par État (cartes du mémoire)."
     }
    ]
   },

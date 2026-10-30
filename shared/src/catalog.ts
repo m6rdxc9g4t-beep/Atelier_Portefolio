@@ -45,7 +45,7 @@ export const CATALOG: ProjectMeta[] = [
     category: 'risque',
     accent: '#3f9d6a',
     icon: '⏱️',
-    interactive: 'Courbe de survie interactive',
+    interactive: 'Survie & hasard mois par mois',
     year: 2026,
     featured: true,
     reports: [{ file: 'Modeles_duree_churn_Pichon_Gourguechon_Pot.pdf', label: 'Devoir maison (PDF)' }],
@@ -118,7 +118,7 @@ export const CATALOG: ProjectMeta[] = [
     category: 'sante',
     accent: '#e2843a',
     icon: '👶',
-    interactive: 'Classement des États',
+    interactive: 'Gradient social, score Z & décomposition',
     year: 2025,
     featured: true,
     reports: [

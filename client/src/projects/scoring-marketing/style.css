@@ -258,3 +258,10 @@
   .sm-postmark::before, .sm-postmark::after { width: 30px; }
   .sm-stamp-art { width: 86px; height: 104px; }
 }
+@media (max-width: 560px) {
+  .sm-postmark span { font-size: 10.5px; }
+  .sm-postmark small { font-size: 8.5px; }
+  .sm-formula .katex-display > .katex { font-size: 0.82em; }
+  .sm-tabs { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .sm-tabs button { white-space: nowrap; }
+}

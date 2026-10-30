@@ -47,7 +47,7 @@
 .codeblock-title { color: #9fb0c4; flex: 1; }
 .codeblock-copy { color: #9fb0c4; border: 1px solid rgba(255, 255, 255, 0.15); padding: 3px 10px; border-radius: 6px; font-size: 11.5px; }
 .codeblock-copy:hover { color: #fff; }
-.codeblock pre { margin: 0; padding: 16px 18px; overflow-x: auto; font-family: var(--mono); font-size: 12.8px; line-height: 1.65; tab-size: 2; }
+.codeblock pre { margin: 0; padding: 16px 18px; overflow-x: auto; contain: inline-size; font-family: var(--mono); font-size: 12.8px; line-height: 1.65; tab-size: 2; }
 .tk-com { color: #6b7d93; font-style: italic; }
 .tk-str { color: #c3e88d; }
 .tk-num { color: #f78c6c; }
@@ -60,8 +60,11 @@
 .pbi-tabs button { padding: 8px 16px; border-radius: 9px; border: 1px solid var(--pbi-line, rgba(127, 127, 127, 0.35)); font-weight: 600; font-size: 13.5px; transition: all 0.15s; }
 .pbi-tabs button.is-active { background: var(--pbi-accent, #f2c811); border-color: var(--pbi-accent, #f2c811); color: var(--pbi-on-accent, #111); }
 .pbi-ext { margin-left: auto; font-size: 13px; text-decoration: underline; text-underline-offset: 3px; opacity: 0.8; }
-.pbi-frame { position: relative; aspect-ratio: 16 / 9.6; min-height: 340px; border-radius: 14px; overflow: hidden; border: 1px solid var(--pbi-line, rgba(127, 127, 127, 0.35)); background: var(--pbi-bg, rgba(127, 127, 127, 0.08)); }
+.pbi-frame { position: relative; width: 100%; min-width: 0; aspect-ratio: 16 / 9.6; min-height: 340px; border-radius: 14px; overflow: hidden; border: 1px solid var(--pbi-line, rgba(127, 127, 127, 0.35)); background: var(--pbi-bg, rgba(127, 127, 127, 0.08)); }
 .pbi-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 .pbi-placeholder { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; padding: 24px; }
 .pbi-placeholder p { opacity: 0.75; font-size: 14px; }
 .pbi-placeholder button { padding: 12px 20px; border-radius: 10px; background: var(--pbi-accent, #f2c811); color: var(--pbi-on-accent, #111); font-weight: 700; }
+
+/* Sur mobile, le rapport Power BI garde une hauteur lisible sans élargir la page (min-height × ratio dépasserait l'écran) */
+@media (max-width: 640px) { .pbi-frame { aspect-ratio: auto; height: 420px; min-height: 0; } }

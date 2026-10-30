@@ -430,8 +430,8 @@ interface Box {
 
 export function BoxCompare({ box }: { box: Box }) {
   const W = 560;
-  const H = 170;
-  const m = { l: 120, r: 20, t: 18, b: 34 };
+  const H = 188;
+  const m = { l: 120, r: 20, t: 18, b: 52 };
   const x = (v: number) => m.l + (v / 4) * (W - m.l - m.r);
   const ticks = [1, 2, 4, 7, 15, 30, 50];
   return (
@@ -446,7 +446,7 @@ export function BoxCompare({ box }: { box: Box }) {
         {ticks.map((c) => (
           <g key={c}>
             <line x1={x(Math.log(c))} x2={x(Math.log(c))} y1={m.t} y2={H - m.b} className="grid" />
-            <text x={x(Math.log(c))} y={H - 12} textAnchor="middle" className="tick">
+            <text x={x(Math.log(c))} y={H - m.b + 16} textAnchor="middle" className="tick">
               {c}
             </text>
           </g>
@@ -468,7 +468,7 @@ export function BoxCompare({ box }: { box: Box }) {
             </g>
           );
         })}
-        <text x={W - m.r} y={H - 0} textAnchor="end" className="tick">
+        <text x={W - m.r} y={H - 6} textAnchor="end" className="tick">
           consultations (échelle log)
         </text>
       </svg>

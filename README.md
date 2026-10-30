@@ -8,16 +8,16 @@ Chaque projet a **sa propre page, habillée à l’image de son sujet**, avec un
 | Scoring assurance auto (M2) | encre & or, tableau de bord de risque | simulateur de décision : seuil, coûts FN/FP, portefeuille de 100 assurés, ROC, gains |
 | Catalogue Netflix (M2) | codes d’une plateforme de streaming | bascule Films / Séries, rangées Top 10, évolution des genres, publics |
 | Avis clients Flunch (M2) | enseigne de restauration, papier & rouge | « classez un avis » (dictionnaire du projet), nuages, familles, carte de l’AFC, adjectifs |
-| Churn télécom — modèles de durée (M2) | éditorial vert | courbe de Kaplan–Meier pilotée au curseur, cohorte de 100 abonnés |
+| Churn télécom — modèles de durée (M2) | éditorial vert | courbe de Kaplan–Meier pilotée au curseur, hasard discret mois par mois, cohorte de 100 abonnés |
 | Volatilité du S&P 500 — ARCH/GARCH (M2) | journal financier + terminal | séries réelles numérisées (rendements, σ̂ₜ, résidus), ACF, moments de l’ARCH(1), simulateur GARCH(1,1) |
-| Immobilier à Arras — économétrie spatiale (M2) | cartographique | laboratoire de l’I de Moran (on peint une carte), test par permutations via l’API |
+| Immobilier à Arras — économétrie spatiale (M2) | papier & plan cadastral | carte des sections, tests de Rao (W kNN / W sections), laboratoire de l’I de Moran (test par permutations via l’API), AIC, effet de taille OLS / SDEM, note théorique (série de Neumann, matrice d’impacts) |
 | Offre de travail & sélection (M2) | nuit bleue & lavande, « ligne de flottaison » | probit pas à pas (AIC), matrice des signes, laboratoire du biais de sélection |
 | Leboncoin VO — architecture décisionnelle (M2) | petites annonces | testeur de la règle qualité, pipeline médaillon, schéma en étoile, tableaux Power BI |
 | Stage ECM (2026) | identité du portfolio | réplique de l’outil de reporting (sans données internes) |
-| Santé infantile en Inde — mémoire M1 | — | classement des États, inégalités |
-| Recours aux soins en Europe — SHARE (M1) | éditorial sarcelle | explorateur pays & modèles emboîtés |
-| Marché immobilier du Maine-et-Loire (M1) | annonce immobilière | estimateur de prix hédonique |
-| Scoring marketing (M1) | publipostage | calculateur de score client |
+| Santé infantile en Inde — mémoire M1 | couverture marine & lavande | entonnoir de l’échantillon, lecteur de score Z, gradient social, logits (log-odds / odds ratios), concentration et décomposition de Wagstaff |
+| Recours aux soins en Europe — SHARE (M1) | éditorial vert & brique | carte des 11 pays (4 mesures), profils consultants / non-consultants, modèles emboîtés M1 → M4 |
+| Marché immobilier du Maine-et-Loire (M1) | étude de marché, ardoise & terre cuite | anneaux autour d’Angers, saisonnalité radiale, R² des 4 spécifications, estimateur de prix (modèle 1, contributions) |
+| Scoring marketing (M1) | publipostage (enveloppe par avion) | déciles, V de Cramér, sélection stepwise pas à pas, calculateur de score (formule SAS, vérifiable côté serveur), ROC |
 | Prévision ARIMA / SARIMA | deux séries | démarche Box–Jenkins pas à pas |
 | Porsche — Power BI | automobile premium | sélecteur de gamme + rapports Power BI |
 | DataMind — agent data analyst (perso) | terminal vert | exploration CSV + agent IA (proxy serveur) |

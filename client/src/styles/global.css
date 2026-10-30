@@ -49,6 +49,8 @@ button { cursor: pointer; background: none; border: 0; }
 }
 
 .nocaps { text-transform: none; }
+h1, h2, h3, h4, h5 { text-wrap: balance; }
+p, li, figcaption, blockquote { text-wrap: pretty; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
 /* Révélation au défilement (composant <Reveal>) */

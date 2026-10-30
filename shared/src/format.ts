@@ -1,4 +1,8 @@
-/** Mise en forme française des nombres (espace fine insécable, virgule décimale). */
+/**
+ * Mise en forme française des nombres (virgule décimale, séparateur de milliers insécable).
+ * Intl produit une espace fine insécable (U+202F), absente des polices du site : on la remplace
+ * par une espace insécable (U+00A0), présente partout, pour que « 7 043 » ne devienne pas « 7043 ».
+ */
 
 const cache = new Map<string, Intl.NumberFormat>();
 
@@ -14,7 +18,7 @@ function nf(min: number, max: number): Intl.NumberFormat {
 
 export function fmt(x: number, decimals = 0, minDecimals = decimals): string {
   if (!Number.isFinite(x)) return x > 0 ? '∞' : '—';
-  return nf(minDecimals, decimals).format(x);
+  return nf(minDecimals, decimals).format(x).replace(/\u202f/g, '\u00a0');
 }
 
 export function fmtPct(x: number, decimals = 1): string {

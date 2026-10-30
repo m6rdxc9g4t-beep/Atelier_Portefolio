@@ -10,7 +10,9 @@ export function Md({ text, as: Tag = 'span', className }: { text: string; as?: '
 
 export function renderInline(text: string): ReactNode[] {
   const out: ReactNode[] = [];
-  const re = /\*\*(.+?)\*\*|\*(.+?)\*/g;
+  // **gras** / *italique* : le contenu ne commence ni ne finit par une espace ou une étoile,
+  // pour que les étoiles de significativité (*, **, ***) restent du texte.
+  const re = /\*\*(?![\s*])(.+?)(?<![\s*])\*\*|\*(?![\s*])(.+?)(?<![\s*])\*/g;
   let last = 0;
   let m: RegExpExecArray | null;
   let i = 0;
@@ -30,7 +32,18 @@ export function renderInline(text: string): ReactNode[] {
  */
 const MATH = /([A-Za-z\u0370-\u03FF][\u0300-\u036F]*[\u2080-\u209C\u2070-\u207F\u00B2\u00B3\u00B9\u02B0-\u02B8\u02E1-\u02E3]+|[\u0370-\u03FF\u1F00-\u1FFF][\u0300-\u036F]*)/g;
 
+/**
+ * Typographie française : espace insécable avant ? ! ; : % € » et après «, pour éviter les signes isolés
+ * en début de ligne. U+00A0 plutôt que U+202F, que les polices du site ne contiennent pas.
+ */
+export function frTypo(text: string): string {
+  return text
+    .replace(/\u202f/g, '\u00a0')
+    .replace(/ (?=[?!;:%€»])/g, '\u00a0')
+    .replace(/« /g, '«\u00a0');
+}
+
 export function protectMath(text: string): ReactNode[] {
-  const parts = text.split(MATH);
+  const parts = frTypo(text).split(MATH);
   return parts.map((p, i) => (i % 2 === 1 ? <span key={i} className="nocaps">{p}</span> : p));
 }

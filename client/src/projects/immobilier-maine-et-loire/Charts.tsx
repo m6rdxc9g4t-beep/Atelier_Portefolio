@@ -1,5 +1,19 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { fmt } from '@atelier/shared';
+
+/** Vrai sous `max` px de large : les graphiques SVG passent à une géométrie « mobile » (texte à taille lisible). */
+export function useNarrow(max = 640) {
+  const query = `(max-width: ${max}px)`;
+  const [narrow, setNarrow] = useState(() => typeof window !== 'undefined' && window.matchMedia(query).matches);
+  useEffect(() => {
+    const mq = window.matchMedia(query);
+    const sync = () => setNarrow(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, [query]);
+  return narrow;
+}
 
 const nb = (t: string) => t.replace(/ /g, ' ');
 
@@ -129,15 +143,16 @@ export function GroupedBars({
   ariaLabel: string;
   hatch?: (i: number) => boolean;
 }) {
-  const W = 640;
-  const H = 280;
-  const m = { l: 56, r: 10, t: 22, b: 34 };
+  const narrow = useNarrow();
+  const W = narrow ? 340 : 640;
+  const H = narrow ? 240 : 280;
+  const m = narrow ? { l: 50, r: 4, t: 22, b: 30 } : { l: 56, r: 10, t: 22, b: 34 };
   const band = (W - m.l - m.r) / labels.length;
-  const bw = Math.min(46, (band * 0.72) / series.length);
+  const bw = Math.min(46, (band * (narrow ? 0.82 : 0.72)) / series.length);
   const y = (v: number) => H - m.b - (v / yMax) * (H - m.t - m.b);
   const ticks = [0, 0.25, 0.5, 0.75, 1].map((k) => k * yMax);
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="ml-gbars" role="img" aria-label={ariaLabel}>
+    <svg viewBox={`0 0 ${W} ${H}`} className={`ml-gbars ${narrow ? 'is-narrow' : ''}`} role="img" aria-label={ariaLabel}>
       <defs>
         <pattern id="ml-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
           <rect width="6" height="6" className="hb" />
@@ -167,7 +182,7 @@ export function GroupedBars({
                 </text>
               </g>
             ))}
-            <text x={cx} y={H - 12} textAnchor="middle" className="lab">
+            <text x={cx} y={H - (narrow ? 9 : 12)} textAnchor="middle" className="lab">
               {l}
             </text>
           </g>

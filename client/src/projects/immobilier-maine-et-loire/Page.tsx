@@ -11,7 +11,7 @@ import { CountUp } from '../../components/CountUp';
 import { Md } from '../../components/Md';
 import { HBars, LineChart } from '../../components/charts';
 import { useScrollSpy } from '../editorial/Editorial';
-import { DistanceRings, GroupedBars, MonthClock } from './Charts';
+import { DistanceRings, GroupedBars, MonthClock, useNarrow } from './Charts';
 import { Estimator, type HedonicModel } from './Estimator';
 import './style.css';
 
@@ -33,6 +33,7 @@ export default function Page({ project }: { project: ProjectResponse }) {
   const f = c.figures as Record<string, any>;
   const sec = (id: string) => findSection(c.sections, id);
   const active = useScrollSpy(NAV.map((n) => n.id));
+  const narrow = useNarrow();
   const model = c.model as unknown as HedonicModel | undefined;
   const figs = Object.fromEntries(
     c.sections.flatMap((s) => s.blocks.filter((b) => b.type === 'figure').map((b) => [(b as Extract<Block, { type: 'figure' }>).src.split('/').pop(), b])),
@@ -76,10 +77,10 @@ export default function Page({ project }: { project: ProjectResponse }) {
             </Reveal>
             <Reveal className="ml-meta" delay={140}>
               <div>
-                <b>75 695</b>transactions notariales
+                <b>75 695</b>transactions notariales
               </div>
               <div>
-                <b>22 048</b>observations retenues
+                <b>22 048</b>observations retenues
               </div>
               <div>
                 <b>2014–2018</b>période d’observation
@@ -148,7 +149,7 @@ export default function Page({ project }: { project: ProjectResponse }) {
               className="ml-hbars"
               data={(communes.x as string[]).map((n: string, i: number) => ({ label: n, value: communes.y[i], display: nb(fmt(communes.y[i])) }))}
             />
-            <p className="ml-note">Angers ≈ trois fois Cholet. Orée d’Anjou, Sèvremoine et Beaupréau-en-Mauges se situent entre 1 875 et 2 469 transactions.</p>
+            <p className="ml-note">Angers ≈ trois fois Cholet. Orée d’Anjou, Sèvremoine et Beaupréau-en-Mauges se situent entre 1 875 et 2 469 transactions.</p>
           </Reveal>
         </div>
         <Reveal className="ml-card ml-mt">
@@ -157,20 +158,20 @@ export default function Page({ project }: { project: ProjectResponse }) {
             ariaLabel="Courbe lissée du nombre de transactions par commune selon la distance à Angers"
             xDomain={[0, 20]}
             yDomain={[0, 1050]}
-            height={300}
-            width={980}
-            margin={{ top: 14, right: 20, bottom: 42, left: 60 }}
-            xTicks={[0, 2.5, 5, 7.5, 10, 12.5, 15, 17.5, 20]}
+            height={narrow ? 250 : 300}
+            width={narrow ? 340 : 980}
+            margin={narrow ? { top: 14, right: 12, bottom: 42, left: 46 } : { top: 14, right: 20, bottom: 42, left: 60 }}
+            xTicks={narrow ? [0, 5, 10, 15, 20] : [0, 2.5, 5, 7.5, 10, 12.5, 15, 17.5, 20]}
             xFormat={(v) => `${fmt(v, 1)} km`}
             yFormat={(v) => nb(fmt(v))}
             series={[{ id: 'd', points: (dist.x as number[]).map((x: number, i: number) => [x, dist.y[i]] as [number, number]), color: 'var(--slate)', width: 3, smooth: true, area: true, areaOpacity: 0.12 }]}
             markers={[
-              { x: 11.8, y: 235, r: 6, color: 'var(--terra)', label: '≈ 235 vers 12 km' },
-              { x: 14.8, y: 305, r: 6, color: 'var(--rouge)', label: 'rebond ≈ 305 vers 15 km' },
+              { x: 11.8, y: 235, r: 6, color: 'var(--terra)', label: narrow ? undefined : '≈ 235 vers 12 km', dx: 0, dy: 24, anchor: 'middle' },
+              { x: 14.8, y: 305, r: 6, color: 'var(--rouge)', label: narrow ? '≈ 305' : 'rebond ≈ 305 vers 15 km' },
             ]}
           />
           <p className="ml-note">
-            Courbe lue sur le graphique du rapport (≈) ; communes à moins de 20 km, Angers exclue (plus de 14 000 transactions).{' '}
+            Courbe lue sur le graphique du rapport (≈) ; communes à moins de 20 km, Angers exclue (plus de 14 000 transactions).{' '}
             {fig(2) && (
               <a className="ml-link" href={`/${fig(2).src}`} target="_blank" rel="noopener noreferrer">
                 Voir la figure originale ↗

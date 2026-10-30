@@ -247,7 +247,7 @@
     },
     {
      "type": "formula",
-     "tex": "y = X\\beta + WX\\theta + u, \\qquad u = \\lambda W u + \\varepsilon",
+     "tex": "\\begin{gathered} y = X\\beta + WX\\theta + u \\\\ u = \\lambda W u + \\varepsilon \\end{gathered}",
      "caption": "SDEM : caractéristiques des voisins (WX) et erreur spatiale"
     },
     {

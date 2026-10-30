@@ -9,7 +9,7 @@
 
 /* décor cadastral du bandeau */
 .ar .ed-hero .ed-wrap { position: relative; }
-.ar-cadastre { position: absolute; right: -200px; top: -125px; width: min(500px, 40vw); height: auto; pointer-events: none; z-index: -1; opacity: 0.75; }
+.ar-cadastre { position: absolute; right: -200px; top: -125px; width: min(440px, 34vw); height: auto; pointer-events: none; z-index: -1; opacity: 0.75; }
 .ar-cadastre polygon { fill: rgba(47, 111, 158, 0.05); stroke: rgba(47, 111, 158, 0.42); stroke-width: 0.22; stroke-linejoin: round; animation: ar-draw 1.6s both ease; }
 .ar-cadastre polygon:nth-child(5n) { fill: rgba(192, 97, 58, 0.08); }
 .ar-cadastre polygon:nth-child(7n) { fill: rgba(47, 111, 158, 0.12); }
@@ -55,7 +55,7 @@
 .ar-rank-row .bar em { position: absolute; top: -3px; bottom: -3px; width: 2px; opacity: 0.7; }
 .ar-rank-row .v { text-align: right; color: var(--ed-ink); }
 .ar-fig .blk-figure { max-width: none; }
-@media (max-width: 900px) { .ar-map-wrap { grid-template-columns: 1fr; } .ar-rank { max-height: 340px; } }
+@media (max-width: 900px) { .ar-map-wrap { grid-template-columns: minmax(0, 1fr); } .ar-rank { max-height: 340px; } }
 
 /* tests */
 .ar-tests-top { display: flex; justify-content: space-between; align-items: center; gap: 18px; flex-wrap: wrap; margin-bottom: 8px; }
@@ -116,12 +116,12 @@
 
 /* cartes des modèles */
 .ar-models { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.ar-model-card { background: var(--ed-card); border: 1px solid var(--ed-line); border-radius: 6px; padding: 18px 18px 10px; position: relative; transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s; }
+.ar-model-card { min-width: 0; background: var(--ed-card); border: 1px solid var(--ed-line); border-radius: 6px; padding: 18px 18px 10px; position: relative; transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s; }
 .ar-model-card:hover { transform: translateY(-4px); box-shadow: 0 22px 44px -30px rgba(33, 28, 22, 0.6); border-color: var(--ed-accent); }
 .ar-model-card .tag { font-family: var(--ed-mono); font-size: 11px; letter-spacing: 1px; color: var(--ed-brick); }
 .ar-model-card .blk-formula { background: transparent; border: 0; padding: 6px 0 0; }
 .ar-model-card .blk-formula .katex-display { font-size: 0.98em; }
-@media (max-width: 900px) { .ar-models { grid-template-columns: 1fr; } }
+@media (max-width: 900px) { .ar-models { grid-template-columns: minmax(0, 1fr); } }
 
 /* λ */
 .ar-lambda { background: var(--ed-ink); color: var(--ed-paper); border-radius: 8px; padding: 22px 24px; display: flex; flex-direction: column; gap: 6px; }
@@ -143,7 +143,7 @@
 .ar-sim-out span { font-family: var(--ed-mono); font-size: 10.5px; color: var(--ed-muted); text-transform: uppercase; letter-spacing: 0.06em; }
 .ar-sim-out strong { font-family: var(--ed-display); font-size: 22px; font-weight: 600; line-height: 1.1; white-space: nowrap; }
 .ar-sim-out small { font-family: var(--ed-mono); font-size: 11px; color: var(--ed-ink-soft); }
-@media (max-width: 900px) { .ar-sim { grid-template-columns: 1fr; } }
+@media (max-width: 900px) { .ar-sim { grid-template-columns: minmax(0, 1fr); } }
 
 /* note théorique */
 .ar-note-intro { margin-bottom: 24px; }
@@ -163,7 +163,7 @@
 .ar-nb .b i { width: 100%; background: linear-gradient(180deg, var(--ar-sky), var(--ed-accent)); border-radius: 3px; transition: height 0.3s ease; }
 .ar-nb:first-child .b i { background: var(--ed-brick); }
 .ar-nb .k { font-family: var(--ed-mono); font-size: 11px; color: var(--ed-ink); }
-@media (max-width: 900px) { .ar-neumann { grid-template-columns: 1fr; } .ar-neumann-bars { gap: 4px; } .ar-nb .v { font-size: 9px; } }
+@media (max-width: 900px) { .ar-neumann { grid-template-columns: minmax(0, 1fr); } .ar-neumann-bars { gap: 4px; } .ar-nb .v { font-size: 9px; } }
 .ar-ring svg { width: 100%; max-width: 320px; height: auto; display: block; margin: 0 auto; font-family: var(--ed-mono); }
 .ar-ring .edge { stroke: var(--ed-line); stroke-width: 2; }
 .ar-ring .node circle { fill: var(--ed-paper-2); stroke: var(--ed-line); stroke-width: 1.5; transition: r 0.3s, fill 0.2s; }
@@ -179,3 +179,19 @@
 .ar-coef .lab { font-size: 14px; }
 .ar-aic .val { font-size: 13px; }
 .ar .nocaps { text-transform: none; }
+
+/* mobile : graphiques en géométrie étroite (useNarrow) — halo sous les libellés qui croisent la grille */
+.ar-tests-svg.is-narrow .lab { font-size: 13.5px; }
+.ar-tests-svg.is-narrow .lab, .ar-tests-svg.is-narrow .val, .ar-coef svg.is-narrow .lab { paint-order: stroke; stroke: var(--ed-card); stroke-width: 5px; stroke-linejoin: round; }
+.ar-coef svg.is-narrow .lab { font-size: 13px; font-weight: 600; }
+.ar-tests-svg.is-narrow .crit-t { font-size: 11px; }
+@media (max-width: 560px) {
+  .ar .ed-chart-card { padding: 18px 14px 14px; }
+  .ar .blk-formula .katex-display { font-size: 0.9em; }
+  .ar-model-card .blk-formula .katex-display { font-size: 0.86em; }
+  .ar-step { padding: 18px 14px; }
+  .ar-step .blk-formula { padding: 12px 12px; }
+  .ar-moran strong { font-size: 34px; }
+  .ar-lambda strong { font-size: 52px; }
+  .ar-ols-read { padding: 16px 16px; }
+}

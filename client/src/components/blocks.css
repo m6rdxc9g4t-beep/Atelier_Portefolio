@@ -10,7 +10,8 @@
   background: var(--b-card, rgba(127, 127, 127, 0.08));
   padding: 16px 20px; border-radius: 0 10px 10px 0; max-width: 80ch;
 }
-.blk-formula { background: var(--b-card, rgba(127, 127, 127, 0.08)); border: 1px solid var(--b-line, rgba(127, 127, 127, 0.2)); border-radius: 10px; padding: 14px 18px; overflow-x: auto; }
+/* contain: inline-size : un contenu large (formule, tableau) défile dans son cadre au lieu d'élargir la colonne de la grille */
+.blk-formula { background: var(--b-card, rgba(127, 127, 127, 0.08)); border: 1px solid var(--b-line, rgba(127, 127, 127, 0.2)); border-radius: 10px; padding: 14px 18px; overflow-x: auto; contain: inline-size; }
 .blk-formula figcaption { font-family: var(--b-mono, var(--mono)); font-size: 12px; color: var(--b-muted, inherit); margin-top: 6px; }
 .blk-formula .katex-display { margin: 0.4em 0; }
 .blk-figure { margin: 4px 0; max-width: 920px; }
@@ -18,7 +19,7 @@
 .blk-figure figcaption { font-family: var(--b-mono, var(--mono)); font-size: 12px; color: var(--b-muted, inherit); margin-top: 8px; line-height: 1.5; }
 .blk-table { margin: 4px 0; }
 .blk-table-title { font-family: var(--b-display, inherit); font-weight: 600; font-size: 1.02rem; margin-bottom: 10px; color: var(--b-strong, inherit); }
-.blk-table-scroll { overflow-x: auto; border: 1px solid var(--b-line, rgba(127, 127, 127, 0.25)); border-radius: 10px; background: var(--b-card, transparent); -webkit-overflow-scrolling: touch; }
+.blk-table-scroll { overflow-x: auto; contain: inline-size; border: 1px solid var(--b-line, rgba(127, 127, 127, 0.25)); border-radius: 10px; background: var(--b-card, transparent); -webkit-overflow-scrolling: touch; }
 .blk-table table { border-collapse: collapse; width: 100%; font-size: 14px; min-width: 520px; }
 .blk-table th, .blk-table td { padding: 10px 14px; border-bottom: 1px solid var(--b-line, rgba(127, 127, 127, 0.2)); text-align: left; vertical-align: top; }
 .blk-table thead th { font-family: var(--b-mono, var(--mono)); font-size: 11.5px; letter-spacing: 0.02em; color: var(--b-muted, inherit); font-weight: 500; background: var(--b-head, rgba(127, 127, 127, 0.07)); white-space: nowrap; }

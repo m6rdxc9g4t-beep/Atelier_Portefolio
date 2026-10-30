@@ -31,6 +31,7 @@
 .ots-links a.is-on { color: var(--bg); background: var(--lav); }
 .ots-nav .back-portfolio { color: var(--dim); }
 @media (max-width: 1020px) { .ots-links { display: none; } }
+@media (max-width: 480px) { .ots-wrap { padding: 0 18px; } .ots-brand { font-size: 14.5px; } .ots-brand i { display: none; } }
 
 /* hero */
 .ots-hero { padding: 70px 0 40px; }

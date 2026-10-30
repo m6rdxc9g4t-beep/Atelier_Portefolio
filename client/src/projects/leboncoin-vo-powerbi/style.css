@@ -80,11 +80,13 @@
 .star-left { grid-column: 1; grid-row: 2; }
 .star-right { grid-column: 3; grid-row: 2; }
 @media (max-width: 860px) {
-  .star { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .star { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .star-table li { overflow-wrap: anywhere; }
   .star-links { display: none; }
   .star-fact { grid-column: 1 / -1; grid-row: auto; order: -1; }
   .star-dim { grid-column: auto !important; grid-row: auto !important; }
 }
+@media (max-width: 420px) { .star { grid-template-columns: minmax(0, 1fr); } }
 
 /* compléments : contexte, testeur de la règle qualité */
 .lbc-mt { margin-top: 18px; }

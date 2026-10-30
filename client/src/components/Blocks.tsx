@@ -33,7 +33,9 @@ export function BlockView({ block }: { block: Block }) {
     case 'figure':
       return (
         <figure className="blk-figure">
-          <img src={`/${block.src.replace(/^\//, '')}`} alt={block.caption} loading="lazy" />
+          <a href={`/${block.src.replace(/^\//, '')}`} target="_blank" rel="noopener noreferrer" title="Ouvrir la figure en grand">
+            <img src={`/${block.src.replace(/^\//, '')}`} alt={block.caption} loading="lazy" />
+          </a>
           <figcaption>{block.caption}</figcaption>
         </figure>
       );

@@ -96,7 +96,7 @@ export default function Page({ project }: { project: ProjectResponse }) {
     setInput('');
     setTab('chat');
     if (!status?.enabled) {
-      setMsgs((m) => [...m, { role: 'error', text: "L'agent IA n'est pas activé sur ce serveur (clé d'API absente). L'exploration et les graphiques restent disponibles." }]);
+      setMsgs((m) => [...m, { role: 'system', text: "L'agent IA n'est pas activé sur ce serveur (clé d'API absente) : la question n'a pas été envoyée. L'exploration et les graphiques restent disponibles." }]);
       return;
     }
     setBusy(true);
@@ -318,7 +318,7 @@ function Charts({ rows, fields, info }: { rows: Row[]; fields: string[]; info: R
           .slice(0, 14)
       : null;
 
-  const cat = categorical[0];
+  const cat = categorical.find((c) => !(byLabel && c === labelField));
   const byCat =
     cat && first
       ? Object.entries(
@@ -355,9 +355,9 @@ function Charts({ rows, fields, info }: { rows: Row[]; fields: string[]; info: R
         {cards.map((c) => (
           <div key={c.f} className="dm-card" style={{ borderLeftColor: c.color }}>
             <span>{c.f}</span>
-            <b>{fmt(c.mean, 2)}</b>
+            <b>{fmt(c.mean, 2, 0)}</b>
             <small>
-              σ {fmt(c.sd, 2)} · min {fmt(c.min, 2)} · max {fmt(c.max, 2)}
+              σ {fmt(c.sd, 2, 0)} · min {fmt(c.min, 2, 0)} · max {fmt(c.max, 2, 0)}
             </small>
           </div>
         ))}
@@ -373,7 +373,7 @@ function Charts({ rows, fields, info }: { rows: Row[]; fields: string[]; info: R
         {byLabel && (
           <div className="dm-panel">
             <div className="dm-panel-t">▸ {first} par {labelField}</div>
-            <HBars data={byLabel.map((d) => ({ ...d }))} format={(v) => fmt(v, 2)} />
+            <HBars data={byLabel.map((d) => ({ ...d }))} format={(v) => fmt(v, 2, 0)} />
           </div>
         )}
         {byCat && (

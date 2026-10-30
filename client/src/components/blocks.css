@@ -21,7 +21,7 @@
 .blk-table-scroll { overflow-x: auto; border: 1px solid var(--b-line, rgba(127, 127, 127, 0.25)); border-radius: 10px; background: var(--b-card, transparent); -webkit-overflow-scrolling: touch; }
 .blk-table table { border-collapse: collapse; width: 100%; font-size: 14px; min-width: 520px; }
 .blk-table th, .blk-table td { padding: 10px 14px; border-bottom: 1px solid var(--b-line, rgba(127, 127, 127, 0.2)); text-align: left; vertical-align: top; }
-.blk-table thead th { font-family: var(--b-mono, var(--mono)); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--b-muted, inherit); font-weight: 500; background: var(--b-head, rgba(127, 127, 127, 0.07)); white-space: nowrap; }
+.blk-table thead th { font-family: var(--b-mono, var(--mono)); font-size: 11.5px; letter-spacing: 0.02em; color: var(--b-muted, inherit); font-weight: 500; background: var(--b-head, rgba(127, 127, 127, 0.07)); white-space: nowrap; }
 .blk-table tbody th { font-weight: 600; color: var(--b-strong, inherit); }
 .blk-table tbody td { font-family: var(--b-mono, var(--mono)); font-size: 13px; color: var(--b-text, inherit); }
 .blk-table tbody tr:last-child th, .blk-table tbody tr:last-child td { border-bottom: 0; }

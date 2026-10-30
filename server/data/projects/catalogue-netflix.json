@@ -1,0 +1,930 @@
+{
+ "slug": "catalogue-netflix",
+ "title": "Le catalogue Netflix à la loupe",
+ "subtitle": "Analyse exploratoire de 8 807 films et séries : années, durées, genres, pays et publics",
+ "course": "M2 Économétrie appliquée — Séminaire méthodologique",
+ "level": "M2",
+ "date": "Janvier 2026",
+ "authors": ["François Pichon", "Julien Pot"],
+ "supervisor": null,
+ "tools": ["R", "countrycode", "ggplot2", "plotly"],
+ "methods": ["Analyse exploratoire de données", "Statistiques descriptives", "Classements Top 10", "Recodage de variables (public cible, zones, tranches)", "Évolution par année de sortie", "Comparaison films / séries"],
+ "abstract": "Ce travail de séminaire méthodologique mène une analyse exploratoire de la base netflix_titles, qui recense 8 807 titres du catalogue Netflix. Après correction et recodage des variables sous R (genre et pays principaux, zones géographiques, tranches de durée, public cible), films et séries sont étudiés séparément puis comparés. Le catalogue est très récent : 81,2 % des films et 93,2 % des séries sont sortis depuis 2010. Les films privilégient les drames et les comédies de 90 à 120 minutes, les séries l'international et le policier, souvent sur une seule saison. Dans les deux cas, les États-Unis dominent et l'offre vise d'abord les adultes et les adolescents.",
+ "question": "Comment se structure l'offre de Netflix, et en quoi films et séries diffèrent-ils par leur ancienneté, leur format, leurs genres, leur origine et leur public ?",
+ "kpis": [
+  {
+   "value": "8 807",
+   "label": "Titres analysés",
+   "note": "Base netflix_titles"
+  },
+  {
+   "value": "70 % / 30 %",
+   "label": "Films / séries",
+   "note": "6 131 films et 2 676 séries"
+  },
+  {
+   "value": "3 092",
+   "label": "Films de 90 à 120 minutes",
+   "note": "Tranche de durée la plus fréquente"
+  },
+  {
+   "value": "67 %",
+   "label": "Séries en une seule saison"
+  },
+  {
+   "value": "93,2 %",
+   "label": "Séries sorties depuis 2010",
+   "note": "81,2 % pour les films"
+  },
+  {
+   "value": "48,4 %",
+   "label": "Films de la zone États-Unis",
+   "note": "41,1 % pour les séries"
+  }
+ ],
+ "data": {
+  "source": "Base netflix_titles (catalogue de titres Netflix)",
+  "unit": "Titre du catalogue (film ou série)",
+  "period": "Années de sortie de 1925 à 2021",
+  "n": "8 807 titres : 6 131 films et 2 676 séries",
+  "variables": [
+   {
+    "name": "type",
+    "label": "Type de contenu (Movie / TV Show)",
+    "type": "qualitative"
+   },
+   {
+    "name": "director",
+    "label": "Réalisateur(s)",
+    "type": "texte (liste)"
+   },
+   {
+    "name": "cast",
+    "label": "Acteurs",
+    "type": "texte (liste)"
+   },
+   {
+    "name": "country",
+    "label": "Pays de production, un ou plusieurs",
+    "type": "texte (liste)"
+   },
+   {
+    "name": "date_added",
+    "label": "Date d'ajout sur Netflix",
+    "type": "date"
+   },
+   {
+    "name": "release_year",
+    "label": "Année de sortie",
+    "type": "quantitative discrète"
+   },
+   {
+    "name": "rating",
+    "label": "Classification d'âge (TV-MA, PG-13…)",
+    "type": "qualitative"
+   },
+   {
+    "name": "duration",
+    "label": "Durée : minutes (films) ou saisons (séries)",
+    "type": "texte converti en numérique"
+   },
+   {
+    "name": "listed_in",
+    "label": "Genres, un ou plusieurs",
+    "type": "texte (liste)"
+   },
+   {
+    "name": "genre1",
+    "label": "Premier genre cité (variable créée)",
+    "type": "qualitative"
+   },
+   {
+    "name": "country1",
+    "label": "Premier pays cité (variable créée)",
+    "type": "qualitative"
+   },
+   {
+    "name": "zone",
+    "label": "Zone géographique : US, Europe, Asie, Autre (variable créée)",
+    "type": "qualitative"
+   },
+   {
+    "name": "public",
+    "label": "Public cible : Enfants, Famille, Ados, Adultes, Non classé (variable créée)",
+    "type": "qualitative"
+   }
+  ],
+  "cleaning": [
+   "Correction de 3 lignes où la durée était saisie dans la colonne rating.",
+   "Séparation des films et des séries pour des analyses distinctes.",
+   "Extraction du premier genre (genre1) et du premier pays (country1) ; pays vide traité comme non renseigné.",
+   "Durée des films en minutes, regroupée en tranches de 30 minutes jusqu'à « 240+ ».",
+   "Nombre de saisons des séries regroupé en 1, 2–3, 4–5 et 6+.",
+   "Zones géographiques via countrycode : États-Unis prioritaires, puis Europe, puis Asie, sinon Other.",
+   "Recodage de rating : TV-Y, TV-Y7, TV-Y7-FV → Enfants ; G, TV-G, TV-PG, PG → Famille ; TV-14, PG-13 → Ados ; TV-MA, R, NC-17 → Adultes ; NR, UR ou vide → Non classé ou NA.",
+   "Découpage avant / depuis 2010 selon l'année de sortie."
+  ]
+ },
+ "sections": [
+  {
+   "id": "base",
+   "title": "Une base de 8 807 titres",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "La présentation explore la base **netflix_titles**, qui recense **8 807 titres** du catalogue Netflix. Chaque titre est décrit par des variables descriptives (réalisateur, acteurs, pays), temporelles (année de sortie, date d'ajout) et de classement (type, genre, classification d'âge, durée)."
+    },
+    {
+     "type": "text",
+     "md": "Le catalogue compte environ **70 % de films** et **30 % de séries**, soit 6 131 films et 2 676 séries. La durée se mesure en minutes pour les films et en saisons pour les séries : les deux formats sont donc analysés séparément, puis comparés."
+    }
+   ]
+  },
+  {
+   "id": "preparation",
+   "title": "Préparation des données sous R",
+   "blocks": [
+    {
+     "type": "list",
+     "items": [
+      "Correction de 3 lignes où la durée figurait dans la colonne de classification (rating).",
+      "Genre principal : premier genre cité dans listed_in ; pays principal : premier pays cité.",
+      "Zones géographiques avec le package countrycode : États-Unis prioritaires, puis Europe, puis Asie, sinon « Other ».",
+      "Films : durée convertie en minutes et regroupée par tranches de 30 minutes, jusqu'à « 240+ ».",
+      "Séries : nombre de saisons regroupé en 1, 2–3, 4–5 et 6 saisons ou plus.",
+      "Classification d'âge recodée en public cible : Enfants, Famille, Ados, Adultes, Non classé ou NA."
+     ]
+    },
+    {
+     "type": "callout",
+     "md": "La règle « États-Unis prioritaires » classe un titre en zone US dès que les États-Unis figurent parmi ses pays. C'est pourquoi la zone US pèse **48,4 %** des films au pays renseigné, alors que les États-Unis ne sont le premier pays cité que pour **38,6 %** des films."
+    }
+   ]
+  },
+  {
+   "id": "films-annees",
+   "title": "Films : un catalogue très récent",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Le nombre de films progresse lentement jusqu'aux années 2000, puis s'accélère fortement. Les contenus anciens sont rares : la majorité des films est sortie après 2000. Le maximum est atteint en 2017 et 2018, avant un repli les années suivantes."
+    },
+    {
+     "type": "figure",
+     "src": "img/catalogue-netflix/fig-1.png",
+     "caption": "Nombre de films par année de sortie (diapositive 4)."
+    },
+    {
+     "type": "table",
+     "title": "Films selon l'année de sortie",
+     "columns": ["Avant 2010", "Depuis 2010"],
+     "rows": [
+      ["18,8 %", "81,2 %"]
+     ]
+    },
+    {
+     "type": "text",
+     "md": "Pour les auteurs, cette concentration sur les titres récents répond à une forte demande pour les contenus récents."
+    }
+   ]
+  },
+  {
+   "id": "films-duree",
+   "title": "Films : le format 90–120 minutes domine",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Les durées se concentrent entre **80 et 120 minutes**. Les films très courts ou très longs sont rares : l'offre privilégie des durées classiques, adaptées à une consommation grand public."
+    },
+    {
+     "type": "figure",
+     "src": "img/catalogue-netflix/fig-3.png",
+     "caption": "Distribution de la durée des films, en minutes (diapositive 5)."
+    },
+    {
+     "type": "text",
+     "md": "Le seuil de 90 minutes partage le catalogue en **67,5 %** de films plus longs et **32,5 %** de films plus courts. La tranche 90–120 minutes rassemble à elle seule **3 092 films**."
+    },
+    {
+     "type": "table",
+     "title": "Durée des films et genre majoritaire",
+     "columns": ["Durée (min)", "Films", "Genre majoritaire", "Films de ce genre"],
+     "rows": [
+      ["0–30", "124", "Enfants/Film Famille", "61"],
+      ["30–60", "334", "Documentaires", "134"],
+      ["60–90", "1 383", "Documentaires", "300"],
+      ["90–120", "3 092", "Drames", "912"],
+      ["120–150", "936", "Drames", "398"],
+      ["150–180", "213", "Drames", "82"],
+      ["180–210", "38", "Drames", "13"],
+      ["210–240", "8", "Comédies", "3"],
+      ["240+", "3", "Comédies", "1"]
+     ],
+     "note": "Tranches de 30 minutes ; total : 6 131 films."
+    },
+    {
+     "type": "text",
+     "md": "Les formats courts sont dominés par les films pour enfants et les documentaires. À partir de 90 minutes, les drames prennent la tête. Au-delà de 210 minutes, il ne reste que 11 films, où les comédies sont le genre le plus fréquent."
+    }
+   ]
+  },
+  {
+   "id": "films-genres",
+   "title": "Films : drames et comédies en tête",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Les drames (**26,1 %**) et les comédies (**19,7 %**) sont les genres principaux, devant l'action-aventure (14,0 %) et les documentaires (13,5 %). Ces cinq genres croissent après 2000 et accélèrent nettement au milieu des années 2010, comme l'ensemble des sorties."
+    },
+    {
+     "type": "figure",
+     "src": "img/catalogue-netflix/fig-4.png",
+     "caption": "Évolution des cinq genres principaux des films (diapositive 7)."
+    },
+    {
+     "type": "table",
+     "title": "Top 10 des genres (films)",
+     "columns": ["Genre", "Films", "Part"],
+     "rows": [
+      ["Drames", "1 600", "26,1 %"],
+      ["Comédies", "1 210", "19,7 %"],
+      ["Action et Aventure", "859", "14,0 %"],
+      ["Documentaires", "829", "13,5 %"],
+      ["Enfant et Famille", "605", "9,9 %"],
+      ["Comédie Stand-Up", "334", "5,4 %"],
+      ["Horreur", "275", "4,5 %"],
+      ["Film International", "128", "2,1 %"],
+      ["Film Classique", "80", "1,3 %"],
+      ["Thriller", "65", "1,1 %"]
+     ],
+     "note": "Premier genre cité. Part sur l'ensemble des 6 131 films."
+    }
+   ]
+  },
+  {
+   "id": "films-origines",
+   "title": "Films : pays, acteurs et réalisateurs",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Les États-Unis sont le premier pays cité pour **38,6 %** des films, devant l'Inde (**15,1 %**). Le pays n'est pas renseigné pour 7,2 % des films."
+    },
+    {
+     "type": "table",
+     "title": "Top 10 des pays (films)",
+     "columns": ["Pays", "Films", "Part"],
+     "rows": [
+      ["États-Unis", "2 364", "38,6 %"],
+      ["Inde", "927", "15,1 %"],
+      ["Non renseigné", "441", "7,2 %"],
+      ["Royaume-Uni", "382", "6,2 %"],
+      ["Canada", "187", "3,1 %"],
+      ["France", "148", "2,4 %"],
+      ["Espagne", "129", "2,1 %"],
+      ["Égypte", "98", "1,6 %"],
+      ["Nigeria", "87", "1,4 %"],
+      ["Mexique", "86", "1,4 %"]
+     ],
+     "note": "Premier pays cité. « Non renseigné » : ligne sans pays dans le tableau d'origine."
+    },
+    {
+     "type": "text",
+     "md": "Par zone, les films relèvent des États-Unis à **48,4 %**, de l'Asie à **26,6 %**, de l'Europe à **14,5 %** et des autres pays à **10,5 %**. Les États-Unis restent la base historique de Netflix, mais les contenus internationaux sont bien présents."
+    },
+    {
+     "type": "table",
+     "title": "Top 10 des acteurs (films)",
+     "columns": ["Acteur", "Films"],
+     "rows": [
+      ["Anupam Kher", "42"],
+      ["Shah Rukh Khan", "35"],
+      ["Naseeruddin Shah", "32"],
+      ["Akshay Kumar", "30"],
+      ["Om Puri", "30"],
+      ["Amitabh Bachchan", "28"],
+      ["Julie Tejwani", "28"],
+      ["Paresh Rawal", "28"],
+      ["Boman Irani", "27"],
+      ["Rupa Bhimani", "27"]
+     ]
+    },
+    {
+     "type": "table",
+     "title": "Top 10 des réalisateurs (films)",
+     "columns": ["Réalisateur", "Films"],
+     "rows": [
+      ["Rajiv Chilaka", "22"],
+      ["Jan Suter", "21"],
+      ["Raul Campos", "19"],
+      ["Suhas Kadav", "16"],
+      ["Jay Karas", "15"],
+      ["Marcus Raboy", "15"],
+      ["Cathy Garcia-Molina", "13"],
+      ["Jay Chapman", "12"],
+      ["Martin Scorsese", "12"],
+      ["Youssef Chahine", "12"]
+     ]
+    },
+    {
+     "type": "text",
+     "md": "Les acteurs les plus présents sont indiens, emmenés par Anupam Kher (**42 films**) et Shah Rukh Khan (35) : Bollywood pèse lourd dans le catalogue. Côté réalisateurs, Rajiv Chilaka (22 films) devance Jan Suter (21) et Raul Campos (19)."
+    }
+   ]
+  },
+  {
+   "id": "films-public",
+   "title": "Films : un public d'abord adulte",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Près d'un film sur deux vise un public adulte (**46,7 %**). Les adolescents arrivent en deuxième position (**31,3 %**), loin devant la famille (16,2 %) et les enfants (4,5 %). L'offre est orientée vers les adolescents et les adultes, dans une logique d'audience."
+    },
+    {
+     "type": "table",
+     "title": "Genres et durée selon le public (films)",
+     "columns": ["Public", "Top 3 des genres", "Durée moyenne (min)"],
+     "rows": [
+      ["Ados", "Drames / Comédies / Action-Aventure", "109,79"],
+      ["Adultes", "Drames / Comédies / Action-Aventure", "98,94"],
+      ["Non classé", "Documentaires / Drames / Comédies", "93,80"],
+      ["Famille", "Children & Family Movies / Documentaires / Drames", "93,73"],
+      ["Enfants", "Children & Family Movies / Movies / Anime Features", "57,67"]
+     ]
+    },
+    {
+     "type": "text",
+     "md": "Les films pour adolescents sont les plus longs (**109,79 minutes** en moyenne), les films pour enfants les plus courts (**57,67 minutes**)."
+    }
+   ]
+  },
+  {
+   "id": "series-saisons",
+   "title": "Séries : une saison le plus souvent",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "**67 %** des séries ne comptent qu'une saison et 33 % en ont deux ou plus. Les séries de 2 ou 3 saisons restent significatives ; celles de 4 saisons ou plus sont minoritaires."
+    },
+    {
+     "type": "table",
+     "title": "Séries selon le nombre de saisons",
+     "columns": ["1 saison", "2 saisons et +"],
+     "rows": [
+      ["67 %", "33 %"]
+     ]
+    },
+    {
+     "type": "text",
+     "md": "Les auteurs y voient des mini-séries ou des séries à durée limitée, un renouvellement rapide de l'offre, mais aussi des projets arrêtés faute d'audience ou de budget."
+    }
+   ]
+  },
+  {
+   "id": "series-annees",
+   "title": "Séries : l'essor depuis 2010",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Avant 2000, les séries du catalogue sont très rares. Leur nombre augmente fortement dès 2010, porté par l'essor du streaming et des contenus originaux : **93,2 %** des séries sont sorties depuis 2010."
+    },
+    {
+     "type": "figure",
+     "src": "img/catalogue-netflix/fig-2.png",
+     "caption": "Nombre de séries par année de sortie (diapositive 14)."
+    },
+    {
+     "type": "table",
+     "title": "Séries selon l'année de sortie",
+     "columns": ["Avant 2010", "Depuis 2010"],
+     "rows": [
+      ["6,8 %", "93,2 %"]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "series-genres",
+   "title": "Séries : l'international et le policier",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Les séries internationales (**28,9 %**) dominent, devant les séries policières (**14,9 %**) et les programmes jeunesse (14,5 %). Les cinq genres principaux décollent après 2010, signe d'une diversification et d'une internationalisation de l'offre."
+    },
+    {
+     "type": "figure",
+     "src": "img/catalogue-netflix/fig-5.png",
+     "caption": "Évolution des cinq genres principaux des séries (diapositive 15)."
+    },
+    {
+     "type": "table",
+     "title": "Top 10 des genres (séries)",
+     "columns": ["Genre", "Séries", "Part"],
+     "rows": [
+      ["International TV Shows", "774", "28,9 %"],
+      ["Crime TV Shows", "399", "14,9 %"],
+      ["Kids' TV", "388", "14,5 %"],
+      ["British TV Show", "253", "9,5 %"],
+      ["Docuseries", "221", "8,3 %"],
+      ["Anime series", "176", "6,6 %"],
+      ["Reality TV", "120", "4,5 %"],
+      ["TV Comedies", "120", "4,5 %"],
+      ["TV Dramas", "67", "2,5 %"],
+      ["TV Action & Adventure", "40", "1,5 %"]
+     ],
+     "note": "Libellés d'origine (catégories Netflix en anglais)."
+    }
+   ]
+  },
+  {
+   "id": "series-origines",
+   "title": "Séries : pays, acteurs et réalisateurs",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Les États-Unis sont le premier pays cité pour **31,7 %** des séries, mais le pays manque pour **14,6 %** d'entre elles. Suivent le Royaume-Uni (9,2 %), le Japon (6,5 %) et la Corée du Sud (6,1 %)."
+    },
+    {
+     "type": "table",
+     "title": "Top 10 des pays (séries)",
+     "columns": ["Pays", "Séries", "Part"],
+     "rows": [
+      ["États-Unis", "847", "31,7 %"],
+      ["Non renseigné", "392", "14,6 %"],
+      ["Royaume-Uni", "246", "9,2 %"],
+      ["Japon", "174", "6,5 %"],
+      ["Corée du Sud", "164", "6,1 %"],
+      ["Canada", "84", "3,1 %"],
+      ["Inde", "81", "3,0 %"],
+      ["Taïwan", "70", "2,6 %"],
+      ["France", "64", "2,4 %"],
+      ["Australie", "56", "2,1 %"]
+     ],
+     "note": "Premier pays cité. Libellés traduits de l'anglais."
+    },
+    {
+     "type": "text",
+     "md": "Par zone, les séries relèvent des États-Unis à **41,1 %**, de l'Asie à **27,7 %**, de l'Europe à **20,1 %** et des autres pays à **11,2 %**. Les séries internationales gagnent du terrain, dans une stratégie de diversification."
+    },
+    {
+     "type": "table",
+     "title": "Top 10 des acteurs (séries)",
+     "columns": ["Acteur", "Séries"],
+     "rows": [
+      ["Takahiro Sakurai", "25"],
+      ["Yuki Kaji", "19"],
+      ["Ai Kayano", "17"],
+      ["Daisuke Ono", "17"],
+      ["Junichi Suwabe", "17"],
+      ["Yuichi Nakamura", "16"],
+      ["Jun Fukuyama", "15"],
+      ["Yoshimasa Hosoya", "15"],
+      ["David Attenborough", "14"],
+      ["Hiroshi Kamiya", "13"]
+     ]
+    },
+    {
+     "type": "table",
+     "title": "Top 10 des réalisateurs (séries)",
+     "columns": ["Réalisateur", "Séries"],
+     "rows": [
+      ["Alastair Fothergill", "3"],
+      ["Ken Burns", "3"],
+      ["Gautham Vasudev Menon", "2"],
+      ["Hsu Fu-chun", "2"],
+      ["Iginio Straffi", "2"],
+      ["Joe Berlinger", "2"],
+      ["Jung-ah Im", "2"],
+      ["Lynn Novick", "2"],
+      ["Rob Seidenglanz", "2"],
+      ["Shin Won-ho", "2"]
+     ],
+     "note": "Nombreux ex aequo à 2 séries : la liste est coupée au dixième nom."
+    },
+    {
+     "type": "text",
+     "md": "Les acteurs les plus fréquents sont japonais, emmenés par Takahiro Sakurai (**25 séries**) : les séries japonaises, dont l'animation, pèsent lourd. Aucun réalisateur ne dépasse 3 séries : cette variable distingue peu les séries."
+    }
+   ]
+  },
+  {
+   "id": "series-public",
+   "title": "Séries : un public plus large",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Les adultes restent majoritaires (**42,9 %**), devant les adolescents (**27,4 %**). Les enfants (13,9 %) et la famille (15,6 %) sont nettement plus présents que pour les films, signe d'une large diffusion."
+    },
+    {
+     "type": "table",
+     "title": "Genres selon le public (séries)",
+     "columns": ["Public", "Top 3 des genres"],
+     "rows": [
+      ["Ados", "International / Crime / Anime Series"],
+      ["Adultes", "International / Crime / British TV Shows"],
+      ["Enfants", "Kids' TV / Anime Series / British TV Shows"],
+      ["Famille", "International / Docuseries / Kids' TV"]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "comparaison",
+   "title": "Films et séries : le match",
+   "blocks": [
+    {
+     "type": "table",
+     "title": "Films et séries en chiffres",
+     "columns": ["Indicateur", "Films", "Séries"],
+     "rows": [
+      ["Titres", "6 131 (≈ 70 %)", "2 676 (≈ 30 %)"],
+      ["Sortis depuis 2010", "81,2 %", "93,2 %"],
+      ["Format dominant", "90–120 min (3 092 films)", "1 saison (67 %)"],
+      ["Genre n° 1", "Drames (26,1 %)", "International TV Shows (28,9 %)"],
+      ["Pays n° 1 (premier pays)", "États-Unis (38,6 %)", "États-Unis (31,7 %)"],
+      ["Pays non renseigné", "7,2 %", "14,6 %"],
+      ["Zone États-Unis", "48,4 %", "41,1 %"],
+      ["Zone Asie", "26,6 %", "27,7 %"],
+      ["Zone Europe", "14,5 %", "20,1 %"],
+      ["Public adulte", "46,7 %", "42,9 %"],
+      ["Public ado", "31,3 %", "27,4 %"],
+      ["Enfants + famille", "20,7 %", "29,5 %"],
+      ["Acteur le plus présent", "Anupam Kher (42)", "Takahiro Sakurai (25)"]
+     ],
+     "note": "Zones : parts parmi les titres au pays renseigné. Enfants + famille : somme des deux parts."
+    },
+    {
+     "type": "text",
+     "md": "**Similitudes.**"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Pics de production en 2017–2018, liés à l'expansion de Netflix, puis légère baisse que les auteurs attribuent à la pandémie et à des choix de projets.",
+      "États-Unis en tête pour les films comme pour les séries : puissance de l'industrie américaine et ancrage de Netflix, malgré une concurrence accrue ces dernières années.",
+      "Adolescents et adultes forment la plus grosse part du public, celle qui a le plus de chances de consommer les contenus Netflix."
+     ]
+    },
+    {
+     "type": "text",
+     "md": "**Différences.**"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Films orientés drames et comédies, séries orientées international et policier : certaines thématiques appellent une narration longue, plus adaptée aux séries.",
+      "Plus de films que de séries : une série demande un engagement plus lourd (la plupart s'arrêtent après une saison), alors que les films répondent plus facilement aux attentes de l'offre.",
+      "Acteurs indiens en tête pour les films (poids de Bollywood), acteurs japonais pour les séries (poids des séries japonaises)."
+     ]
+    },
+    {
+     "type": "callout",
+     "md": "Un catalogue **récent**, **américain d'abord** et tourné vers les **adolescents et les adultes** : les films misent sur des formats classiques et des genres universels, les séries sur l'international et des formats courts."
+    }
+   ]
+  }
+ ],
+ "figures": {
+  "repartition_type": {
+   "description": "Répartition des 8 807 titres entre films et séries.",
+   "labels": ["Films", "Séries"],
+   "values": [6131, 2676],
+   "pct": [69.6, 30.4],
+   "approx": false,
+   "note": "La diapositive affiche « 70 % films / 30 % séries ». 6 131 = total du tableau durée/genre ; 2 676 = 8 807 − 6 131."
+  },
+  "avant_depuis_2010": {
+   "description": "Part des titres sortis avant 2010 et depuis 2010.",
+   "labels": ["Avant 2010", "Depuis 2010"],
+   "films": {
+    "pct": [18.8, 81.2],
+    "approx": false
+   },
+   "series": {
+    "pct": [6.8, 93.2],
+    "approx": false
+   }
+  },
+  "titres_par_annee": {
+   "description": "Nombre de titres par année de sortie, 1990–2021 (lecture des diagrammes en barres des diapositives 4 et 14).",
+   "x": [1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021],
+   "films": {
+    "y": [20, 17, 20, 24, 20, 22, 22, 34, 32, 32, 34, 39, 44, 51, 54, 66, 83, 73, 113, 117, 154, 144, 174, 225, 264, 397, 658, 766, 766, 631, 516, 277],
+    "avant_1990": 235,
+    "approx": true
+   },
+   "series": {
+    "y": [4, 1, 4, 4, 3, 3, 4, 4, 4, 8, 4, 5, 8, 10, 9, 14, 14, 14, 23, 34, 41, 41, 64, 64, 88, 162, 245, 265, 380, 397, 436, 315],
+    "avant_1990": 20,
+    "approx": true
+   },
+   "note": "Valeurs lues au pixel près (≈ ±3 films, ≈ ±1 série). Maximum films en 2017 et 2018 (barres égales) ; maximum séries en 2020. Avant 1990 : films de 1942 à 1989, séries de 1925 à 1989, quelques titres par an au plus."
+  },
+  "titres_par_decennie": {
+   "description": "Nombre de titres par période de sortie (somme des barres annuelles).",
+   "labels": ["Avant 1980", "1980–1989", "1990–1999", "2000–2009", "2010–2019", "2020–2021"],
+   "films": {
+    "y": [108, 127, 242, 676, 4181, 793],
+    "approx": true
+   },
+   "series": {
+    "y": [12, 9, 37, 135, 1745, 750],
+    "approx": true
+   },
+   "note": "Totaux reconstitués ≈ 6 127 films et ≈ 2 688 séries (effectifs réels : 6 131 et 2 676). Les années anciennes ne sont pas toutes étiquetées sur l'axe, d'où le regroupement « avant 1980 »."
+  },
+  "duree_films_distribution": {
+   "description": "Histogramme de la durée des films (30 classes d'environ 10,7 minutes, diapositive 5).",
+   "x": [3.0, 13.7, 24.3, 35.0, 45.6, 56.3, 66.9, 77.6, 88.2, 98.9, 109.6, 120.2, 130.9, 141.5, 152.2, 162.8, 173.5, 184.1, 194.8, 205.4, 216.1, 226.8, 237.4, 248.1, 258.7, 269.4, 280.0, 290.7, 301.3, 312.0],
+   "y": [3, 22, 101, 59, 104, 231, 296, 394, 1202, 1359, 830, 616, 403, 202, 134, 88, 38, 22, 12, 7, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0],
+   "binWidth": 10.66,
+   "unit": "minutes (centre de classe)",
+   "approx": true,
+   "note": "Hauteurs lues sur l'axe (≈ ±3 films) ; la somme reconstituée (≈ 6 132) recoupe les 6 131 films. Au-delà d'environ 245 minutes, quelques films isolés restent invisibles à l'échelle du graphique."
+  },
+  "duree_films_tranches": {
+   "description": "Films par tranche de durée de 30 minutes et genre majoritaire de chaque tranche (diapositive 6).",
+   "labels": ["0–30", "30–60", "60–90", "90–120", "120–150", "150–180", "180–210", "210–240", "240+"],
+   "values": [124, 334, 1383, 3092, 936, 213, 38, 8, 3],
+   "genre_majoritaire": ["Enfants/Film Famille", "Documentaires", "Documentaires", "Drames", "Drames", "Drames", "Drames", "Comédies", "Comédies"],
+   "n_genre_majoritaire": [61, 134, 300, 912, 398, 82, 13, 3, 1],
+   "total": 6131,
+   "approx": false
+  },
+  "duree_films_seuil_90": {
+   "description": "Partage des films autour du seuil de 90 minutes (diapositive 5).",
+   "labels": ["Plus de 90 min", "90 min ou moins"],
+   "pct": [67.5, 32.5],
+   "approx": false,
+   "note": "En-têtes de la diapositive : « 90 min ≤ » (67,5 %) et « 90 min » (32,5 %). Le tableau par tranches place 4 290 films (70,0 %) dans les tranches de 90 minutes et plus : l'écart de 2,5 points s'explique vraisemblablement par les films d'exactement 90 minutes, comptés dans le second groupe."
+  },
+  "saisons_series": {
+   "description": "Séries selon le nombre de saisons (diapositive 13).",
+   "labels": ["1 saison", "2–3 saisons", "4–5 saisons", "6+ saisons"],
+   "values": [1795, 625, 165, 105],
+   "approx": true,
+   "exact": {
+    "labels": ["1 saison", "2 saisons et +"],
+    "pct": [67, 33]
+   },
+   "note": "Effectifs lus sur l'axe (≈ ±5) ; les parts 67 % / 33 % sont données par la diapositive."
+  },
+  "top10_genres": {
+   "description": "Top 10 des genres (premier genre cité dans listed_in). Part en % du total de films ou de séries.",
+   "films": {
+    "labels": ["Drames", "Comédies", "Action et Aventure", "Documentaires", "Enfant et Famille", "Comédie Stand-Up", "Horreur", "Film International", "Film Classique", "Thriller"],
+    "labels_en": [
+     "Dramas",
+     "Comedies",
+     "Action & Adventure",
+     "Documentaries",
+     "Children & Family Movies",
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "values": [1600, 1210, 859, 829, 605, 334, 275, 128, 80, 65],
+    "pct": [26.1, 19.7, 14.0, 13.5, 9.9, 5.4, 4.5, 2.1, 1.3, 1.1],
+    "approx": false
+   },
+   "series": {
+    "labels": ["International TV Shows", "Crime TV Shows", "Kids' TV", "British TV Show", "Docuseries", "Anime series", "Reality TV", "TV Comedies", "TV Dramas", "TV Action & Adventure"],
+    "labels_fr": ["Séries internationales", "Séries policières", "Jeunesse", "Séries britanniques", "Docu-séries", "Séries d'animation japonaise", "Téléréalité", "Comédies", "Drames", "Action et aventure"],
+    "values": [774, 399, 388, 253, 221, 176, 120, 120, 67, 40],
+    "pct": [28.9, 14.9, 14.5, 9.5, 8.3, 6.6, 4.5, 4.5, 2.5, 1.5],
+    "approx": false
+   }
+  },
+  "top10_pays": {
+   "description": "Top 10 des pays (premier pays cité). Libellé vide = pays non renseigné. Part en % du total de films ou de séries.",
+   "films": {
+    "labels": ["Etats-Unis", "Inde", "", "Grande-Bretagne", "Canada", "France", "Espagne", "Egypte", "Nigeria", "Mexique"],
+    "labels_fr": ["États-Unis", "Inde", "Non renseigné", "Royaume-Uni", "Canada", "France", "Espagne", "Égypte", "Nigeria", "Mexique"],
+    "values": [2364, 927, 441, 382, 187, 148, 129, 98, 87, 86],
+    "pct": [38.6, 15.1, 7.2, 6.2, 3.1, 2.4, 2.1, 1.6, 1.4, 1.4],
+    "approx": false
+   },
+   "series": {
+    "labels": ["United States", "", "United Kingdom", "Japan", "South Korea", "Canada", "India", "Taiwan", "France", "Australia"],
+    "labels_fr": ["États-Unis", "Non renseigné", "Royaume-Uni", "Japon", "Corée du Sud", "Canada", "Inde", "Taïwan", "France", "Australie"],
+    "values": [847, 392, 246, 174, 164, 84, 81, 70, 64, 56],
+    "pct": [31.7, 14.6, 9.2, 6.5, 6.1, 3.1, 3.0, 2.6, 2.4, 2.1],
+    "approx": false
+   }
+  },
+  "zones_geographiques": {
+   "description": "Répartition par zone géographique (États-Unis prioritaires, puis Europe, puis Asie, sinon Autre ; titres au pays renseigné).",
+   "labels": ["États-Unis", "Asie", "Europe", "Autre"],
+   "labels_original": ["US", "Asia", "Europe", "Other"],
+   "films": {
+    "pct": [48.4, 26.6, 14.5, 10.5],
+    "approx": false,
+    "n": [2750, 1520, 830, 610],
+    "n_approx": true
+   },
+   "series": {
+    "pct": [41.1, 27.7, 20.1, 11.2],
+    "approx": false,
+    "n": [935, 635, 460, 255],
+    "n_approx": true
+   },
+   "note": "Pourcentages exacts (étiquettes des barres, diapositives 10 et 18). Effectifs lus sur l'axe des ordonnées, arrondis."
+  },
+  "top10_acteurs": {
+   "description": "Acteurs les plus présents (nombre de titres).",
+   "films": {
+    "labels": ["Anupam Kher", "Shah Rukh Khan", "Naseeruddin Shah", "Akshay Kumar", "Om Puri", "Amitabh Bachchan", "Julie Tejwani", "Paresh Rawal", "Boman Irani", "Rupa Bhimani"],
+    "values": [42, 35, 32, 30, 30, 28, 28, 28, 27, 27],
+    "approx": false
+   },
+   "series": {
+    "labels": ["Takahiro Sakurai", "Yuki Kaji", "Ai Kayano", "Daisuke Ono", "Junichi Suwabe", "Yuichi Nakamura", "Jun Fukuyama", "Yoshimasa Hosoya", "David Attenborough", "Hiroshi Kamiya"],
+    "values": [25, 19, 17, 17, 17, 16, 15, 15, 14, 13],
+    "approx": false
+   }
+  },
+  "top10_realisateurs": {
+   "description": "Réalisateurs les plus présents (nombre de titres).",
+   "films": {
+    "labels": ["Rajiv Chilaka", "Jan Suter", "Raul Campos", "Suhas Kadav", "Jay Karas", "Marcus Raboy", "Cathy Garcia-Molina", "Jay Chapman", "Martin Scorsese", "Youssef Chahine"],
+    "values": [22, 21, 19, 16, 15, 15, 13, 12, 12, 12],
+    "approx": false
+   },
+   "series": {
+    "labels": ["Alastair Fothergill", "Ken Burns", "Gautham Vasudev Menon", "Hsu Fu-chun", "Iginio Straffi", "Joe Berlinger", "Jung-ah Im", "Lynn Novick", "Rob Seidenglanz", "Shin Won-ho"],
+    "values": [3, 3, 2, 2, 2, 2, 2, 2, 2, 2],
+    "approx": false
+   },
+   "note": "Séries : nombreux ex aequo à 2 titres, la liste s'arrête au dixième nom (ordre alphabétique)."
+  },
+  "public_cible": {
+   "description": "Répartition selon le public cible (classification d'âge recodée).",
+   "labels": ["Enfants", "Famille", "Ados", "Adultes", "Non classé ou NA"],
+   "films": {
+    "pct": [4.5, 16.2, 31.3, 46.7, 1.4],
+    "exact": [
+     true,
+     true,
+     true,
+     true,
+     false
+    ],
+    "approx": true
+   },
+   "series": {
+    "pct": [13.9, 15.6, 27.4, 42.9, 0.3],
+    "approx": false
+   },
+   "note": "Films : l'étiquette « Non classé ou NA » est tronquée sur la diapositive ; ≈ 1,4 % lu sur la barre (cohérent avec le complément à 100 %). Séries : la 5e barre (0,3 %) n'a pas de libellé, il s'agit des titres non classés."
+  },
+  "public_cible_details": {
+   "description": "Trois genres les plus fréquents par public et, pour les films, durée moyenne en minutes (diapositives 11 et 19).",
+   "films": {
+    "labels": ["Ados", "Adultes", "Non classé", "Famille", "Enfants"],
+    "top3_genres": [
+     ["Drames", "Comédies", "Action-Aventure"],
+     ["Drames", "Comédies", "Action-Aventure"],
+     ["Documentaires", "Drames", "Comédies"],
+     ["Children & Family Movies", "Documentaires", "Drames"],
+     ["Children & Family Movies", "Movies", "Anime Features"]
+    ],
+    "duree_moyenne": [109.79, 98.94, 93.8, 93.73, 57.67],
+    "approx": false
+   },
+   "series": {
+    "labels": ["Ados", "Adultes", "Enfants", "Famille"],
+    "top3_genres": [
+     ["International", "Crime", "Anime Series"],
+     ["International", "Crime", "British TV Shows"],
+     ["Kids' TV", "Anime Series", "British TV Shows"],
+     ["International", "Docuseries", "Kids' TV"]
+    ],
+    "approx": false
+   }
+  },
+  "evolution_genres": {
+   "description": "Nombre de titres par année de sortie pour les cinq genres principaux, 1990–2021 (lecture des courbes des diapositives 7 et 15).",
+   "x": [1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021],
+   "films": {
+    "lines": [
+     {
+      "name": "Dramas",
+      "label_fr": "Drames",
+      "y": [4, 4, 0, 6, 3, 6, 4, 7, 9, 9, 5, 9, 14, 11, 11, 17, 21, 23, 30, 27, 48, 30, 42, 59, 69, 128, 188, 198, 215, 166, 136, 54]
+     },
+     {
+      "name": "Comedies",
+      "label_fr": "Comédies",
+      "y": [4, 1, 1, 1, 2, 5, 12, 9, 12, 6, 9, 13, 4, 13, 11, 19, 26, 17, 31, 33, 36, 33, 48, 46, 61, 74, 115, 133, 137, 118, 90, 46]
+     },
+     {
+      "name": "Action & Adventure",
+      "label_fr": "Action et aventure",
+      "y": [7, 1, 6, 6, 8, 8, 3, 11, 5, 10, 9, 11, 15, 15, 17, 11, 11, 15, 23, 21, 29, 26, 29, 28, 28, 52, 80, 89, 80, 44, 46, 36]
+     },
+     {
+      "name": "Documentaries",
+      "label_fr": "Documentaires",
+      "y": [0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 1, 5, 2, 5, 2, 8, 9, 6, 11, 28, 32, 64, 132, 163, 114, 104, 73, 49]
+     },
+     {
+      "name": "Children & Family Movies",
+      "label_fr": "Enfants et famille",
+      "y": [0, 2, 0, 4, 2, 2, 0, 1, 2, 3, 6, 4, 3, 6, 8, 7, 7, 9, 11, 15, 15, 25, 21, 34, 29, 23, 40, 52, 61, 79, 80, 36]
+     }
+    ],
+    "approx": true
+   },
+   "series": {
+    "lines": [
+     {
+      "name": "International TV Shows",
+      "label_fr": "Séries internationales",
+      "y": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 3, 1, 2, 5, 16, 13, 13, 27, 24, 26, 62, 86, 74, 92, 109, 115, 90]
+     },
+     {
+      "name": "Crime TV Shows",
+      "label_fr": "Séries policières",
+      "y": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 1, 5, 3, 3, 8, 9, 17, 29, 46, 70, 83, 76, 42]
+     },
+     {
+      "name": "Kids' TV",
+      "label_fr": "Jeunesse",
+      "y": [0, 0, 0, 1, 1, 1, 2, 4, 2, 1, 1, 1, 1, 1, 2, 3, 1, 3, 5, 3, 6, 10, 11, 8, 15, 17, 38, 46, 54, 52, 55, 40]
+     },
+     {
+      "name": "British TV Shows",
+      "label_fr": "Séries britanniques",
+      "y": [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1, 2, 3, 0, 2, 5, 3, 6, 9, 10, 7, 22, 29, 34, 37, 25, 33, 18]
+     },
+     {
+      "name": "Docuseries",
+      "label_fr": "Docu-séries",
+      "y": [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 4, 2, 0, 1, 2, 8, 6, 17, 19, 41, 28, 46, 40]
+     }
+    ],
+    "approx": true
+   },
+   "note": "Valeurs lues sur les courbes (≈ ±3 films, ≈ ±2 séries). Avant 1990, moins de 7 films et 2 séries par an et par genre. Les sommes reconstituées sur toute la période sont proches des totaux du Top 10 (ex. Drames ≈ 1 574 pour 1 600)."
+  },
+  "comparaison": {
+   "description": "Bilan films / séries : indicateurs clés, similitudes et différences (diapositives 21 et 22).",
+   "indicateurs": {
+    "labels": ["Titres", "Sortis depuis 2010", "Format dominant", "Genre n° 1", "Pays n° 1 (premier pays)", "Pays non renseigné", "Zone États-Unis", "Zone Asie", "Zone Europe", "Public adulte", "Public ado", "Enfants + famille", "Acteur le plus présent"],
+    "films": ["6 131 (≈ 70 %)", "81,2 %", "90–120 min (3 092 films)", "Drames (26,1 %)", "États-Unis (38,6 %)", "7,2 %", "48,4 %", "26,6 %", "14,5 %", "46,7 %", "31,3 %", "20,7 %", "Anupam Kher (42)"],
+    "series": ["2 676 (≈ 30 %)", "93,2 %", "1 saison (67 %)", "International TV Shows (28,9 %)", "États-Unis (31,7 %)", "14,6 %", "41,1 %", "27,7 %", "20,1 %", "42,9 %", "27,4 %", "29,5 %", "Takahiro Sakurai (25)"]
+   },
+   "similitudes": [
+    {
+     "titre": "Pics de production en 2017–2018",
+     "texte": "Expansion de Netflix, puis légère baisse attribuée par les auteurs à la pandémie et à des choix de projets."
+    },
+    {
+     "titre": "Les États-Unis en tête",
+     "texte": "Premier pays pour les films comme pour les séries : puissance de l'industrie américaine et ancrage de Netflix, malgré une concurrence plus forte ces dernières années."
+    },
+    {
+     "titre": "Un public ado-adulte",
+     "texte": "Adolescents et adultes représentent la plus grosse part des films et des séries, publics les plus susceptibles de consommer Netflix."
+    }
+   ],
+   "differences": [
+    {
+     "titre": "Des genres différents",
+     "texte": "Films orientés drames et comédies, séries orientées international et policier : certaines thématiques demandent une narration longue, plus adaptée aux séries."
+    },
+    {
+     "titre": "Plus de films que de séries",
+     "texte": "Une série engage davantage (peu de séries dépassent une saison) ; les films répondent plus facilement aux attentes de l'offre."
+    },
+    {
+     "titre": "Des talents différents",
+     "texte": "Acteurs indiens en tête pour les films (poids de Bollywood), acteurs japonais pour les séries (poids des séries japonaises)."
+    }
+   ],
+   "approx": false,
+   "note": "Enfants + famille : sommes calculées à partir des parts de la diapositive (4,5 + 16,2 ; 13,9 + 15,6)."
+  }
+ },
+ "model": {},
+ "conclusions": [
+  "Le catalogue est récent : 81,2 % des films et 93,2 % des séries sont sortis depuis 2010.",
+  "Les films se concentrent sur des formats classiques (3 092 films entre 90 et 120 minutes) et sur les drames et les comédies.",
+  "Les séries sont courtes (67 % n'ont qu'une saison) et tournées vers l'international et le policier.",
+  "Les États-Unis dominent les deux formats (48,4 % des films et 41,1 % des séries par zone), devant l'Asie (26,6 % et 27,7 %).",
+  "L'offre vise d'abord les adultes et les adolescents (78,0 % des films, 70,3 % des séries) ; enfants et familles pèsent davantage côté séries.",
+  "Les talents les plus présents reflètent deux poids lourds : Bollywood pour les films, les séries japonaises pour les séries."
+ ],
+ "limits": [
+  "Analyse descriptive : aucun test statistique ni modèle ne vient confirmer les écarts observés.",
+  "Seuls le premier genre et le premier pays cités sont retenus : genres secondaires et coproductions sont sous-représentés.",
+  "Le pays manque pour 7,2 % des films et 14,6 % des séries, qui sortent des répartitions par zone.",
+  "Les explications avancées (demande du public, pandémie, budgets) restent des hypothèses ; la baisse finale peut aussi tenir à une dernière année de sortie incomplète dans la base."
+ ],
+ "codeSnippet": {
+  "language": "r",
+  "title": "Zones géographiques des films avec countrycode (extrait de code_netflix.R)",
+  "code": "# 9) Movies : Zones US/Europe/Asia avec le package countrycode\nmovies$id <- seq_len(nrow(movies))\n\ntmp_m <- movies[!is.na(movies$country) & movies$country != \"\", c(\"id\",\"country\")]\n\npays_list <- strsplit(tmp_m$country, \",\")\npays_list <- lapply(pays_list, trimws)\n\nlong_m <- data.frame(\n  id = rep(tmp_m$id, lengths(pays_list)),\n  country = unlist(pays_list),\n  stringsAsFactors = FALSE\n)\nlong_m <- long_m[long_m$country != \"\", ]\n\nlong_m$continent <- countrycode(long_m$country, origin = \"country.name\", destination = \"continent\")\n\nlong_m$zone <- \"Other\"\nlong_m$zone[long_m$country %in% c(\"United States\", \"United States of America\", \"USA\")] <- \"US\"\nlong_m$zone[long_m$continent == \"Europe\"] <- \"Europe\"\nlong_m$zone[long_m$continent == \"Asia\"] <- \"Asia\"\n\nzone_by_id_m <- tapply(long_m$zone, long_m$id, function(z) {\n  if (\"US\" %in% z) \"US\"\n  else if (\"Europe\" %in% z) \"Europe\"\n  else if (\"Asia\" %in% z) \"Asia\"\n  else \"Other\"\n})"
+ }
+}

@@ -1,0 +1,2074 @@
+{
+ "slug": "offre-travail-selection",
+ "title": "Travail des femmes et biais de sélection",
+ "subtitle": "Un salaire observé seulement pour les femmes en emploi : du probit au Tobit 2",
+ "course": "M2 Économétrie appliquée — Microéconométrie",
+ "level": "M2",
+ "date": "31/12/2025",
+ "authors": ["François Pichon", "Julien Pot"],
+ "supervisor": null,
+ "tools": ["R", "readxl", "Hmisc", "lmtest", "sampleSelection"],
+ "methods": ["Statistiques descriptives", "Test du khi-deux", "Tests de corrélation", "Probit", "Logit", "Sélection par AIC", "Test du rapport de vraisemblance", "Moindres carrés ordinaires", "Tobit 2 (modèle de sélection)", "Maximum de vraisemblance", "Restrictions d'exclusion"],
+ "abstract": "Ce devoir étudie la participation au marché du travail de 19 461 femmes de 16 à 65 ans, issues d'une enquête sur les ménages français. Leur salaire n'est observé que lorsqu'elles travaillent : les 6 952 salaires nuls de la base sont des non-observations. Un probit construit pas à pas (AIC de 25 371,60 à 22 103,24) relie la participation à l'âge, au couple, aux enfants, à la zone et au diplôme ; un logit le confirme. Les MCO sur le salaire ignorent la sélection. Un Tobit 2 estimé par maximum de vraisemblance donne ρ ≈ −0,15, significatif : le biais de sélection est avéré.",
+ "question": "Quels facteurs expliquent la participation des femmes au marché du travail et leur salaire, sachant que le salaire n'est observé que pour celles qui travaillent ?",
+ "kpis": [
+  {
+   "value": "19 461",
+   "label": "Femmes de 16 à 65 ans",
+   "note": "21 variables"
+  },
+  {
+   "value": "≈ 64 %",
+   "label": "En emploi (work = 1)"
+  },
+  {
+   "value": "6 952",
+   "label": "Salaires nuls = non observés",
+   "note": "Exactement les femmes sans emploi"
+  },
+  {
+   "value": "22 103,24",
+   "label": "AIC du probit final",
+   "note": "25 371,60 pour le modèle vide ; 21 paramètres"
+  },
+  {
+   "value": "ρ ≈ −0,15",
+   "label": "Corrélation des erreurs (Tobit 2)",
+   "note": "Significative : biais de sélection"
+  }
+ ],
+ "data": {
+  "source": "Base d'enquête sur les ménages français (database.xls)",
+  "unit": "Individu : femme en âge de travailler (16 à 65 ans)",
+  "period": "Non précisée dans le rapport",
+  "n": "19 461 femmes, 21 variables ; 6 952 sans emploi (salaire non observé)",
+  "variables": [
+   {
+    "name": "work",
+    "label": "En emploi (1) ou non (0) : variable de sélection",
+    "type": "binaire"
+   },
+   {
+    "name": "wage",
+    "label": "Salaire mensuel du travail (vaut 0 dans la base si sans emploi)",
+    "type": "continue"
+   },
+   {
+    "name": "wage_k",
+    "label": "Salaire en milliers (wage / 1000), expliqué dans le Tobit 2",
+    "type": "continue"
+   },
+   {
+    "name": "nag",
+    "label": "Âge, de 16 à 65 ans (moyenne d'environ 41 ans)",
+    "type": "continue"
+   },
+   {
+    "name": "nag2",
+    "label": "Âge au carré (effet non linéaire du cycle de vie)",
+    "type": "continue"
+   },
+   {
+    "name": "couple",
+    "label": "Vit en couple (créée à partir de ncohab)",
+    "type": "binaire"
+   },
+   {
+    "name": "child",
+    "label": "Au moins un enfant (créée à partir de mne, nombre d'enfants)",
+    "type": "binaire"
+   },
+   {
+    "name": "ndiplo",
+    "label": "Diplôme de la femme, 9 niveaux (4 = CAP, BEP ; 5 = bac professionnel)",
+    "type": "catégorielle"
+   },
+   {
+    "name": "tu99",
+    "label": "Type de zone, 9 modalités (0 = rural ; 1 à 8 = urbain de taille croissante ; 8 = Paris)",
+    "type": "catégorielle"
+   },
+   {
+    "name": "mrtotm",
+    "label": "Revenu total du ménage (analyse descriptive)",
+    "type": "continue"
+   },
+   {
+    "name": "nrtns",
+    "label": "Revenus non salariaux : 18 605 valeurs non observées, non retenue",
+    "type": "continue"
+   },
+   {
+    "name": "part_time",
+    "label": "Temps de travail, défini seulement pour les femmes en emploi (non retenue)",
+    "type": "catégorielle"
+   },
+   {
+    "name": "mtyad",
+    "label": "Combine couple et enfants : redondante, non retenue",
+    "type": "catégorielle"
+   }
+  ],
+  "cleaning": [
+   "Conversion en facteurs des variables qualitatives (tu99, ndiplo, mne, ncohab, work, part_time…).",
+   "Création de couple : 1 si ncohab = 1, 0 si ncohab = 2.",
+   "Création de child : 1 si au moins un enfant (mne > 0).",
+   "Création de nrtns_pos (revenus non salariaux positifs) pour l'analyse bivariée.",
+   "Création de wage_obs : salaire conservé si work = 1, non observé (NA) sinon, car les zéros ne sont pas des salaires.",
+   "Création de nag2 = nag² et de wage_k = wage / 1000 pour le Tobit 2.",
+   "Variables écartées : très incomplètes (nrtns), peu interprétables (qex) ou redondantes (mtyad)."
+  ]
+ },
+ "sections": [
+  {
+   "id": "q1-cadre",
+   "title": "Q1 · Données et mécanisme de sélection",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "La base provient d'une enquête sur les ménages français. Elle réunit **19 461 femmes** en âge de travailler (16 à 65 ans) et **21 variables** : caractéristiques sociodémographiques, revenus et emploi."
+    },
+    {
+     "type": "text",
+     "md": "Certaines variables ne sont renseignées que pour une sous-population. Ce ne sont pas de vraies données manquantes : l'information n'a pas de sens pour les autres. *nsexe* vaut toujours 2 (femme). *mdiploc* n'est observée que pour les femmes en couple. *part_time* n'est observé que pour les femmes salariées, ni pour les sans-emploi ni pour les auto-entrepreneuses."
+    },
+    {
+     "type": "text",
+     "md": "Deux mécanismes se succèdent : la décision de participer au marché du travail, puis le salaire et les caractéristiques de l'emploi."
+    },
+    {
+     "type": "formula",
+     "tex": "\\mathit{wage}_i^{*} = X_i\\beta + \\varepsilon_i",
+     "caption": "Salaire latent de la femme i"
+    },
+    {
+     "type": "formula",
+     "tex": "\\mathit{wage}_i = \\begin{cases} \\mathit{wage}_i^{*} & \\text{si } \\mathit{employed}_i = 1 \\\\ \\text{non observé} & \\text{si } \\mathit{employed}_i = 0 \\end{cases}",
+     "caption": "Le salaire n'est observé que pour les femmes en emploi"
+    },
+    {
+     "type": "callout",
+     "md": "Remplacer les salaires non observés par des zéros introduirait un biais. On est face à un **mécanisme de sélection**."
+    }
+   ]
+  },
+  {
+   "id": "q1-variables",
+   "title": "Q1 · Choix des variables",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Les variables sont choisies selon la théorie de la participation et du salaire. Elles doivent aussi être définies pour tout l'échantillon."
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Retenues** : l'âge (*nag*), la vie en couple (*couple*), la présence d'enfants (*child*), le diplôme de la femme (*ndiplo*) et le type de zone (*tu99*).",
+      "*couple* et *child* sont des indicatrices créées pour simplifier l'interprétation, à partir de *ncohab* et du nombre d'enfants *mne*.",
+      "*nrtns* est écartée : 18 605 valeurs non observées.",
+      "*qex* est écartée : son lien avec la participation ou le salaire est peu direct.",
+      "*mtyad* est écartée : elle reprend l'information de *couple* et *child*."
+     ]
+    },
+    {
+     "type": "callout",
+     "md": "L'objectif n'est pas le meilleur ajustement possible, mais des résultats **fiables et interprétables**."
+    }
+   ]
+  },
+  {
+   "id": "q1-univarie",
+   "title": "Q1 · Analyse univariée",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "La fonction *describe* (package Hmisc) résume chaque variable : observations disponibles, valeurs non observées, modalités, dispersion et valeurs extrêmes. Des graphiques complètent ce tableau."
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Âge** : observé pour toutes, de 16 à 65 ans, moyenne d'environ 41 ans, distribution régulière.",
+      "**Situation familiale** (*mmatri*, *nmatri*, *ncohab*, *married*) : aucune valeur manquante ; la majorité des femmes vit en couple.",
+      "**Enfants** (*mne*) : forte concentration sur 0, 1 ou 2 enfants ; les familles nombreuses sont rares.",
+      "**Diplôme** (*ndiplo*) : répartition assez équilibrée ; la catégorie 4 (CAP, BEP) est bien plus fréquente que la catégorie 5 (bac professionnel).",
+      "**Zone** (*tu99*) : les villages ruraux (0), les zones urbaines de 200 000 à 2 000 000 habitants (7) et Paris (8) regroupent le plus de femmes.",
+      "**Emploi** (*work*) : environ 64 % des femmes travaillent.",
+      "**Salaire** (*wage*) : 6 952 valeurs nulles, exactement les femmes sans emploi. Ces zéros signalent une absence d'observation, pas un salaire."
+     ]
+    },
+    {
+     "type": "figure",
+     "src": "img/offre-travail-selection/fig-1.png",
+     "caption": "Salaire (wage) sur l'ensemble des femmes, zéros inclus : distribution très asymétrique, avec quelques valeurs très élevées."
+    },
+    {
+     "type": "text",
+     "md": "*part_time* ne contient pas de valeur manquante dans la base, mais n'a de sens que pour les femmes en emploi."
+    }
+   ]
+  },
+  {
+   "id": "q1-bivarie",
+   "title": "Q1 · Analyse bivariée",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "**Participation et famille.** Les femmes en couple travaillent moins souvent que les autres. La présence d'enfants va dans le même sens, avec un écart plus faible. Les deux tests du khi-deux sont significatifs."
+    },
+    {
+     "type": "table",
+     "title": "Situation familiale selon le statut d'emploi",
+     "columns": ["", "Sans emploi", "En emploi"],
+     "rows": [
+      ["Vit en couple", "≈ 79 %", "≈ 73 %"],
+      ["Au moins un enfant", "66,6 %", "64,7 %"]
+     ],
+     "note": "Pourcentages au sein de chaque statut d'emploi. Khi-deux significatif dans les deux cas."
+    },
+    {
+     "type": "figure",
+     "src": "img/offre-travail-selection/fig-2.png",
+     "caption": "Âge selon l'emploi (0 = sans emploi, 1 = en emploi) : les femmes en emploi sont plus jeunes en médiane."
+    },
+    {
+     "type": "text",
+     "md": "**Salaire des femmes en emploi.** L'analyse ne porte que sur elles, puisque le salaire n'est observé que pour elles. Le salaire médian augmente avec le diplôme, tout comme la dispersion : c'est cohérent avec la théorie du capital humain."
+    },
+    {
+     "type": "figure",
+     "src": "img/offre-travail-selection/fig-3.png",
+     "caption": "Salaire selon le diplôme, femmes en emploi : médiane et dispersion plus élevées pour les diplômes les plus élevés."
+    },
+    {
+     "type": "list",
+     "items": [
+      "Corrélation salaire – âge ≈ 0,17 (p < 2,2 × 10⁻¹⁶) : le salaire tend à augmenter avec l'âge, ce qui peut refléter l'expérience professionnelle.",
+      "Corrélation salaire – revenu total du ménage ≈ 0,50 (p < 2,2 × 10⁻¹⁶) : les ménages à revenu élevé sont aussi ceux où les femmes perçoivent les salaires les plus élevés."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "q2-probit",
+   "title": "Q2 · Probit de participation",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "La participation (*work*) est modélisée par un probit. Le salaire n'entre pas dans le modèle : il est endogène à la décision de participer et n'est observé que pour les femmes en emploi."
+    },
+    {
+     "type": "text",
+     "md": "La spécification part d'un modèle vide puis s'enrichit pas à pas. Chaque ajout est jugé par l'AIC et par des tests du rapport de vraisemblance. L'âge entre avec son carré pour capter un effet de cycle de vie."
+    },
+    {
+     "type": "table",
+     "title": "Construction du probit : AIC des modèles emboîtés",
+     "columns": ["Modèle", "Paramètres", "AIC"],
+     "rows": [
+      ["Vide (constante)", "1", "25 371,60"],
+      ["+ âge (nag)", "2", "24 731,20"],
+      ["+ âge² (nag2)", "3", "23 972,12"],
+      ["+ couple", "4", "23 843,32"],
+      ["+ enfant (child)", "5", "23 431,92"],
+      ["+ zone (tu99)", "—", "en baisse (non chiffré)"],
+      ["Modèle complet (+ diplôme)", "21", "22 103,24"]
+     ],
+     "note": "L'AIC baisse à chaque étape. Zone et diplôme (9 modalités chacun) entrent en indicatrices, d'où 21 paramètres."
+    },
+    {
+     "type": "text",
+     "md": "Des variantes avec *nnatior* ou *nmatri* ont été testées. Les tests du rapport de vraisemblance favorisaient ces modèles plus complexes, mais certaines variables étaient redondantes. Les auteurs retiennent un modèle **parcimonieux et facile à interpréter**."
+    },
+    {
+     "type": "formula",
+     "tex": "\\Pr(\\mathit{work}_i = 1 \\mid X_i) = \\Phi\\big(\\beta_0 + \\beta_1\\,\\mathit{nag}_i + \\beta_2\\,\\mathit{nag}_i^2 + \\beta_3\\,\\mathit{couple}_i + \\beta_4\\,\\mathit{child}_i + \\beta_5\\,\\mathit{tu99}_i + \\beta_6\\,\\mathit{ndiplo}_i\\big)",
+     "caption": "Probit retenu (Φ : fonction de répartition de la loi normale)"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Âge** : effet significatif et non linéaire. La probabilité de participer augmente avec l'âge, à un rythme décroissant (cycle de vie).",
+      "**Couple et enfants** : vivre en couple et avoir au moins un enfant réduisent significativement la probabilité de participer. Les contraintes familiales pèsent sur l'activité des femmes.",
+      "**Diplôme** : tous les niveaux augmentent la probabilité de participer par rapport à la catégorie de référence, et l'effet croît avec le niveau.",
+      "**Zone** : 2 modalités sont significatives, les autres non, ce qui reste courant pour une variable à nombreuses modalités."
+     ]
+    },
+    {
+     "type": "callout",
+     "md": "Un **logit** de même spécification donne des signes et des significativités très proches : les résultats sont robustes."
+    }
+   ]
+  },
+  {
+   "id": "q3-mco",
+   "title": "Q3 · MCO naïfs sur le salaire",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Le salaire est d'abord expliqué par les MCO sur **toutes les femmes**, celles sans emploi ayant un salaire nul dans la base. L'âge et le diplôme ont un effet important."
+    },
+    {
+     "type": "text",
+     "md": "Mais ce modèle mélange deux phénomènes : la décision de travailler et le niveau du salaire. Les zéros ne sont pas de vrais salaires mais des absences d'observation. Le rapport conclut que les MCO sont inadaptés : prédictions incohérentes, dont des salaires négatifs, et biais de sélection, car les femmes en emploi ne forment pas un échantillon aléatoire."
+    },
+    {
+     "type": "table",
+     "title": "Résidus du dernier MCO sur toutes les femmes",
+     "columns": ["Min", "1er quartile", "Médiane", "3e quartile", "Max"],
+     "rows": [
+      ["−21 980", "−5 680", "−341", "5 231", "187 754"]
+     ],
+     "note": "Quantiles des résidus affichés par summary() dans R (modèle avec âge, âge², zone et diplôme)."
+    },
+    {
+     "type": "text",
+     "md": "Les MCO sont ensuite estimés sur les **seules femmes en emploi**, là où le salaire est observé. Le salaire augmente avec l'âge et avec le diplôme. L'effet de la zone varie selon les modalités."
+    },
+    {
+     "type": "text",
+     "md": "Couple et enfants ne servent pas à expliquer le salaire : ils comptent pour la décision de travailler, beaucoup moins pour le niveau du salaire une fois en emploi. Les deux mécanismes n'ont donc pas les mêmes déterminants."
+    },
+    {
+     "type": "list",
+     "items": [
+      "Toutes les femmes (salaire nul si sans emploi) : âge + âge², puis + diplôme, + zone, et enfin âge + âge² + zone + diplôme.",
+      "Femmes en emploi : les mêmes quatre spécifications."
+     ]
+    },
+    {
+     "type": "callout",
+     "md": "Se limiter aux femmes en emploi améliore l'interprétation. Mais des valeurs négatives subsistent, et l'estimation ignore que ces femmes ne sont pas choisies au hasard. D'où le recours à un **modèle de sélection**."
+    }
+   ]
+  },
+  {
+   "id": "q4-tobit2",
+   "title": "Q4 · Tobit 2 par maximum de vraisemblance",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Le salaire n'est observé que pour les femmes qui travaillent : l'échantillon des employées n'est pas aléatoire, et un modèle linéaire donnerait des estimations biaisées. Le **Tobit 2** corrige ce biais en estimant simultanément deux équations, par **maximum de vraisemblance**."
+    },
+    {
+     "type": "formula",
+     "tex": "\\mathit{work}_i^{*} = Z_i\\gamma + u_i, \\qquad \\mathit{work}_i = \\begin{cases} 1 & \\text{si } \\mathit{work}_i^{*} > 0 \\\\ 0 & \\text{sinon} \\end{cases}",
+     "caption": "Équation de sélection : décision de travailler"
+    },
+    {
+     "type": "formula",
+     "tex": "\\mathit{wage}_i^{*} = X_i\\beta + \\varepsilon_i \\quad \\text{observé si } \\mathit{work}_i = 1",
+     "caption": "Équation de salaire"
+    },
+    {
+     "type": "formula",
+     "tex": "\\operatorname{corr}(u_i, \\varepsilon_i) = \\rho",
+     "caption": "Erreurs supposées corrélées, de loi normale jointe"
+    },
+    {
+     "type": "table",
+     "title": "Spécification du Tobit 2",
+     "columns": ["Équation", "Variables explicatives", "Origine du choix"],
+     "rows": [
+      ["Sélection : work", "âge, âge², couple, enfant, zone, diplôme", "Probit de la question 2"],
+      ["Salaire : wage / 1 000", "âge, âge², diplôme, zone", "MCO sur les femmes en emploi (question 3)"]
+     ],
+     "note": "Fonction selection() du package sampleSelection, method = \"ml\". Le salaire est exprimé en milliers."
+    },
+    {
+     "type": "text",
+     "md": "Les variables reprennent celles des questions précédentes, par cohérence : pour la participation, celles qui ont un effet significatif dans le probit ; pour le salaire, celles qui comptent dans les MCO sur les femmes en emploi."
+    }
+   ]
+  },
+  {
+   "id": "q5-resultats",
+   "title": "Q5 · Résultats du Tobit 2 et comparaison",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "**Équation de sélection.** On retrouve la logique du probit : l'âge augmente la participation à un rythme décroissant, la vie en couple et les enfants la réduisent. Signes et significativités sont très proches du probit estimé seul."
+    },
+    {
+     "type": "text",
+     "md": "**Par rapport aux MCO.** Sur toutes les femmes, les MCO confondaient participation et niveau de salaire. Sur les seules employées, ils ignoraient la sélection. Le Tobit 2 traite les deux décisions ensemble."
+    },
+    {
+     "type": "callout",
+     "md": "**ρ ≈ −0,15**, significatif (p-value très faible). Des caractéristiques non observées influencent à la fois la probabilité d'être en emploi et le niveau du salaire : le **biais de sélection** est confirmé. Le Tobit 2 est préféré à une estimation séparée probit + MCO."
+    },
+    {
+     "type": "text",
+     "md": "**Équation de salaire.** L'âge garde un effet positif mais décroissant. Le diplôme a un effet fortement positif."
+    },
+    {
+     "type": "text",
+     "md": "**Identification.** Les deux équations sont identifiées séparément : le salaire n'est observé que pour une partie de l'échantillon, et les erreurs sont supposées normales jointes. Couple et enfant expliquent la participation mais sont exclus de l'équation de salaire."
+    },
+    {
+     "type": "table",
+     "title": "Résultats comparés entre modèles (signes et significativité décrits dans le rapport)",
+     "columns": ["Variable", "Probit / logit (Q2)", "MCO employées (Q3)", "Tobit 2 – sélection", "Tobit 2 – salaire"],
+     "rows": [
+      ["Âge", "+ à rythme décroissant, signif.", "+", "+ à rythme décroissant", "+ mais décroissant"],
+      ["Couple", "−, signif.", "non inclus", "−, signif.", "exclu"],
+      ["Au moins un enfant", "−, signif.", "non inclus", "−, signif.", "exclu"],
+      ["Diplôme (vs niveau 1)", "+, croissant avec le niveau", "+, croissant avec le niveau", "≈ probit", "fortement +"],
+      ["Zone (vs rural)", "2 modalités signif.", "effet variable selon les zones", "≈ probit", "non commenté"],
+      ["Corrélation des erreurs", "—", "ignorée", "ρ ≈ −0,15, signif.", "ρ ≈ −0,15, signif."]
+     ],
+     "note": "Le rapport ne reproduit pas les valeurs des coefficients : le tableau résume les signes et significativités commentés dans le texte."
+    }
+   ]
+  }
+ ],
+ "figures": {
+  "descriptives": {
+   "description": "Statistiques descriptives clés citées dans le rapport",
+   "n": 19461,
+   "nVariables": 21,
+   "ageMin": 16,
+   "ageMax": 65,
+   "ageMeanApprox": 41,
+   "employmentRateReported": 0.64,
+   "employmentRateDerived": 0.6428,
+   "nNotEmployed": 6952,
+   "nEmployedDerived": 12509,
+   "nrtnsNotObserved": 18605,
+   "wageMean": null,
+   "wageMedian": null,
+   "approx": false,
+   "note": "Taux d'emploi : « environ 64 % » dans le rapport ; 0,6428 = 12 509 / 19 461 (dérivé). Aucun salaire moyen ni médian chiffré dans le texte : voir wage_by_diploma (lu sur graphique)."
+  },
+  "employment": {
+   "description": "Statut d'emploi des 19 461 femmes de l'échantillon",
+   "x": ["Sans emploi (salaire non observé)", "En emploi (salaire observé)"],
+   "y": [6952, 12509],
+   "derived": [
+    false,
+    true
+   ],
+   "approx": false,
+   "note": "6 952 : rapport. 12 509 = 19 461 − 6 952. Le rapport indique « environ 64 % » de femmes en emploi."
+  },
+  "aic_probit": {
+   "description": "AIC des probits de participation emboîtés (plus bas = meilleur)",
+   "x": ["Vide", "+ âge", "+ âge²", "+ couple", "+ enfant", "Complet (+ zone, + diplôme)"],
+   "df": [1, 2, 3, 4, 5, 21],
+   "y": [25371.6, 24731.2, 23972.12, 23843.32, 23431.92, 22103.24],
+   "approx": false,
+   "note": "L'étape + zone (tu99) fait baisser l'AIC mais n'est pas chiffrée dans le rapport."
+  },
+  "family_by_work": {
+   "description": "Situation familiale selon le statut d'emploi (part au sein de chaque statut)",
+   "x": ["Sans emploi", "En emploi"],
+   "series": [
+    {
+     "name": "Vit en couple",
+     "y": [0.79, 0.73],
+     "note": "« environ » dans le rapport"
+    },
+    {
+     "name": "Au moins un enfant",
+     "y": [0.666, 0.647]
+    }
+   ],
+   "tests": "Khi-deux significatif pour les deux variables",
+   "approx": false
+  },
+  "correlations_employed": {
+   "description": "Corrélations avec le salaire, femmes en emploi",
+   "x": ["Âge (nag)", "Revenu total du ménage (mrtotm)"],
+   "y": [0.17, 0.5],
+   "p": ["< 2.2e-16", "< 2.2e-16"],
+   "approx": false,
+   "note": "Valeurs arrondies (≈) dans le rapport."
+  },
+  "ols_residuals_all": {
+   "description": "Quantiles des résidus du dernier MCO sur toutes les femmes (wage ~ âge + âge² + zone + diplôme)",
+   "x": ["Min", "1er quartile", "Médiane", "3e quartile", "Max"],
+   "y": [-21980, -5680, -341, 5231, 187754],
+   "approx": false
+  },
+  "age_hist": {
+   "description": "Histogramme de l'âge (nag), toutes les femmes, classes de 5 ans",
+   "x": ["16–20", "21–25", "26–30", "31–35", "36–40", "41–45", "46–50", "51–55", "56–60", "61–65"],
+   "y": [330, 1500, 2350, 2660, 2780, 2680, 2550, 2550, 1310, 730],
+   "approx": true,
+   "note": "Lu sur le graphique du rapport (≈ ±10). Somme ≈ 19 440 pour 19 461 femmes. Moyenne rapportée : environ 41 ans."
+  },
+  "age_box": {
+   "description": "Boxplot de l'âge, toutes les femmes",
+   "min": 16,
+   "q1": 32,
+   "median": 41,
+   "q3": 50,
+   "max": 65,
+   "approx": true,
+   "note": "Min et max (16, 65) donnés dans le rapport ; quartiles lus sur le graphique."
+  },
+  "age_by_work": {
+   "description": "Âge selon le statut d'emploi (boxplots)",
+   "x": ["Sans emploi (work = 0)", "En emploi (work = 1)"],
+   "min": [16, 16],
+   "q1": [33, 31],
+   "median": [44, 39],
+   "q3": [54, 48],
+   "max": [65, 65],
+   "approx": true,
+   "note": "Lu sur le graphique du rapport (précision ≈ ±0,5 an)."
+  },
+  "diploma_counts": {
+   "description": "Effectifs par niveau de diplôme (ndiplo), toutes les femmes",
+   "x": ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
+   "labels": {
+    "4": "CAP, BEP",
+    "5": "Bac professionnel"
+   },
+   "y": [2840, 2040, 1720, 4770, 500, 750, 1680, 1750, 3410],
+   "approx": true,
+   "note": "Lu sur le graphique du rapport (≈ ±15). Niveaux en ordre croissant ; seuls 4 et 5 sont nommés."
+  },
+  "zone_counts": {
+   "description": "Effectifs par type de zone (tu99), toutes les femmes",
+   "x": ["0", "1", "2", "3", "4", "5", "6", "7", "8"],
+   "labels": {
+    "0": "Communes rurales",
+    "7": "200 000 à 2 000 000 hab.",
+    "8": "Paris"
+   },
+   "y": [4820, 1340, 890, 1000, 1160, 1360, 1130, 4760, 3000],
+   "approx": true,
+   "note": "Lu sur le graphique du rapport (≈ ±15). 1 à 8 : zones urbaines de taille croissante."
+  },
+  "wage_box_all": {
+   "description": "Boxplot du salaire (wage) sur toutes les femmes, zéros des sans-emploi inclus",
+   "q1": 0,
+   "median": 8400,
+   "q3": 15200,
+   "upperWhisker": 38500,
+   "max": 204600,
+   "approx": true,
+   "zeros": 6952,
+   "note": "Lu sur le graphique (≈ ±650). Q1 = 0 car 6 952 femmes sur 19 461 ont un salaire nul."
+  },
+  "wage_by_diploma": {
+   "description": "Salaire selon le diplôme, femmes en emploi (boxplots)",
+   "x": ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
+   "lowerWhisker": [0, 0, 0, 0, 0, 0, 0, 0, 0],
+   "q1": [5000, 6900, 7500, 7500, 7500, 8800, 10800, 10800, 14000],
+   "median": [8400, 11000, 12200, 11600, 11000, 12900, 14800, 15500, 20000],
+   "q3": [11300, 13900, 16500, 15200, 15200, 15800, 19700, 19700, 26100],
+   "upperWhisker": [21100, 25000, 29500, 26300, 25600, 26900, 32700, 33300, 44500],
+   "max": [82200, 109300, 54200, 160200, 42300, 46900, 91300, 114400, 204600],
+   "approx": true,
+   "note": "Lu sur le graphique du rapport (1 pixel ≈ 640 unités de salaire). Moustaches basses proches de 0, sous la résolution du graphique. Aucun salaire moyen n'est donné dans le rapport."
+  },
+  "model_comparison": {
+   "description": "Comparaison des résultats entre modèles : signes et significativité décrits dans le rapport (aucune valeur de coefficient reproduite)",
+   "columns": ["Variable", "Probit (Q2)", "Logit (Q2)", "MCO toutes femmes (Q3)", "MCO employées (Q3)", "Tobit 2 – sélection (Q5)", "Tobit 2 – salaire (Q5)"],
+   "rows": [
+    ["Âge (nag, nag²)", "+ à rythme décroissant, signif.", "≈ probit", "effet important", "+", "+ à rythme décroissant (≈ probit)", "+ mais décroissant"],
+    ["Couple", "−, signif.", "≈ probit", "non inclus", "non inclus", "−, signif. (≈ probit)", "exclu"],
+    ["Au moins un enfant", "−, signif.", "≈ probit", "non inclus", "non inclus", "−, signif. (≈ probit)", "exclu"],
+    ["Diplôme (vs niveau 1)", "+, croissant avec le niveau", "≈ probit", "effet important", "+, croissant avec le niveau", "≈ probit", "fortement +"],
+    ["Zone (vs rural)", "2 modalités signif. sur 8", "≈ probit", "non commenté", "effet variable selon les zones", "≈ probit", "non commenté"],
+    ["Corrélation des erreurs", "—", "—", "ignorée", "ignorée", "ρ ≈ −0,15, signif.", "ρ ≈ −0,15, signif."]
+   ],
+   "approx": false
+  }
+ },
+ "model": {
+  "status": "partiel : spécifications complètes, aucune valeur de coefficient dans le rapport",
+  "availability": {
+   "coefficients": false,
+   "standardErrors": false,
+   "pValues": false,
+   "marginalEffects": false,
+   "rho": true,
+   "sigma": false,
+   "lambdaMills": false,
+   "aic": true,
+   "residualQuantiles": true,
+   "note": "Le rapport (16 pages : 11 de texte, 5 de code R en annexe) ne reproduit aucun tableau d'estimation : ni constante, ni coefficients, ni écarts-types, ni p-values, ni effets marginaux. Il commente seulement les signes et la significativité. Valeurs chiffrées disponibles : AIC des probits emboîtés, nombre de paramètres et AIC du probit final, quantiles des résidus du dernier MCO sur toutes les femmes, et ρ ≈ −0,15 (Tobit 2, MV). Les champs coef/se/p sont laissés à null : ce sont des gabarits à remplir avec les sorties summary() de R si on les récupère. Un simulateur chiffré (probabilité de participer, salaire espéré, naïf vs corrigé) n'est pas réalisable à partir du seul rapport."
+  },
+  "sample": {
+   "n": 19461,
+   "nVariables": 21,
+   "ageMin": 16,
+   "ageMax": 65,
+   "nNotEmployed": 6952,
+   "nEmployed": 12509,
+   "nEmployedNote": "Dérivé : 19 461 − 6 952 (le rapport indique que les 6 952 salaires nuls correspondent exactement aux femmes sans emploi). Contrôle : un probit vide avec 12 509 succès sur 19 461 redonne exactement l'AIC du rapport (25 371,60).",
+   "employmentRateReported": 0.64,
+   "employmentRateNote": "« Environ 64 % » dans le rapport (12 509 / 19 461 = 0,643)."
+  },
+  "coding": {
+   "work": {
+    "type": "binaire",
+    "values": {
+     "0": "sans emploi (salaire non observé)",
+     "1": "en emploi"
+    }
+   },
+   "wage": {
+    "type": "continue",
+    "unit": "salaire mensuel du travail selon le rapport ; devise non précisée",
+    "note": "Vaut 0 dans la base pour les femmes sans emploi (non-observation, pas un salaire)."
+   },
+   "wage_k": {
+    "type": "continue",
+    "definition": "wage / 1000",
+    "usedIn": [
+     "tobit2_ml"
+    ]
+   },
+   "nag": {
+    "type": "continue",
+    "unit": "années",
+    "min": 16,
+    "max": 65,
+    "meanApprox": 41
+   },
+   "nag2": {
+    "type": "continue",
+    "definition": "nag^2"
+   },
+   "couple": {
+    "type": "binaire",
+    "reference": 0,
+    "definition": "1 si ncohab = 1, 0 si ncohab = 2"
+   },
+   "child": {
+    "type": "binaire",
+    "reference": 0,
+    "definition": "1 si mne (nombre d'enfants) > 0, 0 sinon"
+   },
+   "ndiplo": {
+    "type": "facteur",
+    "levels": ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
+    "reference": "1",
+    "knownLabels": {
+     "4": "CAP, BEP",
+     "5": "bac professionnel"
+    },
+    "referenceNote": "Codage R par défaut (premier niveau). Niveaux rangés par ordre croissant de diplôme, d'après le rapport ; libellés des autres niveaux non donnés."
+   },
+   "tu99": {
+    "type": "facteur",
+    "levels": ["0", "1", "2", "3", "4", "5", "6", "7", "8"],
+    "reference": "0",
+    "knownLabels": {
+     "0": "communes rurales",
+     "7": "zones urbaines de 200 000 à 2 000 000 habitants",
+     "8": "Paris"
+    },
+    "referenceNote": "Codage R par défaut (premier niveau). 1 à 8 : zones urbaines de taille croissante."
+   }
+  },
+  "units": {
+   "ols": "wage, unité de la base",
+   "tobit2_outcome": "milliers (wage_k = wage / 1000) : coefficients non directement comparables à ceux des MCO sans ×1000"
+  },
+  "models": [
+   {
+    "id": "probit_sequence",
+    "label": "Probits emboîtés (choix de la spécification)",
+    "type": "probit",
+    "estimation": "glm(family = binomial(link = \"probit\"))",
+    "dependent": "work",
+    "sample": "toutes les femmes",
+    "steps": [
+     {
+      "model": "vide",
+      "formula": "work ~ 1",
+      "df": 1,
+      "aic": 25371.6
+     },
+     {
+      "model": "probit1",
+      "formula": "work ~ nag",
+      "df": 2,
+      "aic": 24731.2
+     },
+     {
+      "model": "probit2",
+      "formula": "work ~ nag + nag2",
+      "df": 3,
+      "aic": 23972.12
+     },
+     {
+      "model": "probit3",
+      "formula": "work ~ nag + nag2 + couple",
+      "df": 4,
+      "aic": 23843.32
+     },
+     {
+      "model": "probit4",
+      "formula": "work ~ nag + nag2 + couple + child",
+      "df": 5,
+      "aic": 23431.92
+     },
+     {
+      "model": "probit5",
+      "formula": "work ~ nag + nag2 + couple + child + tu99",
+      "df": null,
+      "aic": null,
+      "note": "AIC en baisse selon le rapport, valeur non reportée."
+     },
+     {
+      "model": "probit6 (retenu)",
+      "formula": "work ~ nag + nag2 + couple + child + tu99 + ndiplo",
+      "df": 21,
+      "aic": 22103.24
+     }
+    ],
+    "variantsNotRetained": [
+     {
+      "model": "probit7",
+      "formula": "work ~ nag + nag2 + couple + child + tu99 + nnatior"
+     },
+     {
+      "model": "probit8",
+      "formula": "work ~ nag + nag2 + couple + child + tu99 + nnatior + ndiplo",
+      "test": "lrtest(probit6, probit8)"
+     },
+     {
+      "model": "variante avec nmatri",
+      "formula": null,
+      "note": "citée dans le texte, absente du code"
+     }
+    ],
+    "selectionRule": "Les tests du rapport de vraisemblance faisaient rejeter H0 (modèle plus complexe préféré statistiquement), mais certaines variables étaient redondantes : modèle parcimonieux retenu."
+   },
+   {
+    "id": "probit_final",
+    "label": "Probit de participation (modèle retenu, probit6)",
+    "type": "probit",
+    "equation": "participation",
+    "dependent": "work (1 = en emploi)",
+    "rFormula": "work ~ nag + nag2 + couple + child + tu99 + ndiplo",
+    "sample": "toutes les femmes",
+    "nParams": 21,
+    "aic": 22103.24,
+    "terms": [
+     {
+      "term": "(Intercept)",
+      "label": "Constante",
+      "reference": null,
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "nag",
+      "label": "Âge (années)",
+      "reference": null,
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "nag2",
+      "label": "Âge au carré",
+      "reference": null,
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "couple",
+      "label": "Vit en couple",
+      "reference": "pas en couple (couple = 0)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "child",
+      "label": "Au moins un enfant",
+      "reference": "sans enfant (child = 0)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "tu991",
+      "label": "Zone tu99 = 1",
+      "reference": "tu99 = 0 (communes rurales)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "tu992",
+      "label": "Zone tu99 = 2",
+      "reference": "tu99 = 0 (communes rurales)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "tu993",
+      "label": "Zone tu99 = 3",
+      "reference": "tu99 = 0 (communes rurales)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "tu994",
+      "label": "Zone tu99 = 4",
+      "reference": "tu99 = 0 (communes rurales)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "tu995",
+      "label": "Zone tu99 = 5",
+      "reference": "tu99 = 0 (communes rurales)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "tu996",
+      "label": "Zone tu99 = 6",
+      "reference": "tu99 = 0 (communes rurales)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "tu997",
+      "label": "Zone tu99 = 7 (zones urbaines de 200 000 à 2 000 000 habitants)",
+      "reference": "tu99 = 0 (communes rurales)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "tu998",
+      "label": "Zone tu99 = 8 (Paris)",
+      "reference": "tu99 = 0 (communes rurales)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "ndiplo2",
+      "label": "Diplôme ndiplo = 2",
+      "reference": "ndiplo = 1 (niveau le plus bas)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "ndiplo3",
+      "label": "Diplôme ndiplo = 3",
+      "reference": "ndiplo = 1 (niveau le plus bas)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "ndiplo4",
+      "label": "Diplôme ndiplo = 4 (CAP, BEP)",
+      "reference": "ndiplo = 1 (niveau le plus bas)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "ndiplo5",
+      "label": "Diplôme ndiplo = 5 (bac professionnel)",
+      "reference": "ndiplo = 1 (niveau le plus bas)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "ndiplo6",
+      "label": "Diplôme ndiplo = 6",
+      "reference": "ndiplo = 1 (niveau le plus bas)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "ndiplo7",
+      "label": "Diplôme ndiplo = 7",
+      "reference": "ndiplo = 1 (niveau le plus bas)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "ndiplo8",
+      "label": "Diplôme ndiplo = 8",
+      "reference": "ndiplo = 1 (niveau le plus bas)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "ndiplo9",
+      "label": "Diplôme ndiplo = 9",
+      "reference": "ndiplo = 1 (niveau le plus bas)",
+      "coef": null,
+      "se": null,
+      "p": null
+     }
+    ],
+    "marginalEffects": null,
+    "reportedEffects": [
+     {
+      "variables": ["nag", "nag2"],
+      "signs": {
+       "nag": "+",
+       "nag2": "−"
+      },
+      "significant": true,
+      "text": "Effet significatif et non linéaire : la probabilité de participer augmente avec l'âge, à un rythme décroissant (cycle de vie).",
+      "signSource": "déduit du commentaire (hausse à rythme décroissant = profil concave)"
+     },
+     {
+      "variables": [
+       "couple"
+      ],
+      "signs": {
+       "couple": "−"
+      },
+      "significant": true,
+      "text": "Vivre en couple réduit significativement la probabilité de participer."
+     },
+     {
+      "variables": [
+       "child"
+      ],
+      "signs": {
+       "child": "−"
+      },
+      "significant": true,
+      "text": "Avoir au moins un enfant réduit significativement la probabilité de participer."
+     },
+     {
+      "variables": ["ndiplo2", "ndiplo3", "ndiplo4", "ndiplo5", "ndiplo6", "ndiplo7", "ndiplo8", "ndiplo9"],
+      "signs": {
+       "ndiplo2": "+",
+       "ndiplo3": "+",
+       "ndiplo4": "+",
+       "ndiplo5": "+",
+       "ndiplo6": "+",
+       "ndiplo7": "+",
+       "ndiplo8": "+",
+       "ndiplo9": "+"
+      },
+      "significant": null,
+      "text": "Tous les niveaux de diplôme sont associés à une probabilité de participer plus élevée que la référence ; l'effet croît avec le niveau."
+     },
+     {
+      "variables": ["tu991", "tu992", "tu993", "tu994", "tu995", "tu996", "tu997", "tu998"],
+      "signs": null,
+      "significant": "2 modalités sur 8 (lesquelles : non précisé)",
+      "text": "Deux modalités de zone sont significatives, les autres non."
+     }
+    ]
+   },
+   {
+    "id": "logit_final",
+    "label": "Logit de contrôle (même spécification)",
+    "type": "logit",
+    "equation": "participation",
+    "dependent": "work",
+    "rFormula": "work ~ nag + nag2 + couple + child + tu99 + ndiplo",
+    "sample": "toutes les femmes",
+    "nParams": 21,
+    "aic": null,
+    "terms": [
+     {
+      "term": "(Intercept)",
+      "label": "Constante",
+      "reference": null,
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "nag",
+      "label": "Âge (années)",
+      "reference": null,
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "nag2",
+      "label": "Âge au carré",
+      "reference": null,
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "couple",
+      "label": "Vit en couple",
+      "reference": "pas en couple (couple = 0)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "child",
+      "label": "Au moins un enfant",
+      "reference": "sans enfant (child = 0)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "tu991",
+      "label": "Zone tu99 = 1",
+      "reference": "tu99 = 0 (communes rurales)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "tu992",
+      "label": "Zone tu99 = 2",
+      "reference": "tu99 = 0 (communes rurales)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "tu993",
+      "label": "Zone tu99 = 3",
+      "reference": "tu99 = 0 (communes rurales)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "tu994",
+      "label": "Zone tu99 = 4",
+      "reference": "tu99 = 0 (communes rurales)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "tu995",
+      "label": "Zone tu99 = 5",
+      "reference": "tu99 = 0 (communes rurales)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "tu996",
+      "label": "Zone tu99 = 6",
+      "reference": "tu99 = 0 (communes rurales)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "tu997",
+      "label": "Zone tu99 = 7 (zones urbaines de 200 000 à 2 000 000 habitants)",
+      "reference": "tu99 = 0 (communes rurales)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "tu998",
+      "label": "Zone tu99 = 8 (Paris)",
+      "reference": "tu99 = 0 (communes rurales)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "ndiplo2",
+      "label": "Diplôme ndiplo = 2",
+      "reference": "ndiplo = 1 (niveau le plus bas)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "ndiplo3",
+      "label": "Diplôme ndiplo = 3",
+      "reference": "ndiplo = 1 (niveau le plus bas)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "ndiplo4",
+      "label": "Diplôme ndiplo = 4 (CAP, BEP)",
+      "reference": "ndiplo = 1 (niveau le plus bas)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "ndiplo5",
+      "label": "Diplôme ndiplo = 5 (bac professionnel)",
+      "reference": "ndiplo = 1 (niveau le plus bas)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "ndiplo6",
+      "label": "Diplôme ndiplo = 6",
+      "reference": "ndiplo = 1 (niveau le plus bas)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "ndiplo7",
+      "label": "Diplôme ndiplo = 7",
+      "reference": "ndiplo = 1 (niveau le plus bas)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "ndiplo8",
+      "label": "Diplôme ndiplo = 8",
+      "reference": "ndiplo = 1 (niveau le plus bas)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "ndiplo9",
+      "label": "Diplôme ndiplo = 9",
+      "reference": "ndiplo = 1 (niveau le plus bas)",
+      "coef": null,
+      "se": null,
+      "p": null
+     }
+    ],
+    "marginalEffects": null,
+    "reportedEffects": [
+     {
+      "variables": "toutes",
+      "text": "Signes et significativité très proches du probit : résultats robustes."
+     }
+    ]
+   },
+   {
+    "id": "ols_all",
+    "label": "MCO naïfs sur toutes les femmes (salaire nul si sans emploi)",
+    "type": "mco",
+    "equation": "salaire",
+    "dependent": "wage (0 pour les femmes sans emploi)",
+    "sample": "toutes les femmes",
+    "specifications": [
+     {
+      "id": "ols",
+      "formula": "wage ~ nag + nag2"
+     },
+     {
+      "id": "ols_diplo",
+      "formula": "wage ~ nag + nag2 + ndiplo"
+     },
+     {
+      "id": "ols_tu99",
+      "formula": "wage ~ nag + nag2 + tu99"
+     },
+     {
+      "id": "ols_2",
+      "formula": "wage ~ nag + nag2 + tu99 + ndiplo",
+      "isLast": true
+     }
+    ],
+    "terms": [
+     {
+      "term": "(Intercept)",
+      "label": "Constante",
+      "reference": null,
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "nag",
+      "label": "Âge (années)",
+      "reference": null,
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "nag2",
+      "label": "Âge au carré",
+      "reference": null,
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "tu991",
+      "label": "Zone tu99 = 1",
+      "reference": "tu99 = 0 (communes rurales)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "tu992",
+      "label": "Zone tu99 = 2",
+      "reference": "tu99 = 0 (communes rurales)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "tu993",
+      "label": "Zone tu99 = 3",
+      "reference": "tu99 = 0 (communes rurales)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "tu994",
+      "label": "Zone tu99 = 4",
+      "reference": "tu99 = 0 (communes rurales)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "tu995",
+      "label": "Zone tu99 = 5",
+      "reference": "tu99 = 0 (communes rurales)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "tu996",
+      "label": "Zone tu99 = 6",
+      "reference": "tu99 = 0 (communes rurales)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "tu997",
+      "label": "Zone tu99 = 7 (zones urbaines de 200 000 à 2 000 000 habitants)",
+      "reference": "tu99 = 0 (communes rurales)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "tu998",
+      "label": "Zone tu99 = 8 (Paris)",
+      "reference": "tu99 = 0 (communes rurales)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "ndiplo2",
+      "label": "Diplôme ndiplo = 2",
+      "reference": "ndiplo = 1 (niveau le plus bas)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "ndiplo3",
+      "label": "Diplôme ndiplo = 3",
+      "reference": "ndiplo = 1 (niveau le plus bas)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "ndiplo4",
+      "label": "Diplôme ndiplo = 4 (CAP, BEP)",
+      "reference": "ndiplo = 1 (niveau le plus bas)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "ndiplo5",
+      "label": "Diplôme ndiplo = 5 (bac professionnel)",
+      "reference": "ndiplo = 1 (niveau le plus bas)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "ndiplo6",
+      "label": "Diplôme ndiplo = 6",
+      "reference": "ndiplo = 1 (niveau le plus bas)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "ndiplo7",
+      "label": "Diplôme ndiplo = 7",
+      "reference": "ndiplo = 1 (niveau le plus bas)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "ndiplo8",
+      "label": "Diplôme ndiplo = 8",
+      "reference": "ndiplo = 1 (niveau le plus bas)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "ndiplo9",
+      "label": "Diplôme ndiplo = 9",
+      "reference": "ndiplo = 1 (niveau le plus bas)",
+      "coef": null,
+      "se": null,
+      "p": null
+     }
+    ],
+    "termsOf": "ols_2",
+    "residuals": {
+     "model": "ols_2",
+     "min": -21980,
+     "q1": -5680,
+     "median": -341,
+     "q3": 5231,
+     "max": 187754,
+     "note": "« Notre dernier modèle » dans le rapport (identifié à ols_2 d'après l'ordre du code). Format Min/1Q/Median/3Q/Max de summary(lm) : ce sont des résidus, pas des salaires prédits."
+    },
+    "reportedEffects": [
+     {
+      "variables": ["nag", "nag2", "ndiplo2", "ndiplo3", "ndiplo4", "ndiplo5", "ndiplo6", "ndiplo7", "ndiplo8", "ndiplo9"],
+      "text": "L'âge et le niveau de diplôme ont un effet important sur le salaire."
+     }
+    ],
+    "issuesReported": [
+     "Les zéros des femmes sans emploi ne sont pas de vrais salaires mais des absences d'observation.",
+     "Le modèle mélange la décision de travailler et le niveau du salaire.",
+     "Prédictions incohérentes, notamment des salaires négatifs (affirmé dans le rapport, non chiffré).",
+     "Biais de sélection : les femmes en emploi ne forment pas un échantillon aléatoire."
+    ]
+   },
+   {
+    "id": "ols_emp",
+    "label": "MCO naïfs sur les seules femmes en emploi",
+    "type": "mco",
+    "equation": "salaire",
+    "dependent": "wage",
+    "sample": "femmes en emploi (work = 1)",
+    "specifications": [
+     {
+      "id": "ols_emp_1",
+      "formula": "wage ~ nag + nag2"
+     },
+     {
+      "id": "ols_emp_2",
+      "formula": "wage ~ nag + nag2 + ndiplo"
+     },
+     {
+      "id": "ols_emp_3",
+      "formula": "wage ~ nag + nag2 + tu99"
+     },
+     {
+      "id": "ols_emp_4",
+      "formula": "wage ~ nag + nag2 + ndiplo + tu99",
+      "isLast": true
+     }
+    ],
+    "terms": [
+     {
+      "term": "(Intercept)",
+      "label": "Constante",
+      "reference": null,
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "nag",
+      "label": "Âge (années)",
+      "reference": null,
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "nag2",
+      "label": "Âge au carré",
+      "reference": null,
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "ndiplo2",
+      "label": "Diplôme ndiplo = 2",
+      "reference": "ndiplo = 1 (niveau le plus bas)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "ndiplo3",
+      "label": "Diplôme ndiplo = 3",
+      "reference": "ndiplo = 1 (niveau le plus bas)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "ndiplo4",
+      "label": "Diplôme ndiplo = 4 (CAP, BEP)",
+      "reference": "ndiplo = 1 (niveau le plus bas)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "ndiplo5",
+      "label": "Diplôme ndiplo = 5 (bac professionnel)",
+      "reference": "ndiplo = 1 (niveau le plus bas)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "ndiplo6",
+      "label": "Diplôme ndiplo = 6",
+      "reference": "ndiplo = 1 (niveau le plus bas)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "ndiplo7",
+      "label": "Diplôme ndiplo = 7",
+      "reference": "ndiplo = 1 (niveau le plus bas)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "ndiplo8",
+      "label": "Diplôme ndiplo = 8",
+      "reference": "ndiplo = 1 (niveau le plus bas)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "ndiplo9",
+      "label": "Diplôme ndiplo = 9",
+      "reference": "ndiplo = 1 (niveau le plus bas)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "tu991",
+      "label": "Zone tu99 = 1",
+      "reference": "tu99 = 0 (communes rurales)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "tu992",
+      "label": "Zone tu99 = 2",
+      "reference": "tu99 = 0 (communes rurales)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "tu993",
+      "label": "Zone tu99 = 3",
+      "reference": "tu99 = 0 (communes rurales)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "tu994",
+      "label": "Zone tu99 = 4",
+      "reference": "tu99 = 0 (communes rurales)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "tu995",
+      "label": "Zone tu99 = 5",
+      "reference": "tu99 = 0 (communes rurales)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "tu996",
+      "label": "Zone tu99 = 6",
+      "reference": "tu99 = 0 (communes rurales)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "tu997",
+      "label": "Zone tu99 = 7 (zones urbaines de 200 000 à 2 000 000 habitants)",
+      "reference": "tu99 = 0 (communes rurales)",
+      "coef": null,
+      "se": null,
+      "p": null
+     },
+     {
+      "term": "tu998",
+      "label": "Zone tu99 = 8 (Paris)",
+      "reference": "tu99 = 0 (communes rurales)",
+      "coef": null,
+      "se": null,
+      "p": null
+     }
+    ],
+    "termsOf": "ols_emp_4",
+    "excludedVariables": ["couple", "child"],
+    "reportedEffects": [
+     {
+      "variables": ["nag", "nag2"],
+      "signs": {
+       "nag": "+"
+      },
+      "text": "Le salaire augmente avec l'âge."
+     },
+     {
+      "variables": ["ndiplo2", "ndiplo3", "ndiplo4", "ndiplo5", "ndiplo6", "ndiplo7", "ndiplo8", "ndiplo9"],
+      "signs": {
+       "ndiplo2": "+",
+       "ndiplo3": "+",
+       "ndiplo4": "+",
+       "ndiplo5": "+",
+       "ndiplo6": "+",
+       "ndiplo7": "+",
+       "ndiplo8": "+",
+       "ndiplo9": "+"
+      },
+      "text": "Plus le diplôme est élevé, plus le salaire est important."
+     },
+     {
+      "variables": ["tu991", "tu992", "tu993", "tu994", "tu995", "tu996", "tu997", "tu998"],
+      "signs": null,
+      "text": "La zone a un effet sur le salaire, variable selon les modalités."
+     }
+    ],
+    "issuesReported": [
+     "Ignore que les femmes en emploi ne sont pas choisies au hasard (sélection non corrigée).",
+     "Valeurs négatives toujours présentes, même pour work = 1 (affirmé dans le rapport, non chiffré)."
+    ]
+   },
+   {
+    "id": "tobit2_ml",
+    "label": "Tobit 2 (modèle de sélection) par maximum de vraisemblance",
+    "type": "tobit2",
+    "estimation": "sampleSelection::selection(..., method = \"ml\")",
+    "call": "selection(selection = work ~ nag + nag2 + couple + child + tu99 + ndiplo, outcome = wage_k ~ nag + nag2 + ndiplo + tu99, data = database, method = \"ml\")",
+    "sample": "toutes les femmes (salaire utilisé seulement si work = 1)",
+    "selectionEquation": {
+     "dependent": "work",
+     "rFormula": "work ~ nag + nag2 + couple + child + tu99 + ndiplo",
+     "terms": [
+      {
+       "term": "(Intercept)",
+       "label": "Constante",
+       "reference": null,
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "nag",
+       "label": "Âge (années)",
+       "reference": null,
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "nag2",
+       "label": "Âge au carré",
+       "reference": null,
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "couple",
+       "label": "Vit en couple",
+       "reference": "pas en couple (couple = 0)",
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "child",
+       "label": "Au moins un enfant",
+       "reference": "sans enfant (child = 0)",
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "tu991",
+       "label": "Zone tu99 = 1",
+       "reference": "tu99 = 0 (communes rurales)",
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "tu992",
+       "label": "Zone tu99 = 2",
+       "reference": "tu99 = 0 (communes rurales)",
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "tu993",
+       "label": "Zone tu99 = 3",
+       "reference": "tu99 = 0 (communes rurales)",
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "tu994",
+       "label": "Zone tu99 = 4",
+       "reference": "tu99 = 0 (communes rurales)",
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "tu995",
+       "label": "Zone tu99 = 5",
+       "reference": "tu99 = 0 (communes rurales)",
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "tu996",
+       "label": "Zone tu99 = 6",
+       "reference": "tu99 = 0 (communes rurales)",
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "tu997",
+       "label": "Zone tu99 = 7 (zones urbaines de 200 000 à 2 000 000 habitants)",
+       "reference": "tu99 = 0 (communes rurales)",
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "tu998",
+       "label": "Zone tu99 = 8 (Paris)",
+       "reference": "tu99 = 0 (communes rurales)",
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "ndiplo2",
+       "label": "Diplôme ndiplo = 2",
+       "reference": "ndiplo = 1 (niveau le plus bas)",
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "ndiplo3",
+       "label": "Diplôme ndiplo = 3",
+       "reference": "ndiplo = 1 (niveau le plus bas)",
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "ndiplo4",
+       "label": "Diplôme ndiplo = 4 (CAP, BEP)",
+       "reference": "ndiplo = 1 (niveau le plus bas)",
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "ndiplo5",
+       "label": "Diplôme ndiplo = 5 (bac professionnel)",
+       "reference": "ndiplo = 1 (niveau le plus bas)",
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "ndiplo6",
+       "label": "Diplôme ndiplo = 6",
+       "reference": "ndiplo = 1 (niveau le plus bas)",
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "ndiplo7",
+       "label": "Diplôme ndiplo = 7",
+       "reference": "ndiplo = 1 (niveau le plus bas)",
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "ndiplo8",
+       "label": "Diplôme ndiplo = 8",
+       "reference": "ndiplo = 1 (niveau le plus bas)",
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "ndiplo9",
+       "label": "Diplôme ndiplo = 9",
+       "reference": "ndiplo = 1 (niveau le plus bas)",
+       "coef": null,
+       "se": null,
+       "p": null
+      }
+     ],
+     "reportedEffects": [
+      {
+       "variables": ["nag", "nag2"],
+       "signs": {
+        "nag": "+",
+        "nag2": "−"
+       },
+       "significant": true,
+       "text": "L'âge augmente la participation à un rythme décroissant, comme dans le probit.",
+       "signSource": "déduit du commentaire (hausse à rythme décroissant = profil concave)"
+      },
+      {
+       "variables": ["couple", "child"],
+       "signs": {
+        "couple": "−",
+        "child": "−"
+       },
+       "significant": true,
+       "text": "Vivre en couple et avoir des enfants réduisent la participation."
+      },
+      {
+       "variables": "toutes",
+       "text": "Signes et significativité très proches du probit estimé seul."
+      }
+     ]
+    },
+    "outcomeEquation": {
+     "dependent": "wage_k (salaire en milliers)",
+     "rFormula": "wage_k ~ nag + nag2 + ndiplo + tu99",
+     "terms": [
+      {
+       "term": "(Intercept)",
+       "label": "Constante",
+       "reference": null,
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "nag",
+       "label": "Âge (années)",
+       "reference": null,
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "nag2",
+       "label": "Âge au carré",
+       "reference": null,
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "ndiplo2",
+       "label": "Diplôme ndiplo = 2",
+       "reference": "ndiplo = 1 (niveau le plus bas)",
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "ndiplo3",
+       "label": "Diplôme ndiplo = 3",
+       "reference": "ndiplo = 1 (niveau le plus bas)",
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "ndiplo4",
+       "label": "Diplôme ndiplo = 4 (CAP, BEP)",
+       "reference": "ndiplo = 1 (niveau le plus bas)",
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "ndiplo5",
+       "label": "Diplôme ndiplo = 5 (bac professionnel)",
+       "reference": "ndiplo = 1 (niveau le plus bas)",
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "ndiplo6",
+       "label": "Diplôme ndiplo = 6",
+       "reference": "ndiplo = 1 (niveau le plus bas)",
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "ndiplo7",
+       "label": "Diplôme ndiplo = 7",
+       "reference": "ndiplo = 1 (niveau le plus bas)",
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "ndiplo8",
+       "label": "Diplôme ndiplo = 8",
+       "reference": "ndiplo = 1 (niveau le plus bas)",
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "ndiplo9",
+       "label": "Diplôme ndiplo = 9",
+       "reference": "ndiplo = 1 (niveau le plus bas)",
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "tu991",
+       "label": "Zone tu99 = 1",
+       "reference": "tu99 = 0 (communes rurales)",
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "tu992",
+       "label": "Zone tu99 = 2",
+       "reference": "tu99 = 0 (communes rurales)",
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "tu993",
+       "label": "Zone tu99 = 3",
+       "reference": "tu99 = 0 (communes rurales)",
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "tu994",
+       "label": "Zone tu99 = 4",
+       "reference": "tu99 = 0 (communes rurales)",
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "tu995",
+       "label": "Zone tu99 = 5",
+       "reference": "tu99 = 0 (communes rurales)",
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "tu996",
+       "label": "Zone tu99 = 6",
+       "reference": "tu99 = 0 (communes rurales)",
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "tu997",
+       "label": "Zone tu99 = 7 (zones urbaines de 200 000 à 2 000 000 habitants)",
+       "reference": "tu99 = 0 (communes rurales)",
+       "coef": null,
+       "se": null,
+       "p": null
+      },
+      {
+       "term": "tu998",
+       "label": "Zone tu99 = 8 (Paris)",
+       "reference": "tu99 = 0 (communes rurales)",
+       "coef": null,
+       "se": null,
+       "p": null
+      }
+     ],
+     "reportedEffects": [
+      {
+       "variables": ["nag", "nag2"],
+       "signs": {
+        "nag": "+",
+        "nag2": "−"
+       },
+       "text": "L'âge a toujours un effet positif mais décroissant.",
+       "signSource": "déduit du commentaire (effet positif décroissant = profil concave)"
+      },
+      {
+       "variables": ["ndiplo2", "ndiplo3", "ndiplo4", "ndiplo5", "ndiplo6", "ndiplo7", "ndiplo8", "ndiplo9"],
+       "signs": {
+        "ndiplo2": "+",
+        "ndiplo3": "+",
+        "ndiplo4": "+",
+        "ndiplo5": "+",
+        "ndiplo6": "+",
+        "ndiplo7": "+",
+        "ndiplo8": "+",
+        "ndiplo9": "+"
+       },
+       "text": "Le diplôme a un effet fortement positif."
+      },
+      {
+       "variables": ["tu991", "tu992", "tu993", "tu994", "tu995", "tu996", "tu997", "tu998"],
+       "signs": null,
+       "text": "Non commenté."
+      }
+     ]
+    },
+    "exclusionRestrictions": ["couple", "child"],
+    "exclusionRationale": "Couple et enfant expliquent la décision de travailler plutôt que le niveau du salaire.",
+    "identification": "Observation partielle du salaire + normalité jointe des erreurs ; couple et child exclus de l'équation de salaire.",
+    "errorTerms": {
+     "rho": {
+      "value": -0.15,
+      "rounded": true,
+      "display": "ρ ≈ −0,15",
+      "significant": true,
+      "pValue": null,
+      "pValueText": "très faible (non chiffrée)",
+      "note": "Valeur arrondie donnée dans le texte."
+     },
+     "sigma": null,
+     "lambda": null,
+     "lambdaNote": "Ratio de Mills non disponible : seule l'estimation par MV est présentée (pas de Heckman en deux étapes)."
+    }
+   },
+   {
+    "id": "heckman_2step",
+    "label": "Heckman en deux étapes",
+    "estimated": false,
+    "note": "Non estimé dans le rapport : pas de λ (ratio de Mills inverse) ni de test sur λ."
+   }
+  ],
+  "tests": [
+   {
+    "name": "Khi-deux work × couple",
+    "result": "significatif",
+    "statistic": null,
+    "p": null
+   },
+   {
+    "name": "Khi-deux work × child",
+    "result": "significatif (écart faible entre les groupes)",
+    "statistic": null,
+    "p": null
+   },
+   {
+    "name": "Corrélation wage × nag (femmes en emploi)",
+    "estimate": 0.17,
+    "p": "< 2.2e-16",
+    "rounded": true
+   },
+   {
+    "name": "Corrélation wage × mrtotm, revenu total du ménage (femmes en emploi)",
+    "estimate": 0.5,
+    "p": "< 2.2e-16",
+    "rounded": true
+   },
+   {
+    "name": "Rapport de vraisemblance, probit retenu vs variantes (nnatior, nmatri)",
+    "result": "H0 rejetée : modèle plus complexe préféré statistiquement ; modèle parcimonieux retenu pour l'interprétation",
+    "statistic": null,
+    "p": null
+   },
+   {
+    "name": "Significativité de ρ (Tobit 2, MV)",
+    "estimate": -0.15,
+    "result": "significatif, p-value très faible",
+    "rounded": true
+   },
+   {
+    "name": "Significativité de λ (ratio de Mills)",
+    "result": "non disponible (pas d'estimation en deux étapes)"
+   }
+  ],
+  "theory": {
+   "inReport": false,
+   "note": "Formules standard du Tobit 2, rappelées pour un module pédagogique éventuel ; elles ne figurent pas telles quelles dans le rapport et aucun paramètre estimé (hors ρ) n'est disponible pour les évaluer.",
+   "participation": "\\Pr(\\mathit{work}_i = 1) = \\Phi(Z_i\\gamma)",
+   "conditionalMean": "E[\\mathit{wage}_i \\mid \\mathit{work}_i = 1] = X_i\\beta + \\rho\\sigma\\,\\lambda(Z_i\\gamma),\\quad \\lambda(\\cdot) = \\varphi(\\cdot)/\\Phi(\\cdot)",
+   "latentMean": "E[\\mathit{wage}_i^{*}] = X_i\\beta"
+  }
+ },
+ "conclusions": [
+  "Les 6 952 salaires nuls correspondent exactement aux femmes sans emploi : ce sont des non-observations, à ne pas traiter comme des salaires.",
+  "La participation dépend de l'âge de façon non linéaire, recule avec la vie en couple et la présence d'enfants, et progresse avec le diplôme.",
+  "Le probit final (21 paramètres) fait passer l'AIC de 25 371,60 à 22 103,24 ; le logit confirme signes et significativités.",
+  "Les MCO, sur toutes les femmes comme sur les seules employées, ne traitent pas la sélection ; participation et salaire n'ont pas les mêmes déterminants.",
+  "Le Tobit 2 estimé par maximum de vraisemblance donne ρ ≈ −0,15, significatif : des facteurs non observés jouent à la fois sur l'emploi et sur le salaire.",
+  "Dans l'équation de salaire, l'âge a un effet positif mais décroissant et le diplôme un effet fortement positif."
+ ],
+ "limits": [
+  "Les tableaux d'estimation ne sont pas reproduits : le rapport commente signes et significativité, sans coefficients, écarts-types ni effets marginaux.",
+  "Le modèle parcimonieux est un choix assumé, alors que les tests du rapport de vraisemblance favorisaient des spécifications plus riches (avec nnatior ou nmatri).",
+  "Les salaires prédits négatifs des MCO sont évoqués mais pas montrés : le tableau présenté résume les résidus.",
+  "Seule l'estimation par maximum de vraisemblance est présentée : pas de Heckman en deux étapes, donc ni ratio de Mills ni test sur λ.",
+  "L'identification repose sur la normalité jointe des erreurs et sur l'exclusion de couple et enfant de l'équation de salaire, une hypothèse justifiée par la théorie mais non testée.",
+  "La période de l'enquête et la devise du salaire ne sont pas précisées."
+ ],
+ "codeSnippet": {
+  "language": "r",
+  "title": "MCO sur les femmes en emploi, puis Tobit 2 par maximum de vraisemblance (annexe R du rapport)",
+  "code": "ols_emp_1 <- lm(wage ~ nag + nag2, data = database_emp)\nsummary(ols_emp_1)\nols_emp_2 <- lm(wage ~ nag + nag2 + ndiplo, data = database_emp)\nsummary(ols_emp_2)\nols_emp_3 <- lm(wage ~ nag + nag2 + tu99, data = database_emp)\nsummary(ols_emp_3)\nols_emp_4 <- lm(wage ~ nag + nag2 + ndiplo + tu99, data = database_emp)\nsummary(ols_emp_4)\n\n#4\ninstall.packages(\"sampleSelection\")\nlibrary(sampleSelection)\n\ndatabase$wage_k <- database$wage/1000\n\ntobit2_ml <- selection(\n  selection = work ~ nag + nag2 + couple + child + tu99 + ndiplo,\n  outcome   = wage_k ~ nag + nag2 + ndiplo + tu99,\n  data = database,\n  method = \"ml\"\n)\n\nsummary(tobit2_ml)"
+ }
+}

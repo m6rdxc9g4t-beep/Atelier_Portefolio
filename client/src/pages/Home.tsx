@@ -97,9 +97,9 @@ export default function Home() {
             </div>
             <div className="stat">
               <div className="v">
-                <CountUp value="7" />
+                <CountUp value={String(profile?.skills.find((g) => g.group === 'Modélisation')?.items.length ?? 9)} />
               </div>
-              <div className="k">Simulateurs & démos branchés sur l’API</div>
+              <div className="k">Familles de modèles : logit, Tobit, survie, GARCH, spatial…</div>
             </div>
           </Reveal>
         </div>

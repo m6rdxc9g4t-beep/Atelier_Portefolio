@@ -1,0 +1,584 @@
+{
+ "slug": "leboncoin-vo-powerbi",
+ "title": "Architecture décisionnelle & analyse de données — Marché des véhicules d'occasion, région lilloise (Leboncoin)",
+ "subtitle": "Du fichier d'annonces brut au tableau de bord Power BI, via un pipeline Databricks et un modèle en étoile",
+ "course": "M2 Économétrie appliquée — Architecture décisionnelle & analyse de données",
+ "level": "M2",
+ "date": "Janvier 2026",
+ "authors": ["François Pichon", "Julien Pot"],
+ "supervisor": null,
+ "tools": ["Power BI", "Databricks", "PySpark", "Delta Lake", "Spark SQL"],
+ "methods": ["Architecture médaillon (bronze → silver)", "Modélisation en étoile", "Clés de substitution SHA-256", "Contrôle qualité des annonces", "Tableau de bord Power BI"],
+ "abstract": "Ce projet construit une chaîne décisionnelle complète sur les annonces de véhicules d'occasion publiées sur Leboncoin dans la région lilloise. Un notebook Databricks en PySpark nettoie les annonces brutes selon une architecture médaillon (bronze, puis silver). Les données sont organisées en schéma en étoile : une table de faits des annonces et quatre dimensions (véhicule, vendeur, lieu, date). Une règle de contrôle qualité signale les annonces non comparables, comme les prix d'appel ou les ventes de pièces. Le modèle alimente un rapport Power BI publié en deux pages, qui compare les prix selon la marque, la motorisation et le type de vendeur.",
+ "question": "Comment transformer des annonces Leboncoin brutes et hétérogènes en indicateurs fiables du marché lillois de l'occasion : prix, kilométrage, type de vendeur ?",
+ "kpis": [
+  {
+   "value": "4",
+   "label": "Dimensions",
+   "note": "Véhicule, vendeur, lieu, date"
+  },
+  {
+   "value": "1",
+   "label": "Table de faits",
+   "note": "fact_listing : une ligne par annonce"
+  },
+  {
+   "value": "≤ 500 €",
+   "label": "Seuil de prix suspect",
+   "note": "Ou vocabulaire de vente de pièces dans l'annonce"
+  },
+  {
+   "value": "2",
+   "label": "Pages Power BI publiées",
+   "note": "« Tableau de bord » et « Bonus »"
+  },
+  {
+   "value": "SHA-256",
+   "label": "Clés des dimensions",
+   "note": "Empreinte des attributs ; clé date au format AAAAMMJJ"
+  }
+ ],
+ "data": {
+  "source": "Leboncoin : fichier leboncoin_vehicules_lille.csv (annonces de véhicules de la région lilloise), chargé dans Databricks",
+  "unit": "Annonce de véhicule d'occasion",
+  "period": "Non précisée dans la synthèse",
+  "n": "Non précisé dans la synthèse (une ligne par annonce dans fact_listing)",
+  "variables": [
+   {
+    "name": "listing_id",
+    "label": "Identifiant de l'annonce (ID)",
+    "type": "identifiant"
+   },
+   {
+    "name": "price_eur",
+    "label": "Prix affiché en euros (Prix)",
+    "type": "continue"
+   },
+   {
+    "name": "mileage_km",
+    "label": "Kilométrage (mileage)",
+    "type": "continue"
+   },
+   {
+    "name": "registration_year",
+    "label": "Année de mise en circulation (regdate)",
+    "type": "discrète"
+   },
+   {
+    "name": "posted_ts",
+    "label": "Date et heure de publication (Date)",
+    "type": "date"
+   },
+   {
+    "name": "brand / model",
+    "label": "Marque et modèle (u_car_brand / u_car_model, à défaut brand / model)",
+    "type": "catégorielle"
+   },
+   {
+    "name": "fuel_label",
+    "label": "Carburant décodé : Essence, Diesel, GPL, Électrique, Autre, Hybride",
+    "type": "catégorielle"
+   },
+   {
+    "name": "gearbox_label",
+    "label": "Boîte de vitesses : Manuelle, Automatique",
+    "type": "catégorielle"
+   },
+   {
+    "name": "horsepower / horsepower_din",
+    "label": "Puissance et puissance DIN",
+    "type": "discrète"
+   },
+   {
+    "name": "critair / euro_standard",
+    "label": "Vignette Crit'Air et norme d'émissions Euro",
+    "type": "catégorielle"
+   },
+   {
+    "name": "doors / seats",
+    "label": "Nombre de portes et de places",
+    "type": "discrète"
+   },
+   {
+    "name": "seller_label",
+    "label": "Type de vendeur : Particulier, Professionnel, Inconnu (Vendeur)",
+    "type": "catégorielle"
+   },
+   {
+    "name": "store_name / rating_score / rating_count",
+    "label": "Boutique du vendeur, note et nombre d'avis",
+    "type": "mixte"
+   },
+   {
+    "name": "city / postal_code / department_code",
+    "label": "Ville, code postal à 5 chiffres, département",
+    "type": "catégorielle"
+   },
+   {
+    "name": "is_suspicious_price",
+    "label": "Annonce suspecte (1) ou comparable (0)",
+    "type": "binaire"
+   }
+  ],
+  "cleaning": [
+   "Bronze : sélection, renommage et typage des colonnes utiles (ID → listing_id, Prix → price, Date → posted_raw, CP → postal_code_raw, Vendeur → seller_raw…).",
+   "Ville en casse normalisée ; code postal ramené à 5 chiffres ; département déduit des deux premiers chiffres.",
+   "Type de vendeur traduit en Particulier, Professionnel ou Inconnu.",
+   "Codes Leboncoin décodés : carburant (1 Essence, 2 Diesel, 3 GPL, 4 Électrique, 5 Autre, 6 Hybride) et boîte (1 Manuelle, 2 Automatique) ; autre valeur → Inconnu.",
+   "Date de publication convertie en horodatage (yyyy-MM-dd HH:mm:ss) ; année hors de 1900–2100 mise à vide pour Power BI.",
+   "Marque et modèle vides remplacés par « Inconnu ».",
+   "Indicateur is_suspicious_price : prix manquant, prix ≤ 500 € ou vocabulaire de vente de pièces dans le titre ou la description.",
+   "Dimensions dédoublonnées (distinct), clés SHA-256 sur les attributs, clé date AAAAMMJJ ; contrôle des doublons de clés."
+  ]
+ },
+ "sections": [
+  {
+   "id": "contexte",
+   "title": "Contexte et objectif",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Le projet porte sur le marché des **véhicules d'occasion** de la région lilloise, à partir des annonces publiées sur **Leboncoin**. Les annonces brutes sont hétérogènes : codes numériques pour le carburant ou la boîte, dates en texte, prix d'appel, ventes de pièces."
+    },
+    {
+     "type": "text",
+     "md": "L'objectif est de bâtir une **architecture décisionnelle** : des données nettoyées, organisées en modèle en étoile, puis restituées dans un rapport **Power BI**. Les indicateurs visés : prix moyen par marque ou par motorisation, kilométrage, comparaison entre professionnels et particuliers."
+    }
+   ]
+  },
+  {
+   "id": "pipeline",
+   "title": "Le pipeline Databricks",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Le traitement est codé dans un notebook **Databricks** en **PySpark**. Il suit une architecture médaillon : chaque étape écrit une table **Delta**, de la copie brute jusqu'au modèle en étoile."
+    },
+    {
+     "type": "table",
+     "title": "Couches de données",
+     "columns": ["Couche", "Table", "Rôle"],
+     "rows": [
+      ["Source", "workspace.default.leboncoin_vehicules_lille", "Fichier leboncoin_vehicules_lille.csv chargé dans Databricks"],
+      [
+       "Bronze",
+       "bronze.leboncoin_raw",
+       "Copie brute : colonnes utiles sélectionnées, renommées et typées"
+      ],
+      [
+       "Silver — préparation",
+       "silver.stg_leboncoin_clean",
+       "Nettoyage, traduction des codes, horodatage, géographie, indicateur qualité"
+      ],
+      [
+       "Silver — dimensions",
+       "silver.dim_vehicle, silver.dim_seller, silver.dim_location, silver.dim_date",
+       "Attributs dédoublonnés, une clé stable par ligne"
+      ],
+      [
+       "Silver — faits",
+       "silver.fact_listing",
+       "Une ligne par annonce : mesures, indicateur qualité et clés étrangères"
+      ],
+      [
+       "Restitution",
+       "Power BI",
+       "Rapport publié sur le web : pages « Tableau de bord » et « Bonus »"
+      ]
+     ]
+    },
+    {
+     "type": "list",
+     "items": [
+      "Ville en casse normalisée ; code postal ramené à 5 chiffres ; département déduit des deux premiers chiffres.",
+      "Type de vendeur traduit : *private* ou *particulier* → Particulier ; *pro* ou *professionnel* → Professionnel ; sinon Inconnu.",
+      "Carburant et boîte décodés à partir des codes Leboncoin (tableau ci-dessous).",
+      "Date de publication convertie en horodatage ; une année hors de 1900–2100 est mise à vide pour que Power BI lise la colonne sans erreur.",
+      "Marque et modèle vides remplacés par « Inconnu »."
+     ]
+    },
+    {
+     "type": "table",
+     "title": "Décodage des codes Leboncoin",
+     "columns": ["Code", "Carburant", "Boîte de vitesses"],
+     "rows": [
+      ["1", "Essence", "Manuelle"],
+      ["2", "Diesel", "Automatique"],
+      ["3", "GPL", "—"],
+      ["4", "Électrique", "—"],
+      ["5", "Autre", "—"],
+      ["6", "Hybride", "—"],
+      ["Autre valeur", "Inconnu", "Inconnu"]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "qualite",
+   "title": "Repérer les annonces non comparables",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Beaucoup d'annonces ne correspondent pas à une vraie vente de voiture : prix d'appel à **1 €** pour attirer l'acheteur, ventes de pièces détachées. Laissées telles quelles, elles fausseraient les prix moyens."
+    },
+    {
+     "type": "text",
+     "md": "La table de faits porte donc un indicateur **is_suspicious_price**. Il vaut 1 dès qu'une condition est remplie :"
+    },
+    {
+     "type": "list",
+     "items": [
+      "le prix est manquant ;",
+      "le prix est inférieur ou égal à **500 €** ;",
+      "le titre ou la description contient « pièce(s) », « pour pièces », « épave », « casse », « moteur », « boîte », « jantes » ou « en l'état »."
+     ]
+    },
+    {
+     "type": "callout",
+     "md": "Les annonces signalées ne sont pas supprimées : elles restent dans *fact_listing* et un filtre les **exclut des calculs de prix** dans Power BI. La règle sécurise les indicateurs de marché sans perdre l'information."
+    }
+   ]
+  },
+  {
+   "id": "etoile",
+   "title": "Le modèle en étoile",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Le schéma en étoile sépare les **faits** (prix, kilométrage) des **dimensions** (marque, ville…). La table de faits *fact_listing* contient toutes les annonces et leurs mesures. Quatre dimensions les décrivent : le véhicule, le vendeur, le lieu et la date."
+    },
+    {
+     "type": "text",
+     "md": "Ce découpage accélère les requêtes et permet de croiser les axes dans Power BI, par exemple pour obtenir le **prix moyen par marque**."
+    },
+    {
+     "type": "table",
+     "title": "Tables du modèle",
+     "columns": ["Table", "Clé", "Contenu"],
+     "rows": [
+      [
+       "fact_listing",
+       "listing_id ; clés étrangères date_id, vehicle_id, seller_id, location_id",
+       "price_eur, mileage_km, posted_ts, is_suspicious_price (+ url et title pour le contrôle)"
+      ],
+      [
+       "dim_vehicle",
+       "vehicle_id (SHA-256)",
+       "brand, model, registration_year, fuel_label, gearbox_label, doors, seats, horsepower, horsepower_din, critair, euro_standard"
+      ],
+      [
+       "dim_seller",
+       "seller_id (SHA-256)",
+       "seller_label, store_name, online_store_id, rating_score, rating_count"
+      ],
+      ["dim_location", "location_id (SHA-256)", "postal_code, city, department_code"],
+      ["dim_date", "date_id (AAAAMMJJ)", "date, year, month, day, week_of_year, year_month"]
+     ],
+     "note": "Chaque dimension est reliée à la table de faits par une relation un-à-plusieurs : une ligne de dimension, plusieurs annonces."
+    },
+    {
+     "type": "text",
+     "md": "Les clés véhicule, vendeur et lieu sont des empreintes **SHA-256** des attributs de la dimension. La clé date est l'entier AAAAMMJJ. La table de faits recalcule les mêmes empreintes, ce qui garantit des jointures exactes."
+    }
+   ]
+  },
+  {
+   "id": "controles",
+   "title": "Contrôles avant Power BI",
+   "blocks": [
+    {
+     "type": "list",
+     "items": [
+      "Comptage des lignes de la table de faits, dates de publication minimale et maximale, nombre d'horodatages vides.",
+      "Recherche des années de publication hors de 1900–2100 : la requête doit renvoyer zéro ligne.",
+      "Deuxième passe sur les dimensions : les clés sont recalculées sur **tous** leurs attributs. Sinon, un même vendeur pouvait apparaître deux fois sous la même clé, avec des notes différentes.",
+      "Requête SQL de contrôle : nombre de lignes moins nombre de clés distinctes, pour chacune des quatre dimensions. Le résultat attendu est zéro doublon."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "resultats",
+   "title": "Ce que montrent les analyses",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "**Fausses annonces.** Elles sont nombreuses : prix à 1 € pour attirer le client, ventes de pièces détachées. Le filtre de qualité les écarte des calculs de prix."
+    },
+    {
+     "type": "text",
+     "md": "**Marque et motorisation.** Les prix varient fortement d'un modèle à l'autre, selon la marque et le moteur. On voit quels types de véhicules gardent leur valeur avec le temps."
+    },
+    {
+     "type": "text",
+     "md": "**Professionnels et particuliers.** Les deux coexistent sur le marché. La comparaison montre s'il est dominé par les garages, qui offrent une meilleure garantie, ou par les particuliers, aux prix bien plus bas. Les véhicules n'ont pas le même profil : le kilométrage n'est pas toujours le même selon le vendeur, ce qui aide à repérer les bonnes affaires."
+    }
+   ]
+  }
+ ],
+ "figures": {
+  "starSchema": {
+   "description": "Modèle en étoile du notebook Databricks (version finale : clés recalculées sur tous les attributs de chaque dimension)",
+   "schema": "silver",
+   "format": "Delta",
+   "facts": [
+    {
+     "name": "fact_listing",
+     "table": "silver.fact_listing",
+     "grain": "une ligne par annonce",
+     "primaryKey": "listing_id",
+     "columns": ["listing_id", "date_id", "vehicle_id", "seller_id", "location_id", "price_eur", "mileage_km", "posted_ts", "is_suspicious_price", "url", "title"],
+     "columnTypes": {
+      "listing_id": "long",
+      "date_id": "int",
+      "vehicle_id": "string",
+      "seller_id": "string",
+      "location_id": "string",
+      "price_eur": "double",
+      "mileage_km": "double",
+      "posted_ts": "timestamp",
+      "is_suspicious_price": "int",
+      "url": "string",
+      "title": "string"
+     },
+     "measures": ["price_eur", "mileage_km"],
+     "foreignKeys": {
+      "date_id": "dim_date",
+      "vehicle_id": "dim_vehicle",
+      "seller_id": "dim_seller",
+      "location_id": "dim_location"
+     },
+     "flags": [
+      "is_suspicious_price"
+     ],
+     "timestamp": "posted_ts",
+     "debugColumns": ["url", "title"]
+    }
+   ],
+   "dimensions": [
+    {
+     "name": "dim_vehicle",
+     "table": "silver.dim_vehicle",
+     "key": "vehicle_id",
+     "keyType": "SHA-256 (hexadécimal) des 11 attributs",
+     "keyFrom": ["brand", "model", "registration_year", "fuel_label", "gearbox_label", "doors", "seats", "horsepower", "horsepower_din", "critair", "euro_standard"],
+     "role": "le véhicule",
+     "columns": ["vehicle_id", "brand", "model", "registration_year", "fuel_label", "gearbox_label", "doors", "seats", "horsepower", "horsepower_din", "critair", "euro_standard"],
+     "columnTypes": {
+      "vehicle_id": "string",
+      "brand": "string",
+      "model": "string",
+      "registration_year": "int",
+      "fuel_label": "string",
+      "gearbox_label": "string",
+      "doors": "int",
+      "seats": "int",
+      "horsepower": "int",
+      "horsepower_din": "int",
+      "critair": "int",
+      "euro_standard": "string"
+     }
+    },
+    {
+     "name": "dim_seller",
+     "table": "silver.dim_seller",
+     "key": "seller_id",
+     "keyType": "SHA-256 (hexadécimal) des 5 attributs",
+     "keyFrom": ["seller_label", "store_name", "online_store_id", "rating_score", "rating_count"],
+     "role": "le vendeur",
+     "columns": ["seller_id", "seller_label", "store_name", "online_store_id", "rating_score", "rating_count"],
+     "columnTypes": {
+      "seller_id": "string",
+      "seller_label": "string",
+      "store_name": "string",
+      "online_store_id": "string",
+      "rating_score": "double",
+      "rating_count": "double"
+     }
+    },
+    {
+     "name": "dim_location",
+     "table": "silver.dim_location",
+     "key": "location_id",
+     "keyType": "SHA-256 (hexadécimal) des 3 attributs",
+     "keyFrom": ["postal_code", "city", "department_code"],
+     "role": "le lieu",
+     "columns": ["location_id", "postal_code", "city", "department_code"],
+     "columnTypes": {
+      "location_id": "string",
+      "postal_code": "string",
+      "city": "string",
+      "department_code": "string"
+     }
+    },
+    {
+     "name": "dim_date",
+     "table": "silver.dim_date",
+     "key": "date_id",
+     "keyType": "entier AAAAMMJJ",
+     "keyFrom": [
+      "date (format yyyyMMdd)"
+     ],
+     "role": "la date de publication",
+     "columns": ["date_id", "date", "year", "month", "day", "week_of_year", "year_month"],
+     "columnTypes": {
+      "date_id": "int",
+      "date": "date",
+      "year": "int",
+      "month": "int",
+      "day": "int",
+      "week_of_year": "int",
+      "year_month": "string"
+     }
+    }
+   ],
+   "relations": [
+    {
+     "from": "fact_listing.vehicle_id",
+     "to": "dim_vehicle.vehicle_id",
+     "cardinality": "N:1"
+    },
+    {
+     "from": "fact_listing.seller_id",
+     "to": "dim_seller.seller_id",
+     "cardinality": "N:1"
+    },
+    {
+     "from": "fact_listing.location_id",
+     "to": "dim_location.location_id",
+     "cardinality": "N:1"
+    },
+    {
+     "from": "fact_listing.date_id",
+     "to": "dim_date.date_id",
+     "cardinality": "N:1"
+    }
+   ],
+   "keyHashing": "sha2(concat_ws('|', coalesce(col, '') …), 256), recalculé à l'identique dans fact_listing pour garantir les jointures",
+   "approx": false
+  },
+  "powerbi": [
+   {
+    "label": "Tableau de bord",
+    "pageName": "c2717d80c20ddd01357d",
+    "url": "https://app.powerbi.com/view?r=eyJrIjoiYmI2NGI1NTUtMjI1MS00NTQ3LThiZDYtMWRjNDQ2YjEwM2JjIiwidCI6IjBkYjg2YmUyLWZmYTQtNGFiNS04NGQ1LTAzMTA0NmUzMmQxZiJ9&pageName=c2717d80c20ddd01357d"
+   },
+   {
+    "label": "Bonus",
+    "pageName": "7521680592883c7375e0",
+    "url": "https://app.powerbi.com/view?r=eyJrIjoiYmI2NGI1NTUtMjI1MS00NTQ3LThiZDYtMWRjNDQ2YjEwM2JjIiwidCI6IjBkYjg2YmUyLWZmYTQtNGFiNS04NGQ1LTAzMTA0NmUzMmQxZiJ9&pageName=7521680592883c7375e0"
+   }
+  ],
+  "pipeline": [
+   {
+    "couche": "Source",
+    "table": "workspace.default.leboncoin_vehicules_lille",
+    "role": "Fichier leboncoin_vehicules_lille.csv chargé dans Databricks"
+   },
+   {
+    "couche": "Bronze",
+    "table": "bronze.leboncoin_raw",
+    "role": "Copie brute : colonnes utiles sélectionnées, renommées et typées"
+   },
+   {
+    "couche": "Silver — préparation",
+    "table": "silver.stg_leboncoin_clean",
+    "role": "Nettoyage, traduction des codes, horodatage, géographie, indicateur qualité"
+   },
+   {
+    "couche": "Silver — dimensions",
+    "table": "silver.dim_vehicle, silver.dim_seller, silver.dim_location, silver.dim_date",
+    "role": "Attributs dédoublonnés, une clé stable par ligne"
+   },
+   {
+    "couche": "Silver — faits",
+    "table": "silver.fact_listing",
+    "role": "Une ligne par annonce : mesures, indicateur qualité et clés étrangères"
+   },
+   {
+    "couche": "Restitution",
+    "table": "Power BI",
+    "role": "Rapport publié sur le web : pages « Tableau de bord » et « Bonus »"
+   }
+  ],
+  "decodage": {
+   "carburant": {
+    "source": "fuel",
+    "codes": {
+     "1": "Essence",
+     "2": "Diesel",
+     "3": "GPL",
+     "4": "Électrique",
+     "5": "Autre",
+     "6": "Hybride"
+    },
+    "autre": "Inconnu"
+   },
+   "boite": {
+    "source": "gearbox",
+    "codes": {
+     "1": "Manuelle",
+     "2": "Automatique"
+    },
+    "autre": "Inconnu"
+   },
+   "vendeur": {
+    "source": "Vendeur",
+    "codes": {
+     "private, particulier, prive, privé": "Particulier",
+     "pro, professionnel, professional": "Professionnel"
+    },
+    "autre": "Inconnu"
+   }
+  },
+  "regle_qualite": {
+   "colonne": "is_suspicious_price",
+   "valeurs": {
+    "1": "annonce suspecte (non comparable)",
+    "0": "annonce comparable"
+   },
+   "prix_max_eur": 500,
+   "prix_manquant": true,
+   "champs_texte": ["title", "description"],
+   "mots_cles": ["pièce(s)", "pour pièces", "épave", "casse", "moteur", "boîte", "jantes", "en l'état"],
+   "regex": "(pi[eè]ces?|pour pi[eè]ces?|epave|épave|casse|moteur|bo[iî]te|boite|jantes?|en l[' ]?etat)",
+   "usage": "Les annonces signalées restent dans fact_listing ; un filtre les exclut des calculs de prix dans Power BI.",
+   "approx": false
+  },
+  "controles": [
+   {
+    "controle": "Volumétrie et dates",
+    "detail": "Nombre de lignes de fact_listing, posted_ts minimal et maximal, nombre d'horodatages vides."
+   },
+   {
+    "controle": "Années aberrantes",
+    "detail": "Recherche des posted_ts hors de 1900–2100 ; la requête doit renvoyer 0 ligne."
+   },
+   {
+    "controle": "Recalcul des clés",
+    "detail": "Deuxième passe : clés SHA-256 recalculées sur tous les attributs de chaque dimension (sinon un même vendeur pouvait avoir deux lignes sous la même clé, avec des notes différentes)."
+   },
+   {
+    "controle": "Doublons de clés",
+    "detail": "Pour chaque dimension : COUNT(*) − COUNT(DISTINCT clé) ; 0 attendu."
+   }
+  ]
+ },
+ "conclusions": [
+  "Les « fausses » annonces sont nombreuses : prix d'appel à 1 € pour attirer le client, ventes de pièces détachées. Un filtre les écarte des calculs de prix.",
+  "Le prix varie fortement selon le modèle, la marque et la motorisation : on voit quels véhicules gardent leur valeur avec le temps.",
+  "Professionnels et particuliers coexistent : la comparaison indique si le marché est dominé par les garages (meilleure garantie) ou par les particuliers (prix bien plus bas qu'en garage).",
+  "Les véhicules vendus par des particuliers n'ont pas toujours le même kilométrage que ceux des professionnels, ce qui aide à cibler les bonnes affaires.",
+  "L'indicateur is_suspicious_price, intégré à la table de faits, sécurise les indicateurs de marché calculés dans Power BI."
+ ],
+ "limits": [
+  "Les résultats chiffrés (volumes, prix moyens, écarts entre vendeurs) se lisent dans le rapport Power BI interactif.",
+  "Les prix étudiés sont des prix affichés, pas des prix de transaction, et le périmètre se limite à la région lilloise.",
+  "La période de collecte et le nombre d'annonces ne sont pas précisés dans la synthèse."
+ ],
+ "codeSnippet": {
+  "language": "python",
+  "title": "Couche silver : horodatage fiable et règle is_suspicious_price (notebook Databricks, PySpark)",
+  "code": "# 4.5 Parsing timestamp d’annonce (FIX Power BI)\n# Source: posted_raw est du type \"YYYY-MM-DD HH:MM:SS\"\nposted_ts_parsed = F.to_timestamp(F.col(\"posted_raw\"), \"yyyy-MM-dd HH:mm:ss\")\n\nposted_ts = (\n    F.when(\n        posted_ts_parsed.isNotNull() &\n        (F.year(posted_ts_parsed) >= VALID_YEAR_MIN) &\n        (F.year(posted_ts_parsed) <= VALID_YEAR_MAX),\n        posted_ts_parsed\n    )\n    .otherwise(F.lit(None).cast(\"timestamp\"))\n)\n\nposted_date = F.to_date(posted_ts)\n\n# 4.6 Qualité : prix dérisoire / annonces \"pour pièces\"\ntxt = F.lower(F.concat_ws(\" \", F.coalesce(F.col(\"title\"), F.lit(\"\")), F.coalesce(F.col(\"description\"), F.lit(\"\"))))\npieces_regex = r\"(pi[eè]ces?|pour pi[eè]ces?|epave|épave|casse|moteur|bo[iî]te|boite|jantes?|en l[' ]?etat)\"\nis_suspicious = (\n    (F.col(\"price\").isNull()) |\n    (F.col(\"price\") <= F.lit(SUSPICIOUS_PRICE_MAX)) |\n    (F.regexp_extract(txt, pieces_regex, 0) != \"\")\n)"
+ }
+}

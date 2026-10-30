@@ -68,11 +68,13 @@ export interface LineChartProps {
   /** Position x du curseur contrôlé (ex. curseur de temps). */
   cursorX?: number | null;
   onHoverX?: (x: number | null) => void;
-  vlines?: { x: number; label?: string; color?: string; dash?: string }[];
+  vlines?: { x: number; label?: string; color?: string; dash?: string; anchor?: 'start' | 'end' }[];
   hlines?: { y: number; label?: string; color?: string; dash?: string }[];
   markers?: { x: number; y: number; color?: string; r?: number; label?: string }[];
   className?: string;
   ariaLabel: string;
+  /** Dessine les points sous les courbes (nuages de points denses). */
+  markersFirst?: boolean;
   children?: (s: { x: Scale; y: Scale }) => ReactNode;
 }
 
@@ -96,6 +98,7 @@ export function LineChart({
   markers = [],
   className = '',
   ariaLabel,
+  markersFirst = false,
   children,
 }: LineChartProps) {
   const ref = useRef<SVGSVGElement>(null);
@@ -111,6 +114,17 @@ export function LineChart({
     const v = x.invert(px);
     onHoverX(Math.min(xDomain[1], Math.max(xDomain[0], v)));
   };
+
+  const markerEls = markers.map((m, i) => (
+    <g key={`m${i}`} className="chart-marker">
+      <circle cx={x(m.x)} cy={y(m.y)} r={m.r ?? 5} fill={m.color ?? 'currentColor'} />
+      {m.label && (
+        <text x={x(m.x) + 9} y={y(m.y) - 9} fill={m.color}>
+          {m.label}
+        </text>
+      )}
+    </g>
+  ));
 
   return (
     <svg ref={ref} viewBox={`0 0 ${width} ${height}`} className={`chart ${className}`} role="img" aria-label={ariaLabel}>
@@ -156,12 +170,13 @@ export function LineChart({
         <g key={`v${i}`} className="chart-ref">
           <line x1={x(v.x)} x2={x(v.x)} y1={margin.top} y2={height - margin.bottom} stroke={v.color} strokeDasharray={v.dash ?? '4 4'} />
           {v.label && (
-            <text x={x(v.x) + 5} y={margin.top + 12} fill={v.color}>
+            <text x={x(v.x) + (v.anchor === 'end' ? -5 : 5)} y={margin.top + 12} fill={v.color} textAnchor={v.anchor ?? 'start'}>
               {v.label}
             </text>
           )}
         </g>
       ))}
+      {markersFirst && markerEls}
       {series.map((s) => {
         const curve = s.step ? curveStepAfter : s.smooth ? curveMonotoneX : undefined;
         const lg = d3line<[number, number]>()
@@ -184,16 +199,7 @@ export function LineChart({
         );
       })}
       {children?.({ x, y })}
-      {markers.map((m, i) => (
-        <g key={`m${i}`} className="chart-marker">
-          <circle cx={x(m.x)} cy={y(m.y)} r={m.r ?? 5} fill={m.color ?? 'currentColor'} />
-          {m.label && (
-            <text x={x(m.x) + 9} y={y(m.y) - 9} fill={m.color}>
-              {m.label}
-            </text>
-          )}
-        </g>
-      ))}
+{!markersFirst && markerEls}
       {cursorX !== undefined && cursorX !== null && (
         <line className="chart-cursor" x1={x(cursorX)} x2={x(cursorX)} y1={margin.top} y2={height - margin.bottom} />
       )}
@@ -275,6 +281,8 @@ export function VBars({
   ariaLabel,
   className = '',
   rotateLabels = false,
+  labelEvery = 1,
+  highlight,
 }: {
   data: BarDatum[];
   width?: number;
@@ -286,6 +294,10 @@ export function VBars({
   ariaLabel: string;
   className?: string;
   rotateLabels?: boolean;
+  /** N'affiche qu'une étiquette d'axe sur n (séries longues). */
+  labelEvery?: number;
+  /** Indices mis en avant (les autres sont atténués). */
+  highlight?: (i: number) => boolean;
 }) {
   const [hover, setHover] = useState<number | null>(null);
   const max = yMax ?? Math.max(...data.map((d) => d.value)) * 1.08;
@@ -310,21 +322,33 @@ export function VBars({
         const cx = margin.left + band * i + band / 2;
         return (
           <g key={d.label} onMouseEnter={() => setHover(i)} onMouseLeave={() => setHover(null)} className="vbar">
-            <rect x={cx - bw / 2} y={y(d.value)} width={bw} height={y(0) - y(d.value)} fill={d.color ?? 'currentColor'} rx={2} opacity={hover === null || hover === i ? 1 : 0.45} />
+            <rect
+              x={cx - bw / 2}
+              y={y(d.value)}
+              width={bw}
+              height={y(0) - y(d.value)}
+              fill={d.color ?? 'currentColor'}
+              rx={2}
+              opacity={hover !== null ? (hover === i ? 1 : 0.45) : highlight && !highlight(i) ? 0.5 : 1}
+            >
+              <title>{`${d.label} : ${d.display ?? yFormat(d.value)}`}</title>
+            </rect>
             {showValues && (hover === i || data.length <= 12) && (
               <text className="vbar-value" x={cx} y={y(d.value) - 6} textAnchor="middle">
                 {d.display ?? yFormat(d.value)}
               </text>
             )}
-            <text
-              className="vbar-label"
-              x={cx}
-              y={height - margin.bottom + 16}
-              textAnchor={rotateLabels ? 'end' : 'middle'}
-              transform={rotateLabels ? `rotate(-35 ${cx} ${height - margin.bottom + 16})` : undefined}
-            >
-              {d.label}
-            </text>
+            {i % labelEvery === 0 && (
+              <text
+                className="vbar-label"
+                x={cx}
+                y={height - margin.bottom + 16}
+                textAnchor={rotateLabels ? 'end' : 'middle'}
+                transform={rotateLabels ? `rotate(-35 ${cx} ${height - margin.bottom + 16})` : undefined}
+              >
+                {d.label}
+              </text>
+            )}
           </g>
         );
       })}

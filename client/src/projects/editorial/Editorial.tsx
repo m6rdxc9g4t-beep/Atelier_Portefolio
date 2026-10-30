@@ -130,7 +130,7 @@ export function EdStats({ kpis }: { kpis: Kpi[] }) {
             <div className="num">
               <CountUp value={k.value} />
             </div>
-            <div className="lab">{k.label}</div>
+            <Md as="div" className="lab" text={k.label} />
           </div>
         ))}
       </Reveal>
@@ -231,7 +231,7 @@ export function EdCard({ title, sub, children, className = '' }: { title?: React
   );
 }
 
-function useScrollSpy(ids: string[]) {
+export function useScrollSpy(ids: string[]) {
   const [active, setActive] = useState<string | null>(null);
   useEffect(() => {
     const els = ids.map((id) => document.getElementById(id)).filter(Boolean) as HTMLElement[];

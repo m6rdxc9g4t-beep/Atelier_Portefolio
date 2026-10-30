@@ -1,0 +1,1375 @@
+{
+ "slug": "scoring-assurance-auto",
+ "title": "Scoring du risque d'accident en assurance auto",
+ "subtitle": "Estimer pour chaque assuré la probabilité d'au moins un accident responsable dans l'année, puis en tirer une règle de décision",
+ "course": "M2 Économétrie appliquée — Étude de cas Scoring",
+ "level": "M2",
+ "date": "24 octobre 2025",
+ "authors": ["François Pichon", "Julien Pot"],
+ "supervisor": null,
+ "tools": ["R", "readxl", "MASS", "car", "margins", "ROCR", "caret", "dplyr", "corrplot"],
+ "methods": ["Régression logistique (GLM binomial, lien logit)", "Sélection pas à pas (stepAIC)", "Contrôle de colinéarité (VIF)", "Résidus partiels (crPlot)", "Effets marginaux moyens (AME)", "Test du rapport de vraisemblance", "Tests du χ² et de Wilcoxon", "Courbe ROC et AUC", "Seuil de Youden", "Matrice de confusion", "Seuil économique (coûts FN/FP)", "Validation apprentissage/test 70/30"],
+ "abstract": "À partir de 71 196 contrats d'assurance automobile observés en 2009–2010, l'étude construit un score de probabilité d'au moins un accident responsable dans l'année (13,3 % de sinistrés). Après des corrections ciblées des données (âges aberrants, recodage du genre et de la cible, nouvelle modalité « chômage par choix »), une régression logistique à 11 variables est estimée sur 70 % de la base. Les effets marginaux moyens hiérarchisent le risque : véhicules de type F et E, hommes et inactifs l'augmentent ; retraités et certaines régions le réduisent. Le modèle généralise bien (AUC de 0,758 en apprentissage, 0,754 en test) et, au seuil de Youden de 0,1394, un tiers du portefeuille classé « à risque » concentre environ deux tiers des sinistres. Le rapport propose enfin de passer à un seuil économique qui pondère le coût des faux négatifs et des faux positifs.",
+ "question": "Comment transformer les caractéristiques observables d'un assuré (conducteur, véhicule, géographie, année) en un score de probabilité d'accident responsable à la fois interprétable et robuste hors échantillon, puis en une règle de décision pour segmenter le portefeuille ?",
+ "kpis": [
+  {
+   "value": "71 196",
+   "label": "Contrats automobiles",
+   "note": "Observés en 2009–2010"
+  },
+  {
+   "value": "13,3 %",
+   "label": "Avec au moins un accident responsable",
+   "note": "Échantillon d'apprentissage"
+  },
+  {
+   "value": "0,754",
+   "label": "AUC en test",
+   "note": "0,758 en apprentissage"
+  },
+  {
+   "value": "0,1394",
+   "label": "Seuil de Youden",
+   "note": "Calé sur l'apprentissage, appliqué au test"
+  },
+  {
+   "value": "68,6 %",
+   "label": "Sinistrés repérés en test",
+   "note": "Sensibilité ; spécificité de 0,706"
+  },
+  {
+   "value": "34,7 %",
+   "label": "Assurés classés « à risque »",
+   "note": "Un tiers du portefeuille, deux tiers des sinistres"
+  }
+ ],
+ "data": {
+  "source": "Fichier base2.xlsx fourni pour l'étude de cas : portefeuille de contrats d'assurance automobile",
+  "unit": "Contrat d'assurance automobile (un assuré), observé sur une année civile",
+  "period": "2009–2010",
+  "n": "71 196 contrats, partagés en 70 % apprentissage et 30 % test",
+  "variables": [
+   {
+    "name": "Surv1",
+    "label": "Au moins un accident responsable sur l'année (1) ou non (0) : la cible",
+    "type": "binaire"
+   },
+   {
+    "name": "Age",
+    "label": "Âge du conducteur",
+    "type": "continue"
+   },
+   {
+    "name": "Gender",
+    "label": "Genre (F/M)",
+    "type": "catégorielle"
+   },
+   {
+    "name": "Occupation",
+    "label": "Situation professionnelle (5 modalités, 6 après recodage en Occupation_V)",
+    "type": "catégorielle"
+   },
+   {
+    "name": "Bonus",
+    "label": "Bonus-malus, synthèse de l'historique de sinistralité",
+    "type": "continue"
+   },
+   {
+    "name": "Poldur",
+    "label": "Ancienneté du contrat",
+    "type": "continue"
+   },
+   {
+    "name": "Type",
+    "label": "Type (catégorie) de véhicule",
+    "type": "catégorielle"
+   },
+   {
+    "name": "Category",
+    "label": "Catégorie du véhicule (Petit/Moyen/Large), écartée du modèle final",
+    "type": "catégorielle"
+   },
+   {
+    "name": "Group1",
+    "label": "Groupe du véhicule (puissance), classes 1 à 20 traitées comme numériques",
+    "type": "continue"
+   },
+   {
+    "name": "Value",
+    "label": "Valeur du véhicule, écartée du modèle final",
+    "type": "continue"
+   },
+   {
+    "name": "Region",
+    "label": "Région d'habitation (modalités L à U)",
+    "type": "catégorielle"
+   },
+   {
+    "name": "Density",
+    "label": "Densité de population",
+    "type": "continue"
+   },
+   {
+    "name": "CalYear",
+    "label": "Année d'observation (2009/2010)",
+    "type": "catégorielle"
+   },
+   {
+    "name": "Adind",
+    "label": "Garantie tous risques (0/1)",
+    "type": "binaire"
+   }
+  ],
+  "cleaning": [
+   "Import de toutes les colonnes en texte (read_excel), puis typage explicite : facteurs pour CalYear, Gender, Type, Category, Occupation, Region et Adind ; numériques pour Age, Bonus, Poldur, Value, Density et Group1.",
+   "Cible Surv1 recodée de yes/no en 1/0.",
+   "Gender recodé de Female/Male en F/M (Femme/Homme).",
+   "Huit âges aberrants corrigés plutôt que supprimés : 488 → 48, 600 → 60, 200 → 20, 533 → 53, 255 → 25, 466 → 46, 366 → 36, 733 → 73.",
+   "Occupation : les hommes déclarés « Housewife » forment une nouvelle modalité « Voluntary_unemp » (chômage par choix) ; nouvelle variable Occupation_V.",
+   "Colonne 12 renommée Region ; contrôle des valeurs manquantes.",
+   "Partition aléatoire 70/30 apprentissage/test (set.seed(2204))."
+  ]
+ },
+ "sections": [
+  {
+   "id": "contexte",
+   "title": "Contexte et objectifs",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "En assurance automobile, la rentabilité repose sur la mesure du risque individuel, sans sacrifier l'équité tarifaire ni l'expérience client. L'étude convertit les caractéristiques observables de **71 196 contrats** (2009–2010) en un **score probabiliste** : la probabilité d'au moins un accident responsable sur une année civile."
+    },
+    {
+     "type": "text",
+     "md": "Le score doit être **interprétable** par les métiers (sens et intensité des effets) et **robuste hors échantillon**. La problématique est double. *Analytique* : isoler l'effet propre de chaque facteur, toutes choses égales par ailleurs. *Opérationnelle* : segmenter le portefeuille, ajuster la tarification, cibler la prévention et anticiper la sinistralité."
+    },
+    {
+     "type": "text",
+     "md": "Le rapport apporte quatre livrables :"
+    },
+    {
+     "type": "list",
+     "items": [
+      "un descriptif qui fait ressortir des tendances stables et intelligibles ;",
+      "une régression logistique validée sur un échantillon indépendant ;",
+      "une règle de segmentation fondée sur le seuil de Youden, qui équilibre sensibilité et spécificité ;",
+      "une discussion critique : coûts des erreurs (FN vs FP), biais, effets région/temps, modèles alternatifs."
+     ]
+    },
+    {
+     "type": "callout",
+     "md": "Démarche : collecter → nettoyer → modéliser → valider → interpréter. La cible étant déséquilibrée, l'évaluation repose sur la ROC et l'AUC plutôt que sur la seule *accuracy*."
+    }
+   ]
+  },
+  {
+   "id": "donnees",
+   "title": "Données et qualité",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "La base réunit **71 196 contrats** automobiles observés en 2009–2010, décrits selon quatre axes. La cible **Surv1** vaut 1 si au moins un accident responsable survient sur l'année civile, 0 sinon."
+    },
+    {
+     "type": "table",
+     "title": "Variables disponibles (table 1 du rapport)",
+     "columns": ["Axe", "Variables", "Commentaire"],
+     "rows": [
+      ["Conducteur", "Age, Gender, Occupation, Bonus, Poldur", "Effets comportementaux et historiques"],
+      ["Véhicule", "Type, Category, Group1, Value", "Puissance et usage ; redondances possibles"],
+      ["Géographie", "Region, Density", "Exposition urbaine"],
+      ["Temps", "CalYear", "Effet millésime (2009–2010)"],
+      ["Cible", "Surv1 (0/1)", "Au moins un sinistre responsable sur l'année"]
+     ],
+     "note": "Qualitatives : Gender (H/F), Category (Petit/Moyen/Large), Occupation (5 modalités), Region (L à U), Group1 (1 à 20), CalYear (2009/2010), Adind (0/1, garantie tous risques), Type."
+    },
+    {
+     "type": "text",
+     "md": "Principe retenu : **corriger plutôt que supprimer**, pour limiter les biais de sélection et préserver l'information."
+    },
+    {
+     "type": "list",
+     "items": [
+      "Gender : Female/Male recodés en F/M (Femme/Homme).",
+      "Surv1 : yes/no recodé en 1/0, prérequis de la régression logistique.",
+      "Age : huit saisies aberrantes corrigées (488 → 48, 600 → 60, 200 → 20, 533 → 53, 255 → 25, 466 → 46, 366 → 36, 733 → 73).",
+      "Occupation : les hommes déclarés « Housewife », majoritaires dans cette modalité, forment une nouvelle modalité « Voluntary unemployed » (chômage par choix).",
+      "Typage cohérent : facteurs pour les qualitatives, numériques pour les quantitatives."
+     ]
+    },
+    {
+     "type": "figure",
+     "src": "img/scoring-assurance-auto/fig-3.png",
+     "caption": "Répartition des genres selon l'occupation, avant (à gauche) et après (à droite) la création de la modalité « Voluntary_unemp » (figure 2 du rapport)."
+    },
+    {
+     "type": "text",
+     "md": "La prévalence d'au moins un accident responsable est d'environ **13 %** : la classe positive est minoritaire. Les données sont partagées en **70 % apprentissage et 30 % test**. Le seuil de décision est calé sur l'apprentissage, puis appliqué tel quel au test."
+    },
+    {
+     "type": "callout",
+     "md": "Limite assumée dès le départ : aucune donnée télématique (style de conduite, intensité ou horaires d'usage)."
+    }
+   ]
+  },
+  {
+   "id": "descriptif",
+   "title": "Lecture descriptive",
+   "blocks": [
+    {
+     "type": "figure",
+     "src": "img/scoring-assurance-auto/fig-4.png",
+     "caption": "Cible Surv1 dans l'échantillon d'apprentissage : 86,7 % sans accident, 13,3 % avec au moins un accident responsable (figure 1 du rapport)."
+    },
+    {
+     "type": "text",
+     "md": "Avec 13,3 % de positifs, l'*accuracy* est peu informative : prédire « 0 » pour tout le monde donnerait déjà un taux de bonnes réponses élevé. L'évaluation s'appuie donc sur la courbe ROC, l'AUC et les taux de vrais et de faux positifs le long des seuils."
+    },
+    {
+     "type": "table",
+     "title": "Effets mis en évidence par l'analyse descriptive",
+     "columns": ["Facteur", "Effet", "Mécanisme avancé"],
+     "rows": [
+      ["Âge", "Protecteur", "Expérience, anticipation, prudence"],
+      ["Ancienneté de contrat (Poldur)", "Protecteur", "Stabilité ; les profils risqués résilient davantage"],
+      ["Bonus élevé", "Protecteur", "Résume un historique de sinistralité favorable"],
+      [
+       "Genre masculin",
+       "Aggravant",
+       "Exposition (kilométrage, trajets), vitesse, propension au risque"
+      ],
+      ["Véhicules puissants, récents ou de valeur", "Aggravant", "Performances, vitesses, usages spécifiques"],
+      ["Densité urbaine", "Aggravant", "Trafic, complexité de circulation, interactions"],
+      ["Chômeurs, personnes au foyer", "Légèrement aggravant", "Schémas d'usage distincts du véhicule"]
+     ]
+    },
+    {
+     "type": "text",
+     "md": "Ces constats bruts sont entremêlés : les jeunes conduisent plus souvent des véhicules puissants, l'urbain se confond avec certains usages professionnels, le bonus reflète à la fois l'expérience et la prudence. Une lecture **multivariée** s'impose pour isoler l'effet propre de chaque facteur."
+    }
+   ]
+  },
+  {
+   "id": "methode",
+   "title": "Modélisation logit",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Pour chaque assuré *i*, on modélise la probabilité d'au moins un accident responsable, Pᵢ = Pr(Yᵢ = 1 | Xᵢ), par une **régression logistique binaire**."
+    },
+    {
+     "type": "formula",
+     "tex": "\\operatorname{logit}(P_i)=\\ln\\left(\\frac{P_i}{1-P_i}\\right)=\\beta_0+\\sum_{k=1}^{K}\\beta_k X_{ik}",
+     "caption": "Modèle logit (équation 4.1)"
+    },
+    {
+     "type": "formula",
+     "tex": "P_i=\\frac{1}{1+\\exp\\left(-\\beta_0-\\sum_{k=1}^{K}\\beta_k X_{ik}\\right)}",
+     "caption": "Probabilité prédite, c'est-à-dire le score (équation 4.2)"
+    },
+    {
+     "type": "text",
+     "md": "Les coefficients ne se lisent pas directement en probabilité. On passe par les **effets marginaux**, maximaux quand Pᵢ ≈ 0,5. Leur moyenne sur les individus (AME) donne l'impact moyen de chaque facteur en points de probabilité, toutes choses égales par ailleurs."
+    },
+    {
+     "type": "formula",
+     "tex": "\\mathrm{AME}_k=\\frac{1}{N}\\sum_{i=1}^{N}\\frac{\\partial P_i}{\\partial X_{ik}}=\\frac{1}{N}\\sum_{i=1}^{N}P_i(1-P_i)\\,\\beta_k",
+     "caption": "Effet marginal moyen (équations 4.3 et 4.4)"
+    },
+    {
+     "type": "text",
+     "md": "**Pourquoi le logit ?** La cible est binaire, les variables explicatives mêlent quantitatif et qualitatif, et les métiers ont besoin d'une lecture directe en probabilité."
+    },
+    {
+     "type": "list",
+     "items": ["Effets marginaux directement interprétables.", "Estimation robuste par maximum de vraisemblance.", "Traçabilité et déploiement simples (GLM standard)."]
+    },
+    {
+     "type": "text",
+     "md": "**Spécification.** Les qualitatives sont encodées en indicatrices, chacune avec une modalité de référence. **Value** et **Category** sont écartées : redondance avec Type et Group1, pas d'apport explicatif. La colinéarité est surveillée par les VIF (seuil usuel de 5 à 10)."
+    },
+    {
+     "type": "formula",
+     "tex": "\\begin{aligned}\\operatorname{logit}(P_i)={}&\\beta_0+\\beta_1\\,\\mathrm{Bonus}_i+\\beta_2\\,\\mathrm{Age}_i+\\beta_3\\,\\mathrm{Group1}_i+\\beta_4\\,\\mathrm{Occupation\\_V}_i\\\\&+\\beta_5\\,\\mathrm{Gender}_i+\\beta_6\\,\\mathrm{Density}_i+\\beta_7\\,\\mathrm{Type}_i+\\beta_8\\,\\mathrm{Poldur}_i\\\\&+\\beta_9\\,\\mathrm{Adind}_i+\\beta_{10}\\,\\mathrm{CalYear}_i+\\beta_{11}\\,\\mathrm{Region}_i\\end{aligned}",
+     "caption": "Spécification retenue (logit_2), estimée sur l'échantillon d'apprentissage"
+    },
+    {
+     "type": "table",
+     "title": "Du modèle vide au modèle retenu (script R de l'annexe)",
+     "columns": ["Étape", "Contenu"],
+     "rows": [
+      [
+       "Analyse bivariée",
+       "Tests du χ² (qualitatives), tests de Wilcoxon (quantitatives), corrélations de Pearson et de Spearman"
+      ],
+      [
+       "Sélection automatique",
+       "stepAIC dans les deux sens, du modèle vide aux 12 variables candidates"
+      ],
+      ["Premier logit", "11 variables + Value ; contrôle des VIF"],
+      [
+       "Modèle retenu (logit_2)",
+       "Value retirée : Bonus, Age, Group1, Occupation_V, Gender, Density, Type, Poldur, Adind, CalYear, Region"
+      ],
+      [
+       "Diagnostics",
+       "Résidus partiels des variables continues, rapport déviance/ddl, test du rapport de vraisemblance contre le modèle nul"
+      ],
+      [
+       "Variante testée",
+       "Variables continues discrétisées en quartiles : ni gain d'AIC ni meilleure ROC selon les auteurs"
+      ]
+     ]
+    },
+    {
+     "type": "text",
+     "md": "**Hypothèses du logit et contrôles associés :**"
+    },
+    {
+     "type": "list",
+     "items": [
+      "relation linéaire sur l'échelle des log-odds ;",
+      "indépendance conditionnelle des observations, sachant les covariables ;",
+      "absence de séparation (quasi-)parfaite ;",
+      "contrôles : stabilité des signes par ré-estimation, VIF, points influents, spécifications voisines."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "effets",
+   "title": "Effets marginaux moyens",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Les effets marginaux moyens confirment les tendances descriptives et les hiérarchisent. Les véhicules de type F et E, les hommes et les inactifs (chômeurs, personnes au foyer, chômage par choix) augmentent la probabilité d'accident. Les retraités et certaines régions la réduisent."
+    },
+    {
+     "type": "figure",
+     "src": "img/scoring-assurance-auto/fig-2.png",
+     "caption": "Les dix effets marginaux moyens les plus forts, en points de probabilité (figure 3 du rapport, package margins). Bleu : effet aggravant ; rouge : effet protecteur."
+    },
+    {
+     "type": "table",
+     "title": "Lecture de la figure (points de probabilité)",
+     "columns": ["Modalité", "Effet moyen"],
+     "rows": [
+      ["Véhicule de type F", "≈ +4,9"],
+      ["Retraité (réf. : salarié)", "≈ −4,9"],
+      ["Véhicule de type E", "≈ +3,9"],
+      ["Chômage par choix (réf. : salarié)", "≈ +3,8"],
+      ["Personne au foyer (réf. : salarié)", "≈ +3,8"],
+      ["Région R", "≈ −3,6"],
+      ["Homme (réf. : femme)", "≈ +3,3"],
+      ["Véhicule de type D", "≈ +3,0"],
+      ["Région N", "≈ +2,7"],
+      ["Chômeur (réf. : salarié)", "≈ +2,4"]
+     ],
+     "note": "Valeurs lues sur la figure (±0,05 point). Le texte du rapport résume : +2 à +4 points pour les profils aggravants, −2 à −3 points pour les retraités et certaines régions."
+    },
+    {
+     "type": "callout",
+     "md": "Lecture : toutes choses égales par ailleurs, être un homme ajoute en moyenne environ **3,3 points** à la probabilité d'accident responsable, pour un taux de base de 13,3 %."
+    },
+    {
+     "type": "text",
+     "md": "Le modèle fait ressortir une segmentation nette du risque selon le profil socio-professionnel, le type de véhicule et la localisation."
+    }
+   ]
+  },
+  {
+   "id": "validation",
+   "title": "Règle de décision et validation",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Le modèle attribue à chaque assuré une probabilité prédite, lue comme un score : 0 pour un profil sûr, 1 pour un profil très risqué. Il sert à **classer** les assurés (priorité aux déciles élevés) et, une fois un seuil choisi, à **décider** : tarification différenciée, prévention ciblée, fidélisation adaptée."
+    },
+    {
+     "type": "formula",
+     "tex": "J(t)=\\mathrm{Se}(t)+\\mathrm{Sp}(t)-1=\\mathrm{TPR}(t)-\\mathrm{FPR}(t)",
+     "caption": "Indice de Youden, maximisé sur l'échantillon d'apprentissage"
+    },
+    {
+     "type": "table",
+     "title": "Métriques clés (seuil calé sur l'apprentissage)",
+     "columns": ["Échantillon", "AUC", "Seuil", "Sensibilité", "Spécificité", "Classés « à risque »"],
+     "rows": [
+      ["Apprentissage", "0,758", "0,1394", "0,684", "0,706", "34,6 %"],
+      ["Test", "0,754", "0,1394", "0,686", "0,706", "34,7 %"]
+     ],
+     "note": "Valeurs du récapitulatif et de la conclusion du rapport (FPR = 0,294 sur les deux échantillons)."
+    },
+    {
+     "type": "formula",
+     "tex": "\\Pr(\\text{classé à risque})=\\pi\\,\\mathrm{TPR}+(1-\\pi)\\,\\mathrm{FPR}",
+     "caption": "Part d'assurés classés « à risque » (équation 5.2)"
+    },
+    {
+     "type": "text",
+     "md": "Au seuil de **0,1394**, le modèle repère environ **deux tiers des futurs sinistrés**, au prix d'environ 29 % de faux positifs. Avec une prévalence de 13 %, la valeur prédictive positive avoisine **25 %**. La valeur prédictive négative atteint **93 à 94 %** : la grande majorité des profils classés « sûrs » ne sinistrent pas."
+    },
+    {
+     "type": "formula",
+     "tex": "\\mathrm{VPP}=\\frac{\\pi\\,\\mathrm{TPR}}{\\pi\\,\\mathrm{TPR}+(1-\\pi)\\,\\mathrm{FPR}}",
+     "caption": "Valeur prédictive positive : environ 25 % selon le rapport"
+    },
+    {
+     "type": "figure",
+     "src": "img/scoring-assurance-auto/fig-1.png",
+     "caption": "Courbes ROC en apprentissage (à gauche) et en test (à droite), figure 4 du rapport. La couleur indique le seuil de probabilité."
+    },
+    {
+     "type": "text",
+     "md": "Les deux courbes restent nettement au-dessus de la diagonale et presque superposées. Avec le même seuil, sensibilité et spécificité se maintiennent en test : pas de sur-apprentissage manifeste."
+    },
+    {
+     "type": "callout",
+     "md": "En pratique, **un tiers du portefeuille** est classé « à risque » et capte **environ deux tiers des sinistres responsables**."
+    }
+   ]
+  },
+  {
+   "id": "couts",
+   "title": "Seuil statistique ou seuil économique",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Le seuil de Youden est optimal au sens statistique. Il ignore pourtant le coût des erreurs et la capacité des équipes à traiter les « positifs ». Or un faux négatif (assuré risqué classé « sûr ») coûte plus qu'un faux positif (assuré prudent classé « à risque »)."
+    },
+    {
+     "type": "formula",
+     "tex": "C(t)=C_{FP}\\,(1-\\pi)\\,\\mathrm{FPR}(t)+C_{FN}\\,\\pi\\,\\bigl[1-\\mathrm{TPR}(t)\\bigr]",
+     "caption": "Coût espéré au seuil t, π étant la prévalence (équation 6.1)"
+    },
+    {
+     "type": "table",
+     "title": "Matrice de coûts (table 3 du rapport)",
+     "columns": ["", "Classe 0 (pas d'accident)", "Classe 1 (accident)"],
+     "rows": [
+      ["Prédit 0", "Correct, sans pénalité", "Faux négatif : coût C(FN)"],
+      ["Prédit 1", "Faux positif : coût C(FP)", "Correct, sans pénalité"]
+     ]
+    },
+    {
+     "type": "formula",
+     "tex": "t^{\\star}=\\frac{C_{FP}}{C_{FP}+C_{FN}}=\\frac{1}{1+\\rho},\\qquad \\rho=\\frac{C_{FN}}{C_{FP}}",
+     "caption": "Seuil économique, valable si les probabilités sont calibrées (équation 6.3)"
+    },
+    {
+     "type": "text",
+     "md": "Plus un faux négatif coûte cher relativement à un faux positif, plus le seuil doit être bas : on détecte plus large. Le rapport recommande d'estimer C(FP) et C(FN) avec l'actuariat (marge technique, coût des actions, churn, image), de vérifier la calibration, puis d'ajuster le seuil pour maximiser le bénéfice net."
+    },
+    {
+     "type": "callout",
+     "md": "Sous contrainte de capacité, on choisit le seuil qui garde un volume de « positifs » traitable par les équipes, tant que le gain marginal reste positif."
+    }
+   ]
+  },
+  {
+   "id": "recommandations",
+   "title": "Bilan et recommandations",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Sur 71 196 assurés, la régression logistique produit un score **interprétable et stable** : AUC de 0,758 en apprentissage et de 0,754 en test. En test, au seuil de 0,1394, la sensibilité atteint 0,686 et la spécificité 0,706 ; 34,7 % des assurés sont classés « à risque »."
+    },
+    {
+     "type": "text",
+     "md": "Les facteurs aggravants sont cohérents avec le métier : hommes jeunes, urbain dense, véhicules puissants ou récents. Les facteurs protecteurs sont attendus : âge, ancienneté de contrat, bonus élevé, stabilité contractuelle."
+    },
+    {
+     "type": "list",
+     "items": [
+      "Remplacer le seuil de Youden par un **seuil économique**, pondérant FN et FP selon les coûts actuariels et la capacité de traitement.",
+      "Enrichir le modèle progressivement : **signaux télématiques**, effets région/année pour absorber l'hétérogénéité spatio-temporelle.",
+      "Relier le score à des **actions concrètes** (prévention ciblée, tarification fine, rétention) et piloter la marge technique par décile."
+     ]
+    },
+    {
+     "type": "callout",
+     "md": "Un scoring bien calibré n'est pas qu'un outil de prédiction : c'est un levier de pilotage pour des décisions équitables et performantes sur le portefeuille."
+    }
+   ]
+  }
+ ],
+ "figures": {
+  "target_split": {
+   "description": "Répartition de la cible Surv1 dans l'échantillon d'apprentissage (figure 1)",
+   "labels": ["Aucun accident", "Au moins un accident responsable"],
+   "values": [0.867, 0.133],
+   "approx": false
+  },
+  "gender_by_occupation": {
+   "description": "Part des femmes et des hommes dans chaque situation professionnelle, avant et après la création de « Voluntary_unemp » (figure 2, proportions par ligne)",
+   "before": {
+    "categories": ["Employed", "Housewife", "Retired", "Self-employed", "Unemployed"],
+    "labels": ["Salarié", "Personne au foyer", "Retraité", "Indépendant", "Chômeur"],
+    "femmes": [0.38, 0.36, 0.31, 0.37, 0.39],
+    "hommes": [0.62, 0.64, 0.69, 0.63, 0.61]
+   },
+   "after": {
+    "categories": ["Employed", "Housewife", "Retired", "Self-employed", "Unemployed", "Voluntary_unemp"],
+    "labels": ["Salarié", "Personne au foyer", "Retraité", "Indépendant", "Chômeur", "Chômage par choix"],
+    "femmes": [0.38, 1.0, 0.31, 0.37, 0.39, 0.0],
+    "hommes": [0.62, 0.0, 0.69, 0.63, 0.61, 1.0]
+   },
+   "approx": true
+  },
+  "marginal_effects": {
+   "description": "Effets marginaux moyens les plus forts (figure 3), en points de pourcentage de probabilité",
+   "terms": ["TypeF", "Occupation_VRetired", "TypeE", "Occupation_VVoluntary_unemp", "Occupation_VHousewife", "RegionR", "GenderM", "TypeD", "RegionN", "Occupation_VUnemployed"],
+   "labels": ["Véhicule de type F", "Retraité", "Véhicule de type E", "Chômage par choix", "Personne au foyer", "Région R", "Homme", "Véhicule de type D", "Région N", "Chômeur"],
+   "values": [4.89, -4.88, 3.87, 3.78, 3.76, -3.6, 3.27, 3.04, 2.72, 2.42],
+   "unit": "points de pourcentage",
+   "approx": true,
+   "note": "Lecture au pixel (±0,05 point). Le texte résume : +2 à +4 points pour les profils aggravants, −2 à −3 points pour les retraités et certaines régions."
+  },
+  "roc": {
+   "description": "Courbes ROC en apprentissage et en test (figure 4), points lus sur le graphique",
+   "train": {
+    "fpr": [0, 0.005, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.08, 0.1, 0.12, 0.15, 0.2, 0.25, 0.294, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0],
+    "tpr": [0.0, 0.071, 0.105, 0.154, 0.192, 0.229, 0.263, 0.291, 0.346, 0.398, 0.442, 0.5, 0.572, 0.635, 0.684, 0.689, 0.734, 0.77, 0.804, 0.835, 0.861, 0.886, 0.907, 0.924, 0.943, 0.959, 0.971, 0.984, 0.994, 1.0],
+    "cutoff": [
+     null,
+     0.477,
+     0.442,
+     0.396,
+     0.364,
+     0.335,
+     0.316,
+     0.303,
+     0.273,
+     0.251,
+     0.231,
+     0.208,
+     0.179,
+     0.156,
+     0.139,
+     0.137,
+     0.122,
+     0.109,
+     0.097,
+     0.087,
+     0.077,
+     0.067,
+     0.06,
+     0.052,
+     0.045,
+     0.038,
+     0.031,
+     0.024,
+     0.017,
+     null
+    ]
+   },
+   "test": {
+    "fpr": [0, 0.005, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.08, 0.1, 0.12, 0.15, 0.2, 0.25, 0.294, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0],
+    "tpr": [0.0, 0.065, 0.094, 0.145, 0.189, 0.227, 0.261, 0.292, 0.352, 0.393, 0.433, 0.49, 0.57, 0.634, 0.685, 0.692, 0.732, 0.77, 0.801, 0.825, 0.852, 0.875, 0.895, 0.918, 0.941, 0.958, 0.97, 0.981, 0.991, 1.0]
+   },
+   "auc": {
+    "train": 0.758,
+    "test": 0.754
+   },
+   "youden": {
+    "train": {
+     "fpr": 0.294,
+     "tpr": 0.684,
+     "threshold": 0.1394
+    },
+    "test": {
+     "fpr": 0.294,
+     "tpr": 0.686,
+     "threshold": 0.1394
+    }
+   },
+   "approx": true,
+   "note": "AUC par trapèzes sur la numérisation : 0,759 (apprentissage) et 0,755 (test). Les seuils (cutoff) de la courbe d'apprentissage sont lus sur l'échelle de couleur ROCR et recalés sur le point de Youden."
+  },
+  "metrics": {
+   "description": "Métriques clés au seuil de Youden (0,1394)",
+   "rows": [
+    {
+     "sample": "Apprentissage",
+     "auc": 0.758,
+     "threshold": 0.1394,
+     "tpr": 0.684,
+     "fpr": 0.294,
+     "specificity": 0.706,
+     "shareFlagged": 0.346
+    },
+    {
+     "sample": "Test",
+     "auc": 0.754,
+     "threshold": 0.1394,
+     "tpr": 0.686,
+     "fpr": 0.294,
+     "specificity": 0.706,
+     "shareFlagged": 0.347
+    }
+   ],
+   "gini": {
+    "train": 0.516,
+    "test": 0.508,
+    "derived": true
+   },
+   "ks": {
+    "train": 0.39,
+    "derived": true
+   },
+   "approx": false
+  },
+  "confusion_test": {
+   "description": "Matrice de confusion normalisée au seuil 0,1394, échantillon test",
+   "rates": {
+    "truePositiveRate": 0.686,
+    "falseNegativeRate": 0.314,
+    "trueNegativeRate": 0.706,
+    "falsePositiveRate": 0.294
+   },
+   "shareFlagged": 0.347,
+   "ppv": 0.25,
+   "npvRange": [0.93, 0.94],
+   "per10000": {
+    "derived": true,
+    "prevalence": 0.133,
+    "tp": 912,
+    "fn": 418,
+    "fp": 2549,
+    "tn": 6121,
+    "note": "Effectifs pour 10 000 contrats calculés avec π = 0,133 : 34,6 % classés « à risque », VPP ≈ 26 %, VPN ≈ 94 % (dérivés)."
+   },
+   "approx": false,
+   "note": "VPP « autour de 25 % » et VPN de 93 à 94 % selon le rapport."
+  },
+  "threshold_curve": {
+   "description": "Sensibilité, taux de faux positifs et part d'assurés classés « à risque » selon le seuil (apprentissage)",
+   "threshold": [0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12, 0.13, 0.1394, 0.15, 0.16, 0.17, 0.18, 0.2, 0.22, 0.25, 0.28, 0.3, 0.35, 0.4, 0.45, 0.5],
+   "fpr": [0.93, 0.86, 0.787, 0.717, 0.648, 0.586, 0.535, 0.484, 0.434, 0.394, 0.356, 0.32, 0.294, 0.265, 0.24, 0.219, 0.199, 0.163, 0.136, 0.101, 0.075, 0.064, 0.035, 0.02, 0.01, 0.005],
+   "tpr": [0.99, 0.974, 0.954, 0.932, 0.905, 0.879, 0.853, 0.826, 0.793, 0.766, 0.739, 0.708, 0.683, 0.652, 0.625, 0.597, 0.571, 0.519, 0.473, 0.405, 0.333, 0.295, 0.215, 0.16, 0.111, 0.075],
+   "shareFlagged": [0.938, 0.875, 0.809, 0.745, 0.682, 0.625, 0.577, 0.53, 0.482, 0.444, 0.407, 0.372, 0.345, 0.317, 0.291, 0.269, 0.248, 0.21, 0.181, 0.141, 0.109, 0.095, 0.059, 0.039, 0.023, 0.014],
+   "anchor": {
+    "threshold": 0.1394,
+    "fpr": 0.294,
+    "tpr": 0.684,
+    "shareFlagged": 0.346
+   },
+   "approx": true,
+   "derived": true,
+   "inReport": false,
+   "method": "Seuil lu sur l'échelle de couleur de la courbe ROC d'apprentissage (palette ROCR de 0 à 0,83), recalé pour que FPR = 0,294 corresponde au seuil publié de 0,1394. Part classée « à risque » = π·TPR + (1 − π)·FPR (équation 5.2), avec π = 0,133."
+  },
+  "gains_test": {
+   "description": "Courbe de gains (test) : part des sinistrés captés selon la part du portefeuille ciblée, du plus risqué au moins risqué",
+   "populationShare": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+   "claimsCaptured": [0.316, 0.499, 0.634, 0.733, 0.803, 0.86, 0.907, 0.952, 0.98, 1.0],
+   "cumulativeLift": [3.16, 2.5, 2.11, 1.83, 1.61, 1.43, 1.3, 1.19, 1.09, 1.0],
+   "decileLift": [3.16, 1.83, 1.35, 0.99, 0.7, 0.57, 0.47, 0.45, 0.28, 0.2],
+   "reportPoint": {
+    "populationShare": 0.347,
+    "claimsCaptured": 0.686
+   },
+   "approx": true,
+   "derived": true,
+   "inReport": false,
+   "method": "Dérivée de la courbe ROC test numérisée (enveloppe convexe) : part ciblée = π·TPR + (1 − π)·FPR, part captée = TPR, avec π = 0,133. Seul point publié : 34,7 % du portefeuille captent 68,6 % des sinistres."
+  },
+  "score_deciles_train": {
+   "description": "Déciles de probabilité prédite (apprentissage) : bornes, taux d'accident, probabilité moyenne prédite, lift",
+   "decile": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+   "scoreMin": [0.291, 0.206, 0.156, 0.122, 0.096, 0.075, 0.057, 0.041, 0.026, 0.0],
+   "scoreMax": [0.83, 0.291, 0.206, 0.156, 0.122, 0.096, 0.075, 0.057, 0.041, 0.026],
+   "observedRate": [0.415, 0.257, 0.171, 0.132, 0.096, 0.08, 0.062, 0.051, 0.04, 0.025],
+   "meanPredicted": [0.397, 0.245, 0.179, 0.138, 0.108, 0.086, 0.066, 0.049, 0.034, 0.017],
+   "lift": [3.12, 1.93, 1.29, 0.99, 0.73, 0.6, 0.47, 0.38, 0.3, 0.19],
+   "claimsShare": [0.312, 0.193, 0.129, 0.099, 0.073, 0.06, 0.046, 0.038, 0.03, 0.019],
+   "approx": true,
+   "derived": true,
+   "inReport": false,
+   "method": "Reconstruction : la part d'assurés au-dessus d'un seuil t vaut π·TPR(t) + (1 − π)·FPR(t), les seuils venant de l'échelle de couleur de la figure 4. Contrôle : la moyenne reconstruite des probabilités (0,132) retrouve le taux de base (0,133), propriété d'un logit avec constante. Ce n'est pas un test de calibration du rapport."
+  },
+  "score_distribution_train": {
+   "description": "Distribution des probabilités prédites (apprentissage), ensemble et par classe",
+   "binEdges": [0, 0.025, 0.05, 0.075, 0.1, 0.125, 0.15, 0.175, 0.2, 0.25, 0.3, 0.4, 0.83],
+   "shareAll": [0.093, 0.162, 0.144, 0.12, 0.091, 0.074, 0.059, 0.047, 0.069, 0.047, 0.056, 0.039],
+   "sharePositives": [0.017, 0.051, 0.065, 0.073, 0.07, 0.071, 0.069, 0.064, 0.113, 0.111, 0.135, 0.16],
+   "shareNegatives": [0.105, 0.179, 0.156, 0.127, 0.094, 0.075, 0.058, 0.045, 0.062, 0.037, 0.044, 0.02],
+   "summary": {
+    "meanAll": 0.132,
+    "meanPositives": 0.238,
+    "meanNegatives": 0.116,
+    "median": 0.096
+   },
+   "approx": true,
+   "derived": true,
+   "inReport": false,
+   "method": "Même reconstruction que score_deciles_train ; parts par classe = variations de TPR(t) (sinistrés) et de FPR(t) (non-sinistrés) entre bornes."
+  }
+ },
+ "model": {
+  "status": "Spécification complète ; constante, coefficients, odds ratios et p-values non publiés dans le rapport",
+  "simulatorReady": false,
+  "availability": {
+   "intercept": false,
+   "coefficients": false,
+   "oddsRatios": false,
+   "pValues": false,
+   "standardErrors": false,
+   "marginalEffects": "partiel : 10 modalités, lues sur la figure 3",
+   "continuousRanges": "partiel : Group1 de 1 à 20 seulement",
+   "defaultValues": false,
+   "youdenThreshold": true,
+   "economicThresholdValue": false,
+   "scoreScale0to1000": false,
+   "riskBands": "binaire seulement (« sûr » / « à risque »)",
+   "lasso": false,
+   "ks": false,
+   "gini": false,
+   "gainsLift": false,
+   "calibration": false,
+   "scoreHistogram": false,
+   "note": "Le rapport (12 pages de texte + 9 pages de script R) ne reproduit ni la sortie de summary(logit_2) ni le tableau exp(cbind(OR = coef(logit_2), confint(logit_2))). Les champs beta, oddsRatio et pValue sont des gabarits à null : le simulateur de profil ne peut pas être alimenté par le rapport seul."
+  },
+  "retained": {
+   "id": "logit_2",
+   "label": "Régression logistique binaire (GLM binomial, lien logit)",
+   "rCall": "glm(formula = Surv1 ~ Bonus + Age + Group1 + Occupation_V + Gender + Density + Type + Poldur + Adind + CalYear + Region, family = binomial, data = apprentissage)",
+   "estimation": "Maximum de vraisemblance",
+   "dependent": "Surv1",
+   "sample": "Apprentissage : 70 % de 71 196 contrats (set.seed(2204))",
+   "nExplanatory": 11,
+   "note": "Le texte annonce « 12 variables significatives » ; l'équation (4.1) et le code en comptent 11 hors constante. La section 4.2 dit éviter Region et Density ensemble, mais logit_2 contient les deux (VIF contrôlés)."
+  },
+  "equations": {
+   "logit": "\\operatorname{logit}(P_i)=\\ln\\left(\\frac{P_i}{1-P_i}\\right)=\\beta_0+\\sum_{k=1}^{K}\\beta_k X_{ik}",
+   "probability": "P_i=\\frac{1}{1+\\exp\\left(-\\beta_0-\\sum_{k=1}^{K}\\beta_k X_{ik}\\right)}",
+   "ame": "\\mathrm{AME}_k=\\frac{1}{N}\\sum_{i=1}^{N}\\frac{\\partial P_i}{\\partial X_{ik}}=\\frac{1}{N}\\sum_{i=1}^{N}P_i(1-P_i)\\,\\beta_k",
+   "specification": "\\begin{aligned}\\operatorname{logit}(P_i)={}&\\beta_0+\\beta_1\\,\\mathrm{Bonus}_i+\\beta_2\\,\\mathrm{Age}_i+\\beta_3\\,\\mathrm{Group1}_i+\\beta_4\\,\\mathrm{Occupation\\_V}_i\\\\&+\\beta_5\\,\\mathrm{Gender}_i+\\beta_6\\,\\mathrm{Density}_i+\\beta_7\\,\\mathrm{Type}_i+\\beta_8\\,\\mathrm{Poldur}_i\\\\&+\\beta_9\\,\\mathrm{Adind}_i+\\beta_{10}\\,\\mathrm{CalYear}_i+\\beta_{11}\\,\\mathrm{Region}_i\\end{aligned}"
+  },
+  "intercept": {
+   "name": "(Intercept)",
+   "beta": null,
+   "note": "Non publiée dans le rapport."
+  },
+  "variables": [
+   {
+    "name": "Bonus",
+    "label": "Bonus-malus (historique de sinistralité)",
+    "type": "continue",
+    "unit": null,
+    "min": null,
+    "max": null,
+    "default": null,
+    "step": null,
+    "beta": null,
+    "oddsRatio": null,
+    "pValue": null,
+    "direction": "-",
+    "directionSource": "Texte (3.2, 4.3, 7.2) : un « bonus élevé » est présenté comme protecteur.",
+    "note": "Le rapport ne précise ni l'échelle ni le sens du codage de Bonus : signe à vérifier avant usage."
+   },
+   {
+    "name": "Age",
+    "label": "Âge du conducteur",
+    "type": "continue",
+    "unit": "ans",
+    "min": null,
+    "max": null,
+    "default": null,
+    "step": 1,
+    "beta": null,
+    "oddsRatio": null,
+    "pValue": null,
+    "direction": "-",
+    "directionSource": "Texte (3.2, 4.3, 7.2) : décroissance nette du risque avec l'âge.",
+    "note": "Plage, moyenne et médiane non publiées ; huit âges aberrants corrigés (ex. 733 → 73)."
+   },
+   {
+    "name": "Group1",
+    "label": "Groupe du véhicule (puissance)",
+    "type": "continue",
+    "unit": "classe",
+    "min": 1,
+    "max": 20,
+    "default": null,
+    "step": 1,
+    "beta": null,
+    "oddsRatio": null,
+    "pValue": null,
+    "direction": "+",
+    "directionSource": "Texte (3.3, 7.2) : véhicules plus puissants plus exposés.",
+    "note": "Classes 1 à 20 (section 2.2), traitées comme numériques (as.numeric) dans le modèle."
+   },
+   {
+    "name": "Occupation_V",
+    "label": "Situation professionnelle",
+    "type": "catégorielle",
+    "reference": "Employed",
+    "referenceAssumed": false,
+    "referenceSource": "Niveau par défaut de R (premier dans l'ordre alphabétique) : aucun relevel() dans le script.",
+    "levels": [
+     {
+      "code": "Employed",
+      "label": "Salarié",
+      "reference": true,
+      "beta": null,
+      "oddsRatio": null,
+      "pValue": null,
+      "amePoints": null,
+      "direction": null
+     },
+     {
+      "code": "Housewife",
+      "label": "Personne au foyer",
+      "reference": false,
+      "beta": null,
+      "oddsRatio": null,
+      "pValue": null,
+      "amePoints": 3.76,
+      "direction": "+"
+     },
+     {
+      "code": "Retired",
+      "label": "Retraité",
+      "reference": false,
+      "beta": null,
+      "oddsRatio": null,
+      "pValue": null,
+      "amePoints": -4.88,
+      "direction": "-"
+     },
+     {
+      "code": "Self-employed",
+      "label": "Indépendant",
+      "reference": false,
+      "beta": null,
+      "oddsRatio": null,
+      "pValue": null,
+      "amePoints": null,
+      "direction": null
+     },
+     {
+      "code": "Unemployed",
+      "label": "Chômeur",
+      "reference": false,
+      "beta": null,
+      "oddsRatio": null,
+      "pValue": null,
+      "amePoints": 2.42,
+      "direction": "+"
+     },
+     {
+      "code": "Voluntary_unemp",
+      "label": "Chômage par choix",
+      "reference": false,
+      "beta": null,
+      "oddsRatio": null,
+      "pValue": null,
+      "amePoints": 3.78,
+      "direction": "+",
+      "note": "Hommes déclarés « Housewife », recodés par les auteurs."
+     }
+    ]
+   },
+   {
+    "name": "Gender",
+    "label": "Genre",
+    "type": "catégorielle",
+    "reference": "F",
+    "referenceAssumed": false,
+    "referenceSource": "Niveau par défaut de R (premier dans l'ordre alphabétique) : aucun relevel() dans le script. Cohérent avec l'effet affiché « GenderM ».",
+    "levels": [
+     {
+      "code": "F",
+      "label": "Femme",
+      "reference": true,
+      "beta": null,
+      "oddsRatio": null,
+      "pValue": null,
+      "amePoints": null,
+      "direction": null
+     },
+     {
+      "code": "M",
+      "label": "Homme",
+      "reference": false,
+      "beta": null,
+      "oddsRatio": null,
+      "pValue": null,
+      "amePoints": 3.27,
+      "direction": "+"
+     }
+    ]
+   },
+   {
+    "name": "Density",
+    "label": "Densité de population",
+    "type": "continue",
+    "unit": null,
+    "min": null,
+    "max": null,
+    "default": null,
+    "step": null,
+    "beta": null,
+    "oddsRatio": null,
+    "pValue": null,
+    "direction": "+",
+    "directionSource": "Texte (3.3, 4.3, 7.2) : la densité urbaine fait monter le risque.",
+    "note": "Unité et plage non publiées ; fortement corrélée à Region (section 4.2)."
+   },
+   {
+    "name": "Type",
+    "label": "Type de véhicule",
+    "type": "catégorielle",
+    "reference": "A",
+    "referenceAssumed": true,
+    "referenceSource": "Non nommée dans le rapport : premier niveau alphabétique par défaut de R. Seules les modalités D, E et F apparaissent (figure 3).",
+    "levels": [
+     {
+      "code": "A",
+      "label": "Type A",
+      "reference": true,
+      "beta": null,
+      "oddsRatio": null,
+      "pValue": null,
+      "amePoints": null,
+      "direction": null,
+      "inReport": false
+     },
+     {
+      "code": "B",
+      "label": "Type B",
+      "reference": false,
+      "beta": null,
+      "oddsRatio": null,
+      "pValue": null,
+      "amePoints": null,
+      "direction": null,
+      "inReport": false
+     },
+     {
+      "code": "C",
+      "label": "Type C",
+      "reference": false,
+      "beta": null,
+      "oddsRatio": null,
+      "pValue": null,
+      "amePoints": null,
+      "direction": null,
+      "inReport": false
+     },
+     {
+      "code": "D",
+      "label": "Type D",
+      "reference": false,
+      "beta": null,
+      "oddsRatio": null,
+      "pValue": null,
+      "amePoints": 3.04,
+      "direction": "+",
+      "inReport": true
+     },
+     {
+      "code": "E",
+      "label": "Type E",
+      "reference": false,
+      "beta": null,
+      "oddsRatio": null,
+      "pValue": null,
+      "amePoints": 3.87,
+      "direction": "+",
+      "inReport": true
+     },
+     {
+      "code": "F",
+      "label": "Type F",
+      "reference": false,
+      "beta": null,
+      "oddsRatio": null,
+      "pValue": null,
+      "amePoints": 4.89,
+      "direction": "+",
+      "inReport": true
+     }
+    ]
+   },
+   {
+    "name": "Poldur",
+    "label": "Ancienneté du contrat",
+    "type": "continue",
+    "unit": null,
+    "min": null,
+    "max": null,
+    "default": null,
+    "step": null,
+    "beta": null,
+    "oddsRatio": null,
+    "pValue": null,
+    "direction": "-",
+    "directionSource": "Texte (3.2, 4.3, 7.2) : effet protecteur (stabilité, sélection).",
+    "note": "Unité et plage non publiées."
+   },
+   {
+    "name": "Adind",
+    "label": "Garantie tous risques",
+    "type": "catégorielle",
+    "reference": "0",
+    "referenceAssumed": false,
+    "referenceSource": "Niveau par défaut de R (premier dans l'ordre alphabétique) : aucun relevel() dans le script.",
+    "levels": [
+     {
+      "code": "0",
+      "label": "Non",
+      "reference": true,
+      "beta": null,
+      "oddsRatio": null,
+      "pValue": null,
+      "amePoints": null,
+      "direction": null
+     },
+     {
+      "code": "1",
+      "label": "Oui",
+      "reference": false,
+      "beta": null,
+      "oddsRatio": null,
+      "pValue": null,
+      "amePoints": null,
+      "direction": null
+     }
+    ],
+    "note": "Libellé tiré du script (« Garantie tous risques (0/1) ») ; effet non commenté dans le rapport."
+   },
+   {
+    "name": "CalYear",
+    "label": "Année d'observation",
+    "type": "catégorielle",
+    "reference": "2009",
+    "referenceAssumed": false,
+    "referenceSource": "Niveau par défaut de R (premier dans l'ordre alphabétique) : aucun relevel() dans le script.",
+    "levels": [
+     {
+      "code": "2009",
+      "label": "2009",
+      "reference": true,
+      "beta": null,
+      "oddsRatio": null,
+      "pValue": null,
+      "amePoints": null,
+      "direction": null
+     },
+     {
+      "code": "2010",
+      "label": "2010",
+      "reference": false,
+      "beta": null,
+      "oddsRatio": null,
+      "pValue": null,
+      "amePoints": null,
+      "direction": null
+     }
+    ],
+    "note": "Effet millésime ; non commenté dans le rapport."
+   },
+   {
+    "name": "Region",
+    "label": "Région d'habitation",
+    "type": "catégorielle",
+    "reference": "L",
+    "referenceAssumed": true,
+    "referenceSource": "Non nommée dans le rapport : premier niveau alphabétique par défaut de R.",
+    "levels": [
+     {
+      "code": "L",
+      "label": "Région L",
+      "reference": true,
+      "beta": null,
+      "oddsRatio": null,
+      "pValue": null,
+      "amePoints": null,
+      "direction": null,
+      "namedInReport": true
+     },
+     {
+      "code": "M",
+      "label": "Région M",
+      "reference": false,
+      "beta": null,
+      "oddsRatio": null,
+      "pValue": null,
+      "amePoints": null,
+      "direction": null,
+      "namedInReport": false
+     },
+     {
+      "code": "N",
+      "label": "Région N",
+      "reference": false,
+      "beta": null,
+      "oddsRatio": null,
+      "pValue": null,
+      "amePoints": 2.72,
+      "direction": "+",
+      "namedInReport": true
+     },
+     {
+      "code": "O",
+      "label": "Région O",
+      "reference": false,
+      "beta": null,
+      "oddsRatio": null,
+      "pValue": null,
+      "amePoints": null,
+      "direction": null,
+      "namedInReport": false
+     },
+     {
+      "code": "P",
+      "label": "Région P",
+      "reference": false,
+      "beta": null,
+      "oddsRatio": null,
+      "pValue": null,
+      "amePoints": null,
+      "direction": null,
+      "namedInReport": false
+     },
+     {
+      "code": "Q",
+      "label": "Région Q",
+      "reference": false,
+      "beta": null,
+      "oddsRatio": null,
+      "pValue": null,
+      "amePoints": null,
+      "direction": null,
+      "namedInReport": false
+     },
+     {
+      "code": "R",
+      "label": "Région R",
+      "reference": false,
+      "beta": null,
+      "oddsRatio": null,
+      "pValue": null,
+      "amePoints": -3.6,
+      "direction": "-",
+      "namedInReport": true
+     },
+     {
+      "code": "S",
+      "label": "Région S",
+      "reference": false,
+      "beta": null,
+      "oddsRatio": null,
+      "pValue": null,
+      "amePoints": null,
+      "direction": null,
+      "namedInReport": false
+     },
+     {
+      "code": "T",
+      "label": "Région T",
+      "reference": false,
+      "beta": null,
+      "oddsRatio": null,
+      "pValue": null,
+      "amePoints": null,
+      "direction": null,
+      "namedInReport": false
+     },
+     {
+      "code": "U",
+      "label": "Région U",
+      "reference": false,
+      "beta": null,
+      "oddsRatio": null,
+      "pValue": null,
+      "amePoints": null,
+      "direction": null,
+      "namedInReport": true
+     }
+    ],
+    "note": "Le rapport décrit Region par « L/U » (modalités L à U) ; N et R sont chiffrées via la figure 3."
+   }
+  ],
+  "excluded": [
+   {
+    "name": "Value",
+    "label": "Valeur du véhicule",
+    "reason": "Redondance fonctionnelle avec Type/Group1, absence d'apport explicatif. Présente dans le premier logit, retirée de logit_2.",
+    "oddsRatio": null,
+    "pValue": null
+   },
+   {
+    "name": "Category",
+    "label": "Catégorie du véhicule (Petit/Moyen/Large)",
+    "reason": "Redondance fonctionnelle avec Type/Group1, absence d'apport explicatif.",
+    "oddsRatio": null,
+    "pValue": null
+   }
+  ],
+  "candidates": [
+   {
+    "id": "stepAIC",
+    "label": "Sélection pas à pas (MASS::stepAIC, direction both)",
+    "formula": "De Surv1 ~ 1 jusqu'à ~ Gender + Type + Category + Occupation + Age + Group1 + Bonus + Poldur + Value + Adind + Region + Density",
+    "aic": null,
+    "retained": false
+   },
+   {
+    "id": "logit",
+    "label": "Premier logit (avec Value)",
+    "formula": "Surv1 ~ Bonus + Age + Density + Group1 + Occupation_V + Gender + Region + Type + Poldur + Adind + Value + CalYear",
+    "aic": null,
+    "retained": false,
+    "note": "VIF calculés."
+   },
+   {
+    "id": "logit_2",
+    "label": "Logit retenu (sans Value)",
+    "formula": "Surv1 ~ Bonus + Age + Group1 + Occupation_V + Gender + Density + Type + Poldur + Adind + CalYear + Region",
+    "aic": null,
+    "retained": true
+   },
+   {
+    "id": "M_score",
+    "label": "Variante à variables continues discrétisées en quartiles",
+    "formula": "Surv1 ~ Gender + Type + Occupation_V + Adind + Region + Age_q + Group1_q + Bonus_q + Poldur_q + Density_q",
+    "aic": null,
+    "retained": false,
+    "note": "Selon le commentaire du script, la discrétisation ne fait pas baisser l'AIC et n'améliore pas la ROC (valeurs non reportées)."
+   }
+  ],
+  "diagnostics": [
+   "VIF (car::vif) sur le premier logit et sur logit_2",
+   "Résidus partiels (car::crPlot) pour Bonus, Density, Poldur, Age et Group1",
+   "Rapport déviance / degrés de liberté résiduels",
+   "Test du rapport de vraisemblance contre le modèle nul (significatif selon le script ; valeur non reportée)"
+  ],
+  "marginalEffects": {
+   "unit": "points de pourcentage de probabilité",
+   "method": "margins::margins(logit_2), AME × 100",
+   "source": "Figure 3 : les 10 effets les plus forts en valeur absolue",
+   "approx": true,
+   "precision": "±0,05 point (lecture au pixel)",
+   "terms": ["TypeF", "Occupation_VRetired", "TypeE", "Occupation_VVoluntary_unemp", "Occupation_VHousewife", "RegionR", "GenderM", "TypeD", "RegionN", "Occupation_VUnemployed"],
+   "values": [4.89, -4.88, 3.87, 3.78, 3.76, -3.6, 3.27, 3.04, 2.72, 2.42]
+  },
+  "score": {
+   "definition": "Probabilité prédite d'au moins un accident responsable sur l'année",
+   "formulaTex": "\\hat P_i=\\frac{1}{1+\\exp\\left(-\\hat\\beta_0-\\sum_{k}\\hat\\beta_k\\,x_{ik}\\right)}",
+   "min": 0,
+   "max": 1,
+   "reading": "0 = profil sûr ; 1 = profil très risqué",
+   "scale0to1000": null,
+   "note": "Le rapport n'utilise pas d'échelle 0–1 000 : le score est la probabilité elle-même."
+  },
+  "decision": {
+   "rule": "Classé « à risque » si la probabilité prédite dépasse strictement le seuil (ifelse(proba > optimal_cutoff, \"1\", \"0\")).",
+   "youden": {
+    "threshold": 0.1394,
+    "criterionTex": "J(t)=\\mathrm{Se}(t)+\\mathrm{Sp}(t)-1=\\mathrm{TPR}(t)-\\mathrm{FPR}(t)",
+    "fittedOn": "apprentissage",
+    "appliedTo": "test",
+    "note": "La section 5.2 mentionne aussi 0,1425 pour le test ; le récapitulatif, la table 2 et la conclusion retiennent 0,1394 pour les deux échantillons."
+   },
+   "economic": {
+    "thresholdTex": "t^{\\star}=\\frac{C_{FP}}{C_{FP}+C_{FN}}=\\frac{1}{1+\\rho},\\qquad \\rho=\\frac{C_{FN}}{C_{FP}}",
+    "expectedCostTex": "C(t)=C_{FP}\\,(1-\\pi)\\,\\mathrm{FPR}(t)+C_{FN}\\,\\pi\\,\\bigl[1-\\mathrm{TPR}(t)\\bigr]",
+    "rho": null,
+    "threshold": null,
+    "constraint": "C(FN) > C(FP) : un faux négatif coûte plus qu'un faux positif, donc t* < 0,5.",
+    "validity": "Probabilités calibrées, raisonnement au niveau individuel (section 6.1).",
+    "impliedRhoAtYouden": {
+     "value": 6.17,
+     "derived": true,
+     "inReport": false,
+     "note": "ρ = 1/0,1394 − 1 : rapport de coûts pour lequel la formule (6.3) redonne le seuil de Youden. Lecture indicative, non présente dans le rapport."
+    }
+   }
+  },
+  "bands": [
+   {
+    "id": "sur",
+    "label": "Profil « sûr »",
+    "rule": "P ≤ 0,1394",
+    "scoreMin": 0,
+    "scoreMax": 0.1394,
+    "shareTrain": 0.654,
+    "shareTest": 0.653,
+    "npvRange": [0.93, 0.94],
+    "note": "Parts dérivées : complément de la part « à risque »."
+   },
+   {
+    "id": "risque",
+    "label": "Profil « à risque »",
+    "rule": "P > 0,1394",
+    "scoreMin": 0.1394,
+    "scoreMax": 1,
+    "shareTrain": 0.346,
+    "shareTest": 0.347,
+    "claimsCapturedTest": 0.686,
+    "ppv": 0.25
+   }
+  ],
+  "bandsNote": "Le rapport ne définit ni bandes multiples (très faible à très élevé) ni bornes de score : seule la segmentation binaire au seuil de Youden existe. Des déciles reconstruits (approximatifs) figurent dans figures.score_deciles_train.",
+  "baseRate": {
+   "value": 0.133,
+   "sample": "apprentissage",
+   "source": "Figure 1 : « Aucun accident : 86.7% », « ≥ 1 accident : 13.3% »",
+   "text": "environ 13 %"
+  },
+  "metrics": {
+   "train": {
+    "auc": 0.758,
+    "threshold": 0.1394,
+    "tpr": 0.684,
+    "fpr": 0.294,
+    "specificity": 0.706,
+    "shareFlagged": 0.346
+   },
+   "test": {
+    "auc": 0.754,
+    "threshold": 0.1394,
+    "tpr": 0.686,
+    "fpr": 0.294,
+    "specificity": 0.706,
+    "shareFlagged": 0.347,
+    "ppv": 0.25,
+    "npvRange": [0.93, 0.94]
+   },
+   "gini": {
+    "train": 0.516,
+    "test": 0.508,
+    "derived": true,
+    "formula": "2 × AUC − 1"
+   },
+   "ks": {
+    "train": 0.39,
+    "derived": true,
+    "note": "KS = max(TPR − FPR) = J de Youden au seuil optimal : 0,684 − 0,294 = 0,390. La numérisation de la figure 4 donne ≈ 0,39 en apprentissage comme en test."
+   }
+  },
+  "completion": "Pour rendre le simulateur de profil opérationnel : exécuter summary(logit_2) et exp(cbind(OR = coef(logit_2), confint(logit_2))) (annexe A, set.seed(2204)) pour la constante, les β, OR et p-values ; summary(apprentissage) pour les plages, moyennes et médianes des variables continues ; levels() de Type et Region pour confirmer les références."
+ },
+ "conclusions": [
+  "Score interprétable et stable : AUC de 0,758 en apprentissage et de 0,754 en test, sans sur-apprentissage manifeste.",
+  "Au seuil de Youden (0,1394), 34,7 % des assurés du test sont classés « à risque » ; ils regroupent environ deux tiers des sinistrés (sensibilité 0,686, spécificité 0,706).",
+  "Effets les plus forts : véhicule de type F (≈ +4,9 points) et retraités (≈ −4,9 points), puis type E, inactifs, région R et hommes (≈ +3,3 points).",
+  "Facteurs protecteurs : âge, ancienneté de contrat, bonus élevé. Facteurs aggravants : genre masculin, densité urbaine, véhicules puissants ou récents.",
+  "Étape suivante recommandée : un seuil économique fondé sur les coûts FN/FP et la capacité de traitement."
+ ],
+ "limits": [
+  "Pas de données télématiques : style de conduite, intensité et horaires d'usage échappent au modèle.",
+  "Le seuil de Youden ne tient compte ni du coût des erreurs ni de la capacité de traitement des équipes.",
+  "Valeur prédictive positive d'environ 25 % : trois assurés « à risque » sur quatre ne sinistreront pas.",
+  "Corrélations structurelles entre variables (âge et puissance, urbain et usages, bonus et expérience), surveillées par les VIF.",
+  "Hétérogénéité spatio-temporelle encore imparfaitement absorbée : le rapport recommande d'enrichir les effets région/année."
+ ],
+ "codeSnippet": {
+  "language": "r",
+  "title": "Estimation du logit retenu, courbes ROC et seuil de Youden (annexe A du rapport)",
+  "code": "logit_2 <- glm(formula = Surv1 ~ Bonus + Age + Group1 + Occupation_V +\n    Gender + Density + Type + Poldur + Adind + CalYear + Region,\n    family = binomial, data = apprentissage )\nsummary(logit_2)\nvif(logit_2)\n\nproba_app <- predict(logit_2, type = \"response\", newdata = apprentissage)\nproba_test <- predict(logit_2, type = \"response\", newdata = test)\npred <- prediction(proba_app, apprentissage$Surv1)\nperf <- performance(pred, \"tpr\", \"fpr\")\nperf_auc <- performance(pred, \"auc\")@y.values[[1]]\npredtest <- prediction(proba_test, test$Surv1)\nperftest <- performance(predtest, \"tpr\", \"fpr\")\nperftest_auc <- performance(predtest, \"auc\")@y.values[[1]]\n# Seuil optimal (Youden) appris sur apprentissage\nperf_sens_spec <- ROCR::performance(pred, \"sens\", \"spec\")\nsens <- slot(perf_sens_spec, \"y.values\")[[1]]\nspec <- slot(perf_sens_spec, \"x.values\")[[1]]\ncutoffs <- slot(perf_sens_spec, \"alpha.values\")[[1]]\noptimal_index <- which.max(sens + spec) # indice de Youden\noptimal_cutoff <- cutoffs[optimal_index]"
+ }
+}

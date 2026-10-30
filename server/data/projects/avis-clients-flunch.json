@@ -1,0 +1,847 @@
+{
+ "slug": "avis-clients-flunch",
+ "title": "Analyse textuelle des avis Flunch",
+ "subtitle": "24 800 avis en ligne classés par polarité et par thème pour cibler les axes d'amélioration",
+ "course": "M2 Économétrie appliquée — Analyse textuelle",
+ "level": "M2",
+ "date": "Année universitaire 2025-2026",
+ "authors": ["François Pichon", "Julien Pot"],
+ "supervisor": null,
+ "tools": ["R", "ggplot2", "FactoMineR", "Python", "Stanza", "TextBlob-fr", "wordcloud", "prince"],
+ "methods": ["Nettoyage de texte", "Lemmatisation", "Suppression des mots vides", "Score de polarité (−1 à 1)", "Nuages de mots", "Fréquences par famille thématique", "Analyse factorielle des correspondances (AFC)", "Fréquence relative des adjectifs"],
+ "abstract": "Ce projet exploite 24 800 avis clients publiés en ligne sur les restaurants Flunch. Après nettoyage, lemmatisation et retrait des mots vides, chaque avis reçoit un score de polarité entre −1 et 1 : 67 % sont positifs, 33 % négatifs. Les mots sont ensuite étudiés par nuages de mots, par fréquences au sein de quatre familles thématiques (service/personnel, nourriture, environnement, prix), par une AFC et par l'analyse des adjectifs. Le service et le personnel portent l'image positive de l'enseigne ; la qualité des plats, puis le prix et l'environnement, concentrent les critiques les plus dures.",
+ "question": "Que retiennent les clients de leur passage chez Flunch, et sur quels thèmes l'enseigne doit-elle agir en priorité ?",
+ "kpis": [
+  {
+   "value": "24 800",
+   "label": "Avis analysés"
+  },
+  {
+   "value": "67 %",
+   "label": "Avis positifs",
+   "note": "16 621 avis"
+  },
+  {
+   "value": "33 %",
+   "label": "Avis négatifs",
+   "note": "8 179 avis"
+  },
+  {
+   "value": "4",
+   "label": "Familles thématiques",
+   "note": "Service/personnel, nourriture, environnement, prix"
+  },
+  {
+   "value": "> 6 000",
+   "label": "Occurrences de « personnel »",
+   "note": "Mot n° 1 de la famille service/personnel"
+  },
+  {
+   "value": "72,2 %",
+   "label": "Inertie des 2 premiers axes de l'AFC",
+   "note": "Axe 1 : 39 % ; axe 2 : 33,2 %"
+  }
+ ],
+ "data": {
+  "source": "Avis clients publiés en ligne sur les restaurants Flunch (plateforme et période non précisées dans le rapport)",
+  "unit": "Un avis client (commentaire)",
+  "period": "Non précisée dans le rapport",
+  "n": "24 800 avis",
+  "variables": [
+   {
+    "name": "commentaire",
+    "label": "Texte libre de l'avis client",
+    "type": "texte"
+   },
+   {
+    "name": "lemmes",
+    "label": "Commentaire nettoyé et lemmatisé",
+    "type": "texte"
+   },
+   {
+    "name": "score",
+    "label": "Score de polarité, de −1 (très négatif) à 1 (très positif)",
+    "type": "continue"
+   },
+   {
+    "name": "polarite",
+    "label": "Classe de polarité : positif ou négatif",
+    "type": "catégorielle"
+   },
+   {
+    "name": "famille",
+    "label": "Famille thématique : service/personnel, nourriture, environnement, prix",
+    "type": "catégorielle"
+   }
+  ],
+  "cleaning": [
+   "Passage en minuscules.",
+   "Suppression des liens, émojis, caractères spéciaux, répétitions inutiles et autres éléments parasites.",
+   "Retrait des mots évidents ou très génériques (« Flunch », « restaurant »).",
+   "Lemmatisation (« bon », « bonne », « bons », « bonnes » → « bon »).",
+   "Suppression des mots vides (« le », « de », « à », « et »…).",
+   "Fautes d'orthographe et de frappe non corrigées."
+  ]
+ },
+ "sections": [
+  {
+   "id": "contexte",
+   "title": "Contexte et objectifs",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Les avis en ligne pèsent de plus en plus dans le choix d'un restaurant. Pour une enseigne, ils sont aussi un moyen de mesurer la satisfaction de ses clients. Le projet porte sur **Flunch**, grand acteur de la restauration en libre-service en France. L'enseigne vise le meilleur rapport qualité/prix du marché. Elle attire donc une clientèle très variée : enfants, adultes, tous budgets confondus."
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Mesurer la polarité des avis** : classer chaque commentaire comme positif ou négatif, pour repérer ce qui pèse sur l'image des restaurants.",
+      "**Identifier les mots qui comptent** : regrouper les avis par grands thèmes de la restauration (service, nourriture…) et en tirer des pistes d'amélioration."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "donnees",
+   "title": "Données et prétraitement",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Le corpus compte **24 800 avis** clients, publiés pour la plupart en ligne. Le rapport ne précise ni la plateforme ni la période de collecte. Avant l'analyse, chaque commentaire est nettoyé puis normalisé."
+    },
+    {
+     "type": "list",
+     "items": [
+      "Passage en minuscules.",
+      "Suppression des liens, émojis, caractères spéciaux, répétitions inutiles et autres éléments parasites.",
+      "Retrait des mots évidents ou trop génériques, présents dans une grande partie des avis (« Flunch », « restaurant »).",
+      "Lemmatisation : chaque mot est ramené à sa forme de base (« bonne », « bons », « bonnes » → « bon »).",
+      "Suppression des mots vides (« le », « de », « à », « et »…)."
+     ]
+    },
+    {
+     "type": "callout",
+     "md": "Le nettoyage écarte abréviations et émojis, mais pas les **fautes d'orthographe ou de frappe**. Elles peuvent disperser la fréquence de certains mots : d'où l'intérêt d'un corpus de grande taille."
+    }
+   ]
+  },
+  {
+   "id": "polarite",
+   "title": "Polarité des avis",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Chaque avis lemmatisé reçoit un score de polarité compris entre **−1** (très négatif) et **1** (très positif). Il est ensuite classé dans l'une des deux catégories : positif ou négatif."
+    },
+    {
+     "type": "formula",
+     "tex": "s(d) \\in [-1,\\,1], \\qquad \\text{polarit\\'e}(d) = \\begin{cases} \\text{positif} & \\text{si } s(d) > 0 \\\\ \\text{n\\'egatif} & \\text{si } s(d) < 0 \\end{cases}",
+     "caption": "Score de l'avis d, de −1 (très négatif) à 1 (très positif), puis classement en deux catégories."
+    },
+    {
+     "type": "table",
+     "title": "Répartition des avis selon la polarité",
+     "columns": ["Polarité", "Avis", "Part"],
+     "rows": [
+      ["Positif", "16 621", "67 %"],
+      ["Négatif", "8 179", "33 %"],
+      ["Total", "24 800", "100 %"]
+     ],
+     "note": "Le rapport ne présente pas de classe neutre."
+    },
+    {
+     "type": "table",
+     "title": "Les deux exemples extrêmes cités par le rapport",
+     "columns": ["Score", "Lemmes de l'avis"],
+     "rows": [
+      ["−1", "« entrecôte goût horrible »"],
+      ["1", "« tres aimable tre ca donne envie revenir parler »"]
+     ],
+     "note": "Texte après nettoyage et lemmatisation, reproduit tel quel (fautes comprises)."
+    },
+    {
+     "type": "callout",
+     "md": "**Deux avis sur trois sont positifs.** Les exemples extrêmes confirment que le score capte bien le ton des commentaires."
+    }
+   ]
+  },
+  {
+   "id": "nuages",
+   "title": "Nuages de mots",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Sur l'ensemble des lemmes, **« bon »** est le mot le plus fréquent, devant **« personnel »**. Deux thèmes se dessinent déjà : le personnel (accueil, prestation de service) et la nourriture (légumes du buffet chaud, choix proposé à volonté)."
+    },
+    {
+     "type": "figure",
+     "src": "img/avis-clients-flunch/fig-1.png",
+     "caption": "Nuages de mots des lemmes des avis positifs (à gauche) et négatifs (à droite). Plus un mot est fréquent, plus il est grand."
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Avis positifs** : « bon » et « personnel » dominent. « Accueil », « aimable » et « sympathique » traduisent une bonne relation entre équipes et clients. « Qualité » et « propre » signalent une hygiène bien perçue.",
+      "**Avis négatifs** : « plat » passe en tête, avec « légumes », « viande » et « manger ». La qualité de la nourriture apparaît comme le point faible."
+     ]
+    },
+    {
+     "type": "text",
+     "md": "Beaucoup de mots généraux figurent dans les deux nuages. Une tendance se dégage pourtant : le service et l'hygiène sont plutôt salués, la qualité de la nourriture plutôt critiquée."
+    }
+   ]
+  },
+  {
+   "id": "familles",
+   "title": "Quatre familles thématiques",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Pour affiner l'analyse, les avis sont rattachés à quatre familles propres à la restauration : **service/personnel**, **nourriture**, **environnement** et **prix**. Le graphique donne les mots les plus fréquents dans chacune."
+    },
+    {
+     "type": "figure",
+     "src": "img/avis-clients-flunch/fig-2.png",
+     "caption": "Les 20 mots les plus fréquents dans les avis de chaque famille, en nombre d'occurrences. L'échelle diffère d'un panneau à l'autre."
+    },
+    {
+     "type": "table",
+     "title": "Ce que dit chaque famille",
+     "columns": ["Famille", "Mots marquants (hors « bon »)", "Lecture"],
+     "rows": [
+      [
+       "Service / personnel",
+       "personnel (plus de 6 000), agréable (≈ 3 140), service (≈ 2 950), accueil (≈ 2 780)",
+       "Famille la plus citée ; point fort"
+      ],
+      [
+       "Nourriture",
+       "plat (≈ 1 610), frites (≈ 1 435), légumes (≈ 1 380), qualité (≈ 1 160), froid (≈ 1 075)",
+       "Mots négatifs : froid, dommage, déçu"
+      ],
+      [
+       "Environnement",
+       "propre (≈ 360), toilettes (≈ 320), enfant (≈ 320), famille (≈ 280), sale (≈ 220)",
+       "Plutôt positif : propre devance sale"
+      ],
+      ["Prix", "cher (≈ 200), caisse (≈ 150), points (≈ 140), compte (≈ 140)", "Famille la moins citée ; « cher » domine"]
+     ],
+     "note": "Occurrences lues sur le graphique (valeurs approchées). « bon » est en tête dans trois familles et deuxième en service/personnel."
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Service/personnel** : de loin la famille la plus représentée, avec plus de 6 000 occurrences de « personnel ». Elle porte l'essentiel du vocabulaire positif : c'est le point fort de l'enseigne aux yeux des clients.",
+      "**Nourriture** : deuxième famille, menée par « plat » (hors « bon », omniprésent). Les produits sont très cités, mais des mots négatifs ressortent (« froid », « dommage », « déçu ») : la qualité des plats est le premier chantier.",
+      "**Environnement** : « propre » revient bien plus souvent que « sale ». Malgré quelques termes négatifs (« sale », « dommage »), le thème reste plutôt positif.",
+      "**Prix** : la famille la moins abordée. Après « bon », le mot le plus cité est « cher » : pour une partie des clients, le rapport qualité/prix, promesse centrale de Flunch, n'est pas au rendez-vous."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "afc",
+   "title": "AFC : les mots et leurs familles",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Une analyse factorielle des correspondances (AFC) croise les mots et les familles. Les deux premiers axes résument **72,2 % de l'inertie** (39 % et 33,2 %) : la carte représente bien les données."
+    },
+    {
+     "type": "figure",
+     "src": "img/avis-clients-flunch/fig-3.png",
+     "caption": "AFC mots × familles : familles en rouge (triangles), mots en bleu (points), sur les axes 1 (39 %) et 2 (33,2 %)."
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Axe 1 : service contre nourriture.** À gauche, le pôle service/personnel réunit « personnel », « accueil », « agréable », « service », « attente » et « équipe », des mots liés à la satisfaction. À droite, le pôle nourriture rassemble « plat », « frites », « viande », « froid », « qualité » et « légumes », plus souvent associés aux critiques.",
+      "**Axe 2 : environnement et prix.** Vers le haut se placent « cher », « toilettes », « propre », « compte » ou « ticket ». Ces mots sont nettement moins fréquents : ce sont bien la nourriture et le service qui structurent les avis."
+     ]
+    },
+    {
+     "type": "callout",
+     "md": "**Piste : un thème « fidélité ».** « Points », « ticket », « compte », « carte » et « fidélité » se regroupent près du pôle prix. Faute de fréquence suffisante, les auteurs ne l'ont pas retenu comme famille. Il reflète sans doute la carte de fidélité lancée par l'enseigne il y a quelques années."
+    }
+   ]
+  },
+  {
+   "id": "adjectifs",
+   "title": "Les adjectifs, révélateurs du ressenti",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Les adjectifs sont les mots qui distinguent le mieux le ressenti des clients. Ce sont eux qui pèsent le plus dans le classement positif/négatif. Le graphique les compare en fréquence relative : dans chaque famille, l'adjectif le plus cité vaut 100."
+    },
+    {
+     "type": "figure",
+     "src": "img/avis-clients-flunch/fig-4.png",
+     "caption": "Adjectifs les plus associés à chaque famille, en fréquence relative (l'adjectif le plus cité de la famille vaut 100)."
+    },
+    {
+     "type": "table",
+     "title": "Adjectifs les plus cités par famille",
+     "columns": ["Famille", "Adjectifs en tête (indice, n° 1 = 100)", "Bas de classement"],
+     "rows": [
+      [
+       "Service / personnel",
+       "bon (100), agréable (68), sympathique (28), aimable (21), propre (20)",
+       "souriant, froid, accueillant, rapide, disponible"
+      ],
+      ["Nourriture", "bon (100), froid (65), chaud (41), cuit (37), cher (21)", "mauvais, sale, sec, immangeable, propre"],
+      ["Environnement", "bon (100), propre (74), sale (45), calme (14), bruyant (12)", "mauvais, correct, décevant, horrible, excellent"],
+      [
+       "Prix",
+       "cher (100), bon (63), abordable (13)",
+       "mauvais (4), pratique (3), correct (3), puis 9 adjectifs à 2 ou moins, dont médiocre, fade et décevant"
+      ]
+     ],
+     "note": "Indices lus sur le graphique (valeurs approchées)."
+    },
+    {
+     "type": "text",
+     "md": "La famille service/personnel reste positive d'un bout à l'autre. Les trois autres commencent par des adjectifs positifs, puis glissent vers des termes négatifs. Surtout, les adjectifs négatifs sont plus variés et plus extrêmes : « immangeable », « médiocre », « horrible »."
+    },
+    {
+     "type": "callout",
+     "md": "**Minoritaires, mais coûteux.** Ces adjectifs décrivent une très mauvaise expérience, synonyme de non-retour. Ils peuvent aussi détourner les futurs clients qui s'informent en ligne. Un « dommage » se lit mieux qu'un « médiocre »."
+    }
+   ]
+  },
+  {
+   "id": "conclusion",
+   "title": "Axes d'amélioration",
+   "blocks": [
+    {
+     "type": "text",
+     "md": "Flunch bénéficie d'une image globalement positive, portée par la qualité perçue du service et du personnel. La qualité et la régularité des plats, ainsi que certains points liés au prix et à l'environnement, concentrent en revanche les critiques les plus marquées."
+    },
+    {
+     "type": "list",
+     "items": [
+      "**La nourriture d'abord** : qualité et régularité des plats (plats froids, déceptions).",
+      "**Le prix et l'environnement ensuite** : sentiment de cherté, propreté et confort, où apparaissent aussi des adjectifs très durs.",
+      "**Le service, à préserver** : l'accueil et l'amabilité du personnel restent le principal atout."
+     ]
+    },
+    {
+     "type": "text",
+     "md": "Agir sur ces points renforcerait la cohérence entre la promesse de rapport qualité/prix et l'expérience réellement vécue par les clients."
+    }
+   ]
+  }
+ ],
+ "figures": {
+  "corpus": {
+   "description": "Nombre d'avis (observations) classés dans le rapport.",
+   "n": 24800,
+   "approx": false,
+   "source": "Texte, p. 3"
+  },
+  "sentiment": {
+   "description": "Répartition des avis selon la polarité. Le rapport ne présente que deux classes (pas de classe neutre).",
+   "keys": ["positif", "negatif"],
+   "labels": ["Positif", "Négatif"],
+   "counts": [16621, 8179],
+   "percent": [67, 33],
+   "approx": false,
+   "source": "Tableaux, p. 3"
+  },
+  "scoreExamples": {
+   "description": "Lemmes des avis aux scores extrêmes, cités tels quels dans le rapport (score de −1 à 1).",
+   "items": [
+    {
+     "score": -1,
+     "label": "négatif",
+     "text": "entrecôte goût horrible"
+    },
+    {
+     "score": 1,
+     "label": "positif",
+     "text": "tres aimable tre ca donne envie revenir parler"
+    }
+   ],
+   "approx": false,
+   "source": "p. 3"
+  },
+  "families": {
+   "description": "Les quatre familles thématiques, de la plus à la moins représentée selon le texte. Le rapport ne publie pas le nombre d'avis par famille ; « tone » résume son appréciation qualitative.",
+   "keys": ["service_personnel", "nourriture", "environnement", "prix"],
+   "labels": ["Service / personnel", "Nourriture", "Environnement", "Prix"],
+   "rank": [1, 2, 3, 4],
+   "tone": ["positif", "négatif", "plutôt positif", "mitigé : « cher » domine"],
+   "reportColors": ["#C77CFF", "#7CAE00", "#F8766D", "#00BFC4"],
+   "approx": false,
+   "source": "Texte, p. 6-7"
+  },
+  "familyTopWords": {
+   "description": "Les 20 mots les plus fréquents dans les avis de chaque famille (21 pour prix, ex aequo), en nombre d'occurrences. Valeurs lues au pixel sur le graphique « Mots les plus fréquents selon la famille », arrondies selon la précision de lecture (roundedTo).",
+   "unit": "occurrences",
+   "order": ["service_personnel", "nourriture", "environnement", "prix"],
+   "series": {
+    "service_personnel": {
+     "label": "Service / personnel",
+     "words": ["personnel", "bon", "agréable", "service", "accueil", "attente", "équipe", "caisse", "légumes", "manger", "choix", "qualité", "sympathique", "plat", "clients", "moment", "enfants", "frites", "temps", "aimable"],
+     "counts": [6020, 5090, 3140, 2950, 2780, 2310, 2160, 1820, 1610, 1530, 1480, 1390, 1320, 1270, 1250, 1200, 1130, 1100, 1060, 950],
+     "roundedTo": 10
+    },
+    "nourriture": {
+     "label": "Nourriture",
+     "words": ["bon", "plat", "frites", "légumes", "qualité", "froid", "manger", "viande", "choix", "sauce", "pris", "déçu", "chaud", "dommage", "goût", "cuit", "poulet", "dessert", "caisse", "cuisson"],
+     "counts": [1820, 1610, 1435, 1380, 1160, 1075, 1050, 965, 945, 925, 885, 850, 665, 635, 625, 615, 610, 580, 555, 515],
+     "roundedTo": 5
+    },
+    "environnement": {
+     "label": "Environnement",
+     "words": ["bon", "propre", "toilettes", "enfant", "famille", "enfants", "manger", "sale", "salle", "place", "moment", "ambiance", "choix", "caisse", "légumes", "dommage", "propreté", "clients", "tables", "personnes"],
+     "counts": [548, 359, 318, 317, 278, 268, 239, 219, 189, 188, 160, 160, 152, 150, 140, 128, 114, 106, 103, 101],
+     "roundedTo": 1
+    },
+    "prix": {
+     "label": "Prix",
+     "words": ["bon", "cher", "caisse", "points", "compte", "fidélité", "carte", "ticket", "enfants", "offre", "caissière", "pris", "manger", "euros", "formule", "problème", "choix", "lots", "dommage", "légumes", "anniversaire"],
+     "counts": [267, 200, 149, 144, 138, 115, 112, 104, 65, 63, 52, 50, 50, 49, 47, 46, 46, 45, 44, 42, 42],
+     "roundedTo": 1
+    }
+   },
+   "approx": true,
+   "source": "Graphique, p. 6"
+  },
+  "adjectivesByFamily": {
+   "description": "Adjectifs les plus associés à chaque famille, en fréquence relative : dans chaque famille, l'adjectif le plus cité vaut 100. Valeurs lues sur le graphique.",
+   "unit": "% de l'adjectif le plus cité de la famille",
+   "order": ["service_personnel", "nourriture", "environnement", "prix"],
+   "series": {
+    "service_personnel": {
+     "label": "Service / personnel",
+     "words": ["bon", "agréable", "sympathique", "aimable", "propre", "souriant", "froid", "accueillant", "rapide", "disponible"],
+     "relFreq": [100.0, 67.7, 28.5, 20.6, 19.7, 15.5, 14.1, 13.3, 12.7, 12.1]
+    },
+    "nourriture": {
+     "label": "Nourriture",
+     "words": ["bon", "froid", "chaud", "cuit", "cher", "mauvais", "sale", "sec", "immangeable", "propre"],
+     "relFreq": [100.0, 65.4, 40.6, 37.5, 20.6, 13.8, 13.5, 13.2, 9.0, 8.2]
+    },
+    "environnement": {
+     "label": "Environnement",
+     "words": ["bon", "propre", "sale", "calme", "bruyant", "cher", "mauvais", "correct", "décevant", "horrible", "excellent"],
+     "relFreq": [100.0, 73.9, 45.1, 13.6, 11.6, 9.9, 8.5, 5.9, 3.7, 3.1, 3.1]
+    },
+    "prix": {
+     "label": "Prix",
+     "words": ["cher", "bon", "abordable", "mauvais", "pratique", "correct", "varié", "sec", "excellent", "médiocre", "généreux", "frais", "fade", "délicieux", "décevant"],
+     "relFreq": [100.0, 62.6, 13.3, 3.7, 2.8, 2.8, 2.0, 1.4, 1.4, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8]
+    }
+   },
+   "approx": true,
+   "source": "Graphique « Adjectifs les plus associés à chaque famille », p. 8"
+  },
+  "afcInertia": {
+   "description": "Part d'inertie des deux premiers axes de l'AFC mots × familles (titres des axes). Le texte arrondit le cumul à « environ 73 % ».",
+   "labels": ["Axe 1", "Axe 2"],
+   "percent": [39, 33.2],
+   "cumulative": 72.2,
+   "approx": false,
+   "source": "Graphique AFC, p. 7"
+  },
+  "afcCoordinates": {
+   "description": "Coordonnées des familles (triangles) et des mots (points) sur les axes 1 et 2 de l'AFC, lues sur le graphique (±0,01).",
+   "families": [
+    {
+     "key": "service_personnel",
+     "label": "Service / personnel",
+     "dim1": -0.25,
+     "dim2": -0.2
+    },
+    {
+     "key": "nourriture",
+     "label": "Nourriture",
+     "dim1": 0.64,
+     "dim2": 0.03
+    },
+    {
+     "key": "environnement",
+     "label": "Environnement",
+     "dim1": -0.41,
+     "dim2": 0.97
+    },
+    {
+     "key": "prix",
+     "label": "Prix",
+     "dim1": -0.18,
+     "dim2": 1.39
+    }
+   ],
+   "words": [
+    {
+     "word": "personnel",
+     "dim1": -0.61,
+     "dim2": -0.51
+    },
+    {
+     "word": "accueil",
+     "dim1": -0.61,
+     "dim2": -0.51
+    },
+    {
+     "word": "agréable",
+     "dim1": -0.61,
+     "dim2": -0.51
+    },
+    {
+     "word": "service",
+     "dim1": -0.61,
+     "dim2": -0.51
+    },
+    {
+     "word": "attente",
+     "dim1": -0.61,
+     "dim2": -0.51
+    },
+    {
+     "word": "équipe",
+     "dim1": -0.61,
+     "dim2": -0.51
+    },
+    {
+     "word": "propre",
+     "dim1": -0.5,
+     "dim2": 0.32
+    },
+    {
+     "word": "toilettes",
+     "dim1": -0.33,
+     "dim2": 0.68
+    },
+    {
+     "word": "salle",
+     "dim1": -0.28,
+     "dim2": 0.18
+    },
+    {
+     "word": "famille",
+     "dim1": -0.27,
+     "dim2": 0.36
+    },
+    {
+     "word": "caisse",
+     "dim1": -0.17,
+     "dim2": 0.01
+    },
+    {
+     "word": "enfants",
+     "dim1": -0.14,
+     "dim2": 0.19
+    },
+    {
+     "word": "ticket",
+     "dim1": -0.13,
+     "dim2": 0.78
+    },
+    {
+     "word": "compte",
+     "dim1": -0.12,
+     "dim2": 0.94
+    },
+    {
+     "word": "sale",
+     "dim1": -0.11,
+     "dim2": 0.49
+    },
+    {
+     "word": "carte",
+     "dim1": -0.08,
+     "dim2": 0.53
+    },
+    {
+     "word": "enfant",
+     "dim1": -0.07,
+     "dim2": 0.44
+    },
+    {
+     "word": "fidélité",
+     "dim1": -0.03,
+     "dim2": 0.64
+    },
+    {
+     "word": "points",
+     "dim1": 0.07,
+     "dim2": 0.66
+    },
+    {
+     "word": "choix",
+     "dim1": 0.15,
+     "dim2": -0.05
+    },
+    {
+     "word": "manger",
+     "dim1": 0.15,
+     "dim2": 0.03
+    },
+    {
+     "word": "cher",
+     "dim1": 0.16,
+     "dim2": 0.91
+    },
+    {
+     "word": "légumes",
+     "dim1": 0.32,
+     "dim2": -0.06
+    },
+    {
+     "word": "qualité",
+     "dim1": 0.37,
+     "dim2": -0.24
+    },
+    {
+     "word": "plat",
+     "dim1": 0.6,
+     "dim2": -0.18
+    },
+    {
+     "word": "frites",
+     "dim1": 0.61,
+     "dim2": -0.17
+    },
+    {
+     "word": "viande",
+     "dim1": 0.71,
+     "dim2": -0.14
+    },
+    {
+     "word": "froid",
+     "dim1": 0.74,
+     "dim2": -0.14
+    }
+   ],
+   "poles": {
+    "axis1Negative": "Service / personnel : personnel, accueil, agréable, service, attente, équipe",
+    "axis1Positive": "Nourriture : plat, frites, viande, froid, qualité, légumes",
+    "axis2Positive": "Prix et environnement : cher, compte, ticket, points, fidélité, carte, toilettes, propre"
+   },
+   "note": "Six mots (personnel, accueil, agréable, service, attente, équipe) sont superposés au même point ; les étiquettes sont reliées par des traits sur le graphique.",
+   "approx": true,
+   "source": "Graphique AFC, p. 7"
+  },
+  "wordcloudGlobal": {
+   "description": "Nuage de mots sur tous les lemmes : taille d'affichage relative de chaque mot (1 = « bon », le plus grand), mesurée sur l'image. Indicateur visuel de fréquence, pas un effectif.",
+   "words": ["bon", "personnel", "légumes", "agréable", "manger", "plat", "service", "accueil", "caisse", "qualité", "choix", "frites", "attente", "équipe", "froid", "enfants", "déçu", "pris", "clients", "moment", "temps", "dommage", "propre", "sauce", "viande", "sympathique", "chaud", "personnes", "manque", "enfant", "cuisson", "cuisine", "prendre", "dessert", "demande", "niveau", "responsable", "monde", "salle", "steak", "burger", "problème", "petit", "famille", "poulet", "volonté", "moules", "goût", "cuit", "part"],
+   "relSize": [1.0, 0.82, 0.52, 0.51, 0.49, 0.49, 0.49, 0.47, 0.46, 0.46, 0.44, 0.43, 0.42, 0.41, 0.37, 0.37, 0.37, 0.35, 0.35, 0.34, 0.34, 0.33, 0.32, 0.32, 0.32, 0.32, 0.31, 0.3, 0.3, 0.3, 0.29, 0.28, 0.28, 0.27, 0.27, 0.27, 0.27, 0.27, 0.27, 0.27, 0.27, 0.27, 0.27, 0.27, 0.27, 0.26, 0.26, 0.26, 0.26, 0.25],
+   "vertical": [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    true,
+    false,
+    false,
+    false,
+    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+   ],
+   "approx": true,
+   "source": "p. 4"
+  },
+  "wordcloudPositive": {
+   "description": "Nuage des lemmes des avis positifs : taille relative (1 = « bon »), mesurée sur l'image.",
+   "words": ["bon", "personnel", "agréable", "accueil", "qualité", "équipe", "service", "caisse", "légumes", "choix", "manger", "propre", "moment", "sympathique", "frites", "clients", "enfants", "plat", "attente", "aimable"],
+   "relSize": [1.0, 0.73, 0.51, 0.46, 0.41, 0.41, 0.39, 0.37, 0.36, 0.35, 0.33, 0.32, 0.32, 0.32, 0.31, 0.27, 0.27, 0.27, 0.27, 0.27],
+   "vertical": [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+   ],
+   "approx": true,
+   "source": "p. 5"
+  },
+  "wordcloudNegative": {
+   "description": "Nuage des lemmes des avis négatifs : taille relative (1 = « plat »), mesurée sur l'image.",
+   "words": ["plat", "déçu", "légumes", "manger", "froid", "personnel", "attente", "frites", "caisse", "choix", "service", "dommage", "viande", "pris", "sauce", "clients", "mal", "temps", "enfants", "enfant"],
+   "relSize": [1.0, 0.9, 0.82, 0.82, 0.8, 0.78, 0.78, 0.77, 0.71, 0.69, 0.67, 0.66, 0.64, 0.63, 0.6, 0.55, 0.52, 0.52, 0.5, 0.49],
+   "vertical": [
+    false,
+    false,
+    false,
+    false,
+    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    true,
+    false
+   ],
+   "approx": true,
+   "source": "p. 5"
+  }
+ },
+ "model": {
+  "type": "lexique-demo",
+  "description": "Base pour la démo « classez un avis ». Le rapport ne publie ni le dictionnaire des familles ni le lexique du score : ces listes sont reconstituées à partir des mots que le rapport affiche (graphiques par famille, AFC, adjectifs, texte). À présenter comme une démo simplifiée, pas comme le modèle original.",
+  "score": {
+   "min": -1,
+   "max": 1,
+   "threshold": 0,
+   "classes": [
+    {
+     "key": "positif",
+     "label": "Positif",
+     "rule": "score > 0",
+     "corpusShare": 0.67
+    },
+    {
+     "key": "negatif",
+     "label": "Négatif",
+     "rule": "score < 0",
+     "corpusShare": 0.33
+    }
+   ]
+  },
+  "families": [
+   {
+    "key": "service_personnel",
+    "label": "Service / personnel",
+    "keywords": ["personnel", "service", "accueil", "attente", "équipe", "temps"],
+    "adjectives": ["agréable", "sympathique", "aimable", "souriant", "accueillant", "rapide", "disponible"],
+    "tone": "positif",
+    "source": "Mots propres à cette famille dans le graphique p. 6 ; six d'entre eux forment le pôle service de l'AFC ; adjectifs du graphique p. 8."
+   },
+   {
+    "key": "nourriture",
+    "label": "Nourriture",
+    "keywords": ["plat", "frites", "légumes", "qualité", "viande", "sauce", "goût", "cuisson", "poulet", "dessert"],
+    "adjectives": ["froid", "chaud", "cuit", "sec", "immangeable"],
+    "tone": "négatif",
+    "source": "Mots propres à cette famille (p. 6) et pôle nourriture de l'AFC (plat, frites, légumes, qualité, viande, froid) ; adjectifs p. 8."
+   },
+   {
+    "key": "environnement",
+    "label": "Environnement",
+    "keywords": ["toilettes", "salle", "place", "ambiance", "propreté", "tables"],
+    "adjectives": ["propre", "sale", "calme", "bruyant"],
+    "tone": "plutôt positif",
+    "source": "Mots propres à cette famille (p. 6), proches du pôle environnement de l'AFC ; adjectifs p. 8."
+   },
+   {
+    "key": "prix",
+    "label": "Prix",
+    "keywords": ["euros", "offre", "formule", "fidélité", "carte", "points", "compte", "ticket", "lots", "anniversaire"],
+    "adjectives": ["cher", "abordable"],
+    "tone": "mitigé",
+    "source": "Mots propres à cette famille (p. 6) ; « points », « ticket », « compte », « carte », « fidélité » sont proches du pôle prix de l'AFC ; adjectifs p. 8."
+   }
+  ],
+  "polarity": {
+   "positiveCited": ["bon", "agréable", "aimable", "sympathique", "propre"],
+   "negativeCited": ["froid", "dommage", "déçu", "sale", "cher", "immangeable", "médiocre", "horrible"],
+   "positiveOther": ["souriant", "accueillant", "rapide", "disponible", "calme", "abordable", "correct", "excellent", "généreux", "délicieux", "frais", "varié", "pratique"],
+   "negativeOther": ["mauvais", "décevant", "bruyant", "sec", "fade", "mal"],
+   "note": "« Cited » : mots que le texte du rapport qualifie lui-même de positifs ou de négatifs. « Other » : autres adjectifs présents dans les graphiques du rapport, classés selon leur sens usuel (choix éditorial pour la démo)."
+  },
+  "examples": [
+   {
+    "text": "entrecôte goût horrible",
+    "score": -1,
+    "label": "négatif"
+   },
+   {
+    "text": "tres aimable tre ca donne envie revenir parler",
+    "score": 1,
+    "label": "positif"
+   }
+  ],
+  "notes": [
+   "« bon », « caisse », « manger », « choix » et « légumes » figurent dans les quatre familles : ils ne permettent pas de trancher le thème.",
+   "Les noms des familles (« prix », « service »…) peuvent servir de mots-clés d'appoint dans la démo.",
+   "Un avis peut relever de plusieurs familles."
+  ]
+ },
+ "conclusions": [
+  "Deux avis sur trois sont positifs (16 621 sur 24 800) : l'image de Flunch est globalement favorable.",
+  "Le service et le personnel sont le point fort : c'est la famille la plus citée et la plus positive (« personnel », « accueil », « agréable », « sympathique »).",
+  "La qualité et la régularité des plats concentrent les critiques : « plat », « légumes », « viande », « froid » et « déçu » marquent les avis négatifs.",
+  "Le prix est peu abordé, mais « cher » y domine, en tension avec la promesse de meilleur rapport qualité/prix.",
+  "L'environnement reste plutôt positif : « propre » devance nettement « sale ».",
+  "Les adjectifs négatifs sont plus variés et plus extrêmes (« immangeable », « médiocre », « horrible ») : nourriture, prix et environnement sont les axes d'amélioration prioritaires.",
+  "Un thème « fidélité » émerge dans l'AFC (points, ticket, compte, carte) et mériterait une analyse dédiée."
+ ],
+ "limits": [
+  "Les fautes d'orthographe et de frappe ne sont pas corrigées : elles peuvent fausser la fréquence de certains mots.",
+  "Beaucoup de mots généraux (« bon », « personnel », « plat ») apparaissent à la fois dans les avis positifs et négatifs, ce qui brouille la lecture des nuages.",
+  "« Bon », omniprésent dans toutes les familles, écrase la hiérarchie des autres mots.",
+  "Le rapport ne chiffre ni le nombre d'avis par famille ni le croisement famille × polarité : la lecture par thème repose sur les fréquences de mots.",
+  "Le thème « fidélité » n'a pas été retenu, faute de fréquence suffisante.",
+  "La source des avis (plateforme, période) n'est pas précisée."
+ ],
+ "codeSnippet": {
+  "language": "python",
+  "title": "Score de polarité (textblob-fr) et famille thématique de chaque avis (extrait du notebook Python)",
+  "code": "dico = pd.DataFrame([(m,f) for f, L in dico_fam.items() for m in L], columns=[\"mot\",\"famille\"])\n\ndf_tok = data[[\"id\",\"texte\",\"lemmes\"]].explode(\"lemmes\").rename(columns={\"lemmes\":\"mot\"})\ndf_tok = df_tok[df_tok[\"mot\"].notna() & (df_tok[\"mot\"].str.len()>1)]\n\nfusion = pd.merge(df_tok, dico, on=\"mot\", how=\"left\")\n\nfamille_par_avis = (\n    fusion.groupby(\"id\", as_index=False)\n          .agg(famille=(\"famille\", lambda s: s.dropna().mode().iat[0] if not s.dropna().empty else None))\n)\ndata = data.merge(famille_par_avis, on=\"id\", how=\"left\")\ndata[\"famille\"] = data[\"famille\"].fillna(\"autre\")\n\npa = PatternAnalyzer()\n\ndef sentiment_score(txt: str) -> float:\n    try:\n        return pa.analyze(txt)[0]\n    except Exception:\n        return 0.0\n\ndata[\"sentiment_score\"] = data[\"texte\"].apply(sentiment_score)\ndata[\"sentiment\"] = np.where(data[\"sentiment_score\"]>0, \"positif\",\n                      np.where(data[\"sentiment_score\"]<0, \"négatif\", \"neutre\"))"
+ }
+}

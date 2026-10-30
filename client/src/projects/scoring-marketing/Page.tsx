@@ -687,7 +687,7 @@ function ScoreCalculator({ logit, examples, slug }: { logit: LogitModel; example
               </div>
             ))}
             <p className="sm-note">
-              Écarts de logit (β × écart) par rapport à un client de 44 ans, FICO 695, marié, propriétaire, sans commande. Repère calculé : le fichier répond en moyenne à environ
+              Écarts de logit (β × écart) par rapport à un client de 44 ans, FICO 695, marié, propriétaire, sans commande. Repère calculé&nbsp;: le fichier répond en moyenne à environ
               13 à 14 % (déduit du graphique BUY6).
             </p>
           </div>

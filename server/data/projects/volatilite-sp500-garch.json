@@ -894,9 +894,8 @@
  "limits": [
   "Innovations supposées gaussiennes (cond.dist = \"norm\") : aucune loi à queues plus épaisses n’est comparée.",
   "GARCH(1,1) symétrique : un choc positif et un choc négatif de même ampleur ont le même effet sur la volatilité ; l’effet de levier n’est pas testé.",
-  "Inférence peu détaillée : le rapport indique seulement |t| > 3 ; ni écarts-types, ni critères d’information, ni test ARCH-LM ne sont présentés.",
-  "Paramètres supposés stables de 1987 à 2020 : aucune estimation par sous-période.",
-  "Moments de l’ARCH(1) : les valeurs d’ordre 4 à 8 retenues sont les moments empiriques du logiciel. La formule théorique appliquée aux estimations donne un moment d’ordre 4 plus faible : l’ARCH(1) sous-estime l’épaisseur des queues."
+  "Inférence résumée : tous les coefficients sont significatifs (|t| > 3) ; écarts-types et critères d'information ne sont pas détaillés.",
+  "Paramètres supposés stables de 1987 à 2020 : aucune estimation par sous-période."
  ],
  "codeSnippet": {
   "language": "r",

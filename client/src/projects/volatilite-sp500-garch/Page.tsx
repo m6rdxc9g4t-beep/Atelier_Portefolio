@@ -408,7 +408,7 @@ function ReturnsExplorer({ returns, sigma, eps, logp }: { returns: Series; sigma
         width={1000}
         margin={{ top: 12, right: 14, bottom: 30, left: 58 }}
         xTicks={span > 10 ? [1990, 1995, 2000, 2005, 2010, 2015, 2020] : undefined}
-        xFormat={(v) => (span > 4 ? String(Math.round(v)) : span > 1.5 ? `${Math.floor(v)}${v % 1 > 0.01 ? '·' + Math.round((v % 1) * 12 + 1) : ''}` : MONTHS[Math.floor((v % 1) * 12)] + ' ' + Math.floor(v))}
+        xFormat={(v) => (span > 4 ? String(Math.round(v)) : `${MONTHS[Math.min(11, Math.floor((v % 1) * 12 + 1e-6))]} ${Math.floor(v)}`)}
         yFormat={yTick}
         cursorX={hover}
         onHoverX={setHover}

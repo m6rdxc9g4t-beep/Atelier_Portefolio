@@ -210,7 +210,8 @@
   .ots-wrap { padding: 0 18px; }
   .ots-hero { padding-top: 44px; }
   .ots-water { padding: 16px; }
-  .ots-water-lab { position: static; display: inline-block; margin: 8px 8px 0 0; text-align: left; }
+  .ots-water-plot { padding-right: 0; }
+  .ots-water-lab { position: static; display: inline-block; width: auto; margin: 10px 14px 0 0; text-align: left; }
   .ots-sec { padding-top: 56px; }
   .ots-card { padding: 18px; }
 }

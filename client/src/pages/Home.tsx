@@ -117,7 +117,7 @@ export default function Home() {
                 Le coin <em>analyse</em>.
               </Reveal>
               <Reveal as="p" className="sec-lede" delay={60}>
-                Chaque projet a sa page, habillée à l’image de son sujet — une plateforme de streaming pour Netflix, une enseigne de restauration pour les avis Flunch, un terminal de marché pour la volatilité du S&amp;P 500 — avec <b>un module à manipuler</b> : simulateur de score, courbe de survie, estimateur de prix…
+                Chaque projet a sa page, habillée à l’image de son sujet — une plateforme de streaming pour Netflix, une enseigne de restauration pour les avis Flunch, un journal financier pour la volatilité du S&amp;P 500 — avec <b>un module à manipuler</b> : simulateur de décision, courbe de survie, estimateur de prix…
               </Reveal>
             </div>
             <Link to="/projets" className="btn btn-primary">

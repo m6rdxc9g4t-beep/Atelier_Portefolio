@@ -5,14 +5,14 @@ Chaque projet a **sa propre page, habillée à l’image de son sujet**, avec un
 
 | Projet | Habillage | Module interactif |
 | --- | --- | --- |
-| Scoring assurance auto (M2) | encre & or, tableau de bord de risque | simulateur de score 0–1000 (GLM logit), contributions, appel API |
-| Catalogue Netflix (M2) | codes d’une plateforme de streaming | explorateur Films / Séries, classements Top 10 |
-| Avis clients Flunch (M2) | enseigne de restauration, papier & rouge | « classez un avis » (familles du projet + polarité), via l’API |
+| Scoring assurance auto (M2) | encre & or, tableau de bord de risque | simulateur de décision : seuil, coûts FN/FP, portefeuille de 100 assurés, ROC, gains |
+| Catalogue Netflix (M2) | codes d’une plateforme de streaming | bascule Films / Séries, rangées Top 10, évolution des genres, publics |
+| Avis clients Flunch (M2) | enseigne de restauration, papier & rouge | « classez un avis » (dictionnaire du projet), nuages, familles, carte de l’AFC, adjectifs |
 | Churn télécom — modèles de durée (M2) | éditorial vert | courbe de Kaplan–Meier pilotée au curseur, cohorte de 100 abonnés |
-| Volatilité du S&P 500 — ARCH/GARCH (M2) | journal financier + terminal | simulateur GARCH(1,1) (ω, α, β), vérification côté serveur |
+| Volatilité du S&P 500 — ARCH/GARCH (M2) | journal financier + terminal | séries réelles numérisées (rendements, σ̂ₜ, résidus), ACF, moments de l’ARCH(1), simulateur GARCH(1,1) |
 | Immobilier à Arras — économétrie spatiale (M2) | cartographique | laboratoire de l’I de Moran (on peint une carte), test par permutations via l’API |
-| Offre de travail & sélection (M2) | — | visualiseur du biais de sélection et de la correction de Heckman |
-| Leboncoin VO — architecture décisionnelle (M2) | petites annonces | schéma en étoile interactif + tableaux Power BI |
+| Offre de travail & sélection (M2) | nuit bleue & lavande, « ligne de flottaison » | probit pas à pas (AIC), matrice des signes, laboratoire du biais de sélection |
+| Leboncoin VO — architecture décisionnelle (M2) | petites annonces | testeur de la règle qualité, pipeline médaillon, schéma en étoile, tableaux Power BI |
 | Stage ECM (2026) | identité du portfolio | réplique de l’outil de reporting (sans données internes) |
 | Santé infantile en Inde — mémoire M1 | — | classement des États, inégalités |
 | Recours aux soins en Europe — SHARE (M1) | éditorial sarcelle | explorateur pays & modèles emboîtés |

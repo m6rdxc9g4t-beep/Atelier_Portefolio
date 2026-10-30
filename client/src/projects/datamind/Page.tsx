@@ -17,18 +17,18 @@ const COLORS = ['#00e676', '#69f0ae', '#40c4ff', '#ffb300', '#ff6584', '#c77dff'
 
 /** Exemple intégré : le tableau par pays du projet SHARE (recours aux soins). */
 const SAMPLE_NAME = 'share_recours_soins_pays.csv';
-const SAMPLE_CSV = `pays,effectif,migrants,taux_migrants,recours_gp,log_nb_gp
-Autriche,1485,171,9.30,80.8,1.308
-Allemagne,2511,548,18.68,85.6,1.302
-Suède,1952,251,8.40,65.3,0.713
-Pays-Bas,2147,170,5.95,75.2,0.932
-Espagne,1942,51,2.19,83.2,1.596
-Italie,1939,37,1.48,77.7,1.623
-France,2607,439,14.93,88.7,1.450
-Danemark,1249,59,3.67,77.8,1.020
-Grèce,1715,64,2.40,64.4,1.313
-Suisse,733,154,16.09,76.6,0.997
-Belgique,3224,253,6.96,88.6,1.489`;
+const SAMPLE_CSV = `pays,repondants,consultants_gp,migrants,taux_migrants,recours_gp,log_nb_gp
+Autriche,1838,1485,171,9.30,80.8,1.308
+Allemagne,2933,2511,548,18.68,85.6,1.302
+Suède,2988,1952,251,8.40,65.3,0.713
+Pays-Bas,2855,2147,170,5.95,75.2,0.932
+Espagne,2333,1942,51,2.19,83.2,1.596
+Italie,2496,1939,37,1.48,77.7,1.623
+France,2940,2607,439,14.93,88.7,1.450
+Danemark,1606,1249,59,3.67,77.8,1.020
+Grèce,2663,1715,64,2.40,64.4,1.313
+Suisse,957,733,154,16.09,76.6,0.997
+Belgique,3637,3224,253,6.96,88.6,1.489`;
 
 function analyse(rows: Row[], fields: string[]) {
   const sample = rows.slice(0, 300);

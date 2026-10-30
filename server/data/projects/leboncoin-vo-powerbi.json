@@ -1,6 +1,6 @@
 {
  "slug": "leboncoin-vo-powerbi",
- "title": "Architecture décisionnelle & analyse de données — Marché des véhicules d'occasion, région lilloise (Leboncoin)",
+ "title": "Architecture décisionnelle — véhicules d’occasion à Lille (Leboncoin)",
  "subtitle": "Du fichier d'annonces brut au tableau de bord Power BI, via un pipeline Databricks et un modèle en étoile",
  "course": "M2 Économétrie appliquée — Architecture décisionnelle & analyse de données",
  "level": "M2",

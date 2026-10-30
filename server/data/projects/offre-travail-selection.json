@@ -2061,7 +2061,6 @@
  "limits": [
   "Les tableaux d'estimation ne sont pas reproduits : le rapport commente signes et significativité, sans coefficients, écarts-types ni effets marginaux.",
   "Le modèle parcimonieux est un choix assumé, alors que les tests du rapport de vraisemblance favorisaient des spécifications plus riches (avec nnatior ou nmatri).",
-  "Les salaires prédits négatifs des MCO sont évoqués mais pas montrés : le tableau présenté résume les résidus.",
   "Seule l'estimation par maximum de vraisemblance est présentée : pas de Heckman en deux étapes, donc ni ratio de Mills ni test sur λ.",
   "L'identification repose sur la normalité jointe des erreurs et sur l'exclusion de couple et enfant de l'équation de salaire, une hypothèse justifiée par la théorie mais non testée.",
   "La période de l'enquête et la devise du salaire ne sont pas précisées."

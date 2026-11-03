@@ -1,10 +1,10 @@
 {
   "slug": "stage-ecm",
-  "title": "Stage ECM — outil de reporting",
+  "title": "ECM — outil de reporting Power BI",
   "subtitle": "Six mois pour concevoir l’outil interne de reporting Power BI d’ECM et automatiser le suivi d’activité.",
-  "course": "Stage de fin d’études — Analyste data / Reporting",
+  "course": "Stage de fin d’études, puis ingénieur d’études Data Analyst",
   "level": "Stage",
-  "date": "Février – août 2026",
+  "date": "Février 2026 – aujourd’hui",
   "authors": [
     "François Pichon"
   ],
@@ -18,7 +18,7 @@
     "Automatisation",
     "Modélisation des données"
   ],
-  "abstract": "Stage de fin d’études chez ECM (Engineering Conception Maintenance), du 8 février au 8 août 2026. Mission : développer un outil interne de reporting sous Power BI, concevoir les tableaux de bord et automatiser le suivi d’activité. L’outil est organisé en modules métiers accessibles depuis une vue globale.",
+  "abstract": "Stage de fin d’études chez ECM (Engineering Conception Maintenance), du 8 février au 8 août 2026, prolongé depuis septembre 2026 par un contrat d’ingénieur d’études data analyst, toujours en cours. Mission : développer un outil interne de reporting sous Power BI, concevoir les tableaux de bord et automatiser le suivi d’activité. L’outil est organisé en modules métiers accessibles depuis une vue globale.",
   "question": "Comment réunir le suivi d’activité de l’entreprise dans un seul outil, lisible par chaque équipe ?",
   "kpis": [
     {

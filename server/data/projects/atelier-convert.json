@@ -1,0 +1,113 @@
+{
+  "slug": "atelier-convert",
+  "level": "Perso",
+  "date": "2026",
+  "authors": [
+    "François Pichon"
+  ],
+  "supervisor": null,
+  "course": "Projet personnel — Préparation de données · Suite Atelier",
+  "figures": {},
+  "title": "Atelier Convert — des relevés aux tables propres",
+  "subtitle": "Un relevé bancaire en PDF, scanné ou photographié devient une table typée, avec contrôle automatique des soldes.",
+  "tools": [
+    "Python",
+    "FastAPI",
+    "pdfplumber",
+    "pandas",
+    "Tesseract (OCR)",
+    "React",
+    "TypeScript"
+  ],
+  "methods": [
+    "Extraction de données",
+    "OCR",
+    "Typage automatique",
+    "Contrôle de cohérence"
+  ],
+  "abstract": "La partie la plus ingrate d'une analyse, c'est souvent de récupérer des données propres. Atelier Convert lit les relevés bancaires PDF à partir de la position des mots, recolle les montants découpés, complète les dates sans année, et contrôle les soldes (solde initial + crédits − débits = solde final). Un relevé scanné ou photographié passe par un OCR local. Le résultat s'exporte (CSV, XLSX, JSON) ou part directement dans Atelier Tab.",
+  "question": "Comment transformer n'importe quel relevé, quelle que soit la banque, en table fiable sans ressaisie ?",
+  "kpis": [
+    {
+      "value": "6",
+      "label": "Familles de formats : PDF, scan/photo, CSV/TXT, Excel, OFX/QIF, JSON"
+    },
+    {
+      "value": "5",
+      "label": "Formats d'export"
+    },
+    {
+      "value": "300 ppp",
+      "label": "Rendu des pages pour l'OCR"
+    },
+    {
+      "value": "100 %",
+      "label": "Hors ligne par défaut"
+    }
+  ],
+  "sections": [
+    {
+      "id": "lecture",
+      "title": "Ce que sait lire Convert",
+      "blocks": [
+        {
+          "type": "table",
+          "columns": [
+            "Fichier",
+            "Lecture"
+          ],
+          "rows": [
+            [
+              "PDF de relevé",
+              "Mots et positions : en-tête Débit / Crédit / Montant / Solde reconnu, libellés sur plusieurs lignes, « 1 234,56 » recollé, soldes contrôlés"
+            ],
+            [
+              "PDF scanné, photo",
+              "OCR Tesseract sur la machine, chiffres mal lus corrigés (« 1O,5O » → « 10,50 »), confiance affichée"
+            ],
+            [
+              "CSV / TXT",
+              "Encodage, séparateur, préambule et en-tête détectés"
+            ],
+            [
+              "Excel",
+              "Feuille au choix, dates Excel conservées"
+            ],
+            [
+              "OFX / QIF",
+              "Opérations, références, catégories, solde final"
+            ]
+          ]
+        },
+        {
+          "type": "text",
+          "md": "Dans tous les cas, les types sont déduits (date, montant, nombre, oui/non, texte) et une valeur qui ne se convertit pas **reste du texte** : rien n'est perdu. Chaque cellule corrigée à la main garde la trace de la valeur lue dans le fichier."
+        }
+      ]
+    },
+    {
+      "id": "architecture",
+      "title": "Architecture",
+      "blocks": [
+        {
+          "type": "list",
+          "items": [
+            "**API** FastAPI ; moteur de conversion testable sans PDF (les mots et lignes sont des objets simples).",
+            "**IA facultative** (« Structurer avec l'IA ») pour un document que la lecture automatique ne sait pas mettre en table : Ollama en local, ou Claude en mode en ligne.",
+            "**Interface** React + TypeScript : aperçu, renommage, retypage et réordonnancement des colonnes."
+          ]
+        },
+        {
+          "type": "text",
+          "md": "L'application fait partie de la **Suite Atelier**, un ensemble d'outils de travail que j'ai conçus et développés en 2026, avec l'IA (Claude Code) comme copilote de développement. Les applications partagent un **contrat commun** (format de tables atelier-table/1, manifeste d'actions pour les agents), un design system et un principe : **les données restent sur la machine par défaut**, l'IA en ligne ne s'active que par un interrupteur explicite."
+        }
+      ]
+    }
+  ],
+  "conclusions": [
+    "La préparation des données automatisée et vérifiée : le contrôle des soldes dit tout de suite si la lecture est juste."
+  ],
+  "limits": [
+    "La qualité de l'OCR dépend de la qualité du scan ; une opération au montant illisible est gardée et signalée."
+  ]
+}

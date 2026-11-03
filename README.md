@@ -21,6 +21,14 @@ Chaque projet a **sa propre page, habillée à l’image de son sujet**, avec un
 | Prévision ARIMA / SARIMA | deux séries | démarche Box–Jenkins pas à pas |
 | Porsche — Power BI | automobile premium | sélecteur de gamme + rapports Power BI |
 | DataMind — agent data analyst (perso) | terminal vert | exploration CSV + agent IA (proxy serveur) |
+| **Suite Atelier — IA & développement (perso)** | logos de la suite, page éditoriale | schéma de la suite sur l’accueil (section « Le coin atelier ») |
+| Atelier Nexus — hub d’agents IA | orange Nexus | orchestrateur, 17 agents, validation humaine, workflows rejouables |
+| Atelier Viz — BI locale | jaune Viz | rapports multipages, 22 visuels, export PowerPoint |
+| Atelier Tab — tableur & base | vert Tab | moteur de formules, serveur MCP (25 outils) |
+| Atelier Convert — relevés → tables | or bronze | lecture PDF / OCR, contrôle des soldes |
+| Atelier Projets — gestion de projet | vert citron | Gantt interactif, Git/GitHub, IA locale |
+| Atelier Trésorerie — finances | bleu roi | budgets, tableaux de bord, IA 100 % locale |
+| Atelier Cuisine — app en ligne | orchidée | Vercel + Supabase (RLS), PWA |
 
 Les rapports PDF de chaque projet sont téléchargeables depuis sa page (`client/public/reports`).
 
@@ -75,7 +83,7 @@ client/   React 19 + Vite : accueil, projets, CV imprimable, une page thématis�
 
 - **Profil, compétences, parcours** : `server/data/profile.json`
 - **Un projet** : `server/data/projects/<slug>.json` (texte, chiffres clés, tableaux, données des graphiques, modèle)
-- **Ordre, couleurs, rapports, liens Power BI** : `shared/src/catalog.ts`
+- **Ordre, couleurs, logos, rapports, liens Power BI** : `shared/src/catalog.ts` (logos de la Suite Atelier : `client/public/img/atelier/`)
 - **Ajouter un projet** : une fiche JSON + une entrée au catalogue suffisent (la page générique l’affiche) ; une page thématisée peut ensuite être ajoutée dans `client/src/projects/<slug>/` et déclarée dans `registry.ts`.
 
 Les fiches ont été rédigées à partir des rapports de chaque projet : tous les chiffres viennent des documents. Sans rapport fourni, les fiches ARIMA / SARIMA, Porsche, stage ECM et DataMind reprennent le contenu de l’ancien site.

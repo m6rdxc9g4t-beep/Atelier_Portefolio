@@ -7,8 +7,8 @@ export function ProjectCard({ project: p, index = 0, showKpis = false }: { proje
     <Reveal delay={(index % 3) * 70} className="pcard-wrap">
       <Link to={`/projets/${p.slug}`} className="pcard" style={{ ['--accent' as string]: p.accent }}>
         <div className="p-top">
-          <div className="p-icon" aria-hidden>
-            {p.icon}
+          <div className={`p-icon ${p.logo ? 'has-logo' : ''}`} aria-hidden>
+            {p.logo ? <img src={p.logo} alt="" width={46} height={46} loading="lazy" /> : p.icon}
           </div>
           <div>
             <h3>{p.title}</h3>

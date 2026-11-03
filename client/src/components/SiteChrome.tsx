@@ -28,6 +28,7 @@ export function SiteNav() {
             Moi
           </NavLink>
           <NavLink to="/projets">Projets</NavLink>
+          <Link to="/#ia-dev">IA &amp; dev</Link>
           <Link to="/#parcours">Parcours</Link>
           <Link to="/#contact">Contact</Link>
           <NavLink to="/cv" className="nav-cta">

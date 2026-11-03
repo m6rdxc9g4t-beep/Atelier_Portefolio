@@ -76,7 +76,8 @@ export type Category =
   | 'micro'
   | 'texte'
   | 'bi'
-  | 'ia';
+  | 'ia'
+  | 'dev';
 
 export interface PowerBIPage {
   label: string;
@@ -92,6 +93,8 @@ export interface ProjectMeta {
   accent: string;
   /** Pictogramme court (emoji) de la carte. */
   icon: string;
+  /** Logo de l'application (client/public), affiché à la place du pictogramme. */
+  logo?: string;
   /** Nom du module interactif de la page. */
   interactive: string;
   year: number;
@@ -125,5 +128,6 @@ export const CATEGORY_LABELS: Record<Category, string> = {
   micro: 'Microéconométrie',
   texte: 'Analyse textuelle',
   bi: 'Data-viz & BI',
-  ia: 'IA & outils',
+  ia: 'IA agentique',
+  dev: 'Applications & dev',
 };

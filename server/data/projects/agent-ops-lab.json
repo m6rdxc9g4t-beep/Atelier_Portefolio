@@ -1,0 +1,115 @@
+{
+  "slug": "agent-ops-lab",
+  "level": "Perso",
+  "date": "2026",
+  "authors": [
+    "François Pichon"
+  ],
+  "supervisor": null,
+  "figures": {},
+  "title": "Agent Ops Lab — un agent IA pilote un logiciel de transport",
+  "subtitle": "Simulation d'un TMS : un agent surveille une flotte de camions, repère les retards avant qu'ils arrivent et propose des actions que l'opérateur valide.",
+  "course": "Projet personnel — IA agentique & développement web",
+  "tools": [
+    "Next.js 16",
+    "React 19",
+    "TypeScript",
+    "Tailwind CSS 4",
+    "MapLibre GL"
+  ],
+  "methods": [
+    "Simulation",
+    "Agent IA de dispatch",
+    "Plus court chemin (Dijkstra)",
+    "Validation humaine",
+    "Internationalisation"
+  ],
+  "abstract": "Agent Ops Lab simule des interfaces métier pilotées par un agent IA. La première simulation est un logiciel de transport (TMS) : des camions roulent sur un réseau routier français simplifié, avec carburant, temps de conduite, pauses réglementaires et température du groupe froid. Des aléas surviennent (accidents, bouchons, travaux, pannes), et un agent de dispatch propose un détour, un message au client ou un contrôle du froid. L'opérateur approuve ou ignore chaque suggestion, et tout est tracé dans un journal d'audit.",
+  "question": "À quoi ressemble un logiciel métier où un agent IA anticipe les problèmes et l'humain garde la décision ?",
+  "kpis": [
+    {
+      "value": "39",
+      "label": "Plateformes logistiques du réseau français simulé"
+    },
+    {
+      "value": "9",
+      "label": "Écrans : back-office, application chauffeur, page de suivi client"
+    },
+    {
+      "value": "4",
+      "label": "Langues : français, anglais, espagnol, allemand"
+    },
+    {
+      "value": "0",
+      "label": "Backend : la simulation tourne dans le navigateur"
+    }
+  ],
+  "sections": [
+    {
+      "id": "agent",
+      "title": "L'agent de dispatch",
+      "blocks": [
+        {
+          "type": "figure",
+          "src": "img/projets/ops-tableau-de-bord.webp",
+          "caption": "Tableau de bord : indicateurs de la flotte, expédition prioritaire et brief de l'agent avec ses suggestions en attente de validation (données fictives)."
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Détour** quand un itinéraire bis fait gagner du temps : le plus court chemin est recalculé en tenant compte du trafic.",
+            "**Prévenir le client** quand le retard est inévitable, avec un message pré-rédigé et modifiable.",
+            "**Contrôle du groupe froid** quand la température dérive.",
+            "Chaque suggestion affiche sa **confiance**, son **impact** et son **raisonnement** ; une approbation automatique au-dessus d'un seuil est possible, et tout est tracé dans le **journal d'audit**."
+          ]
+        },
+        {
+          "type": "callout",
+          "md": "Scénario d'ouverture, 08:30 : un accident sur l'A6 entre Auxerre et Beaune menace le camion frigorifique EXP-48291 (Rungis → Lyon). Le détour par la N151 et la N7 sauve le créneau."
+        }
+      ]
+    },
+    {
+      "id": "boucle",
+      "title": "Boucle complète : opérateur, chauffeur, client",
+      "blocks": [
+        {
+          "type": "figure",
+          "src": "img/projets/ops-dispatch.webp",
+          "caption": "Dispatch : file des expéditions triées par urgence, carte de la flotte et suggestions de l'agent (fond de carte hors ligne)."
+        },
+        {
+          "type": "list",
+          "items": [
+            "L'agent propose un détour, l'opérateur l'approuve dans le back-office.",
+            "Le chauffeur reçoit la consigne dans son application et confirme ; la confirmation remonte dans la fiche expédition.",
+            "Le chauffeur peut signaler un bouchon, une panne ou un problème de froid : l'agent réagit aussitôt.",
+            "Le client suit sa livraison sur une page dédiée, avec seulement ce que l'opérateur a choisi de partager."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "architecture",
+      "title": "Architecture",
+      "blocks": [
+        {
+          "type": "list",
+          "items": [
+            "**Next.js 16** (App Router), React 19, TypeScript et Tailwind CSS 4.",
+            "**Moteur de simulation** dans le navigateur : réseau routier et plus court chemin (Dijkstra), camions, incidents, agent et actions.",
+            "**Carte MapLibre GL** avec un fond OpenFreeMap, et un fond simplifié hors ligne si les tuiles sont inaccessibles.",
+            "**Déploiement** automatique sur Vercel à chaque commit, et sur le serveur de la Suite Atelier."
+          ]
+        }
+      ]
+    }
+  ],
+  "conclusions": [
+    "Un prototype qui montre comment intégrer un agent IA dans un outil métier : il anticipe, explique et propose, l'humain décide."
+  ],
+  "limits": [
+    "Données entièrement fictives ; les tracés relient les plateformes en ligne droite, pas par les routes réelles.",
+    "La simulation est sauvegardée dans le navigateur et n'est pas partagée entre appareils."
+  ]
+}

@@ -29,7 +29,7 @@ export default function Projects() {
   const isBuild = (p: { slug: string; category: Category }) => p.slug.startsWith('atelier-') || p.category === 'ia' || p.category === 'dev';
   const groups = [
     { id: 'data', title: 'Projets data — analyse, data science & visualisation', items: filtered.filter((p) => !isBuild(p)) },
-    { id: 'build', title: 'IA & développement — la Suite Atelier', items: filtered.filter(isBuild) },
+    { id: 'build', title: 'IA & développement — Suite Atelier et prototypes', items: filtered.filter(isBuild) },
   ];
 
   const levelsPresent = LEVELS.filter((l) => l === 'Tous' || data?.projects.some((p) => p.level === l));

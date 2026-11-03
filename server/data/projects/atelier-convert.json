@@ -48,7 +48,7 @@
   "sections": [
     {
       "id": "lecture",
-      "title": "Ce que sait lire Convert",
+      "title": "Formats lus par Convert",
       "blocks": [
         {
           "type": "table",

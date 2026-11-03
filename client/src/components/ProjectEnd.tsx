@@ -3,6 +3,7 @@ import type { ProjectResponse } from '../api';
 import { CodeBlock } from './CodeBlock';
 import { Md } from './Md';
 import { ResultsGallery } from './ResultsGallery';
+import { isBuildProject } from '../lib/groups';
 import './project-end.css';
 
 /**
@@ -91,8 +92,8 @@ export function ProjectEnd({ project, showCode = true }: { project: ProjectRespo
             <small>← Projet précédent</small>
             <span>{project.previous.title}</span>
           </Link>
-          <Link to="/projets" className="pe-all">
-            Tous les projets
+          <Link to={isBuildProject(project) ? '/ia-dev' : '/projets'} className="pe-all">
+            {isBuildProject(project) ? 'Tous les projets IA & dev' : 'Tous les projets data'}
           </Link>
           <Link to={`/projets/${project.next.slug}`} className="pe-next">
             <small>Projet suivant →</small>

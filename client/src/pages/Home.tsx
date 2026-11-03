@@ -6,6 +6,7 @@ import { Md } from '../components/Md';
 import { useTitle } from '../components/SiteChrome';
 import { ProjectCard } from './ProjectCard';
 import { ContactForm } from './ContactForm';
+import { splitProjects } from '../lib/groups';
 
 export default function Home() {
   useTitle('François Pichon — Économètre · Portfolio');
@@ -14,8 +15,9 @@ export default function Home() {
 
   const projects = list?.projects ?? [];
   const featured = projects.filter((p) => p.featured);
-  const atelier = projects.filter((p) => p.category === 'ia' || p.category === 'dev' || p.slug.startsWith('atelier-'));
-  const interactiveCount = projects.filter((p) => !p.slug.startsWith('atelier-')).length;
+  const { data: dataProjects, build } = splitProjects(projects);
+  const atelier = build;
+  const interactiveCount = dataProjects.length;
   const reportCount = projects.reduce((n, p) => n + (p.reports?.length ?? 0), 0);
 
   return (
@@ -80,7 +82,7 @@ export default function Home() {
           <Reveal className="stat-band" delay={120}>
             <div className="stat">
               <div className="v">
-                <CountUp value={String(interactiveCount || 16)} />
+                <CountUp value={String(interactiveCount || 15)} />
               </div>
               <div className="k">Projets d’analyse, chacun avec sa page interactive</div>
             </div>
@@ -122,7 +124,7 @@ export default function Home() {
               </Reveal>
             </div>
             <Link to="/projets" className="btn btn-primary">
-              Voir les {projects.length || 16} projets <span aria-hidden>→</span>
+              Voir les {interactiveCount || 15} projets data <span aria-hidden>→</span>
             </Link>
           </div>
           <div className="proj-grid">
@@ -148,8 +150,8 @@ export default function Home() {
                 Au-delà de l’analyse, je construis les outils : la <b>Suite Atelier</b>, sept applications que j’ai conçues et développées — BI locale, tableur, conversion de relevés, gestion de projet, finances, CRM freelance — reliées par <b>Atelier Nexus</b>, un hub d’agents IA qui lisent, analysent et agissent avec une <b>validation humaine</b> de chaque action. Et <b>Agent Ops Lab</b>, un logiciel de transport simulé où un agent IA anticipe les retards.
               </Reveal>
             </div>
-            <Link to="/projets" className="btn btn-ghost">
-              Tous les projets <span aria-hidden>→</span>
+            <Link to="/ia-dev" className="btn btn-ghost">
+              Page IA &amp; dev <span aria-hidden>→</span>
             </Link>
           </div>
           <Reveal className="suite-schema" delay={80}>

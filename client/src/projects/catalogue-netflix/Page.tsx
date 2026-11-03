@@ -74,7 +74,7 @@ export default function Page({ project }: { project: ProjectResponse }) {
     <div className={`nf ${isF ? '' : 'is-series'}`}>
       <header className="nf-head">
         <span className="nf-mark">
-          <i aria-hidden /> Le catalogue à la loupe
+          <img src="/img/brands/netflix.webp" alt="Netflix" className="nf-logo" width={28} height={28} /> Le catalogue à la loupe
         </span>
         <nav aria-label="Sections">
           {NAV.map((n) => (

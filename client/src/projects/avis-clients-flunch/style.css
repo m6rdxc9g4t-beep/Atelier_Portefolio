@@ -3,6 +3,8 @@
   --c-bar: var(--ed-accent); }
 .fl-pill { font-family: var(--fl-round); font-weight: 600; display: inline-flex; align-items: center; gap: 8px; background: var(--ed-accent); color: #fff; border-radius: 0.6em; padding: 0.15em 0.6em 0.22em; line-height: 1; box-shadow: 0 8px 22px -10px rgba(227, 6, 19, 0.75); }
 .ed-brand .fl-pill { font-size: 16px; }
+.fl-logo { height: 30px; width: auto; border-radius: 5px; vertical-align: middle; box-shadow: 0 6px 16px -8px rgba(227, 6, 19, 0.7); }
+.ed-brand:has(.fl-logo) { display: inline-flex; align-items: center; gap: 10px; }
 .fl-hero-pill { font-size: clamp(28px, 4.6vw, 44px); border-radius: 0.4em; margin-bottom: 26px; animation: ed-rise 0.8s both; }
 .fl-plate { position: absolute; right: -60px; top: 120px; width: 380px; height: 380px; border-radius: 50%; background: radial-gradient(circle at 50% 50%, #fff 0 48%, #f1ece2 49% 60%, #fff 61% 64%, transparent 65%); box-shadow: 0 30px 60px -30px rgba(33, 28, 22, 0.45); opacity: 0.9; pointer-events: none; }
 .fl-plate::after { content: ''; position: absolute; inset: 31%; border-radius: 50%; border: 2px dashed rgba(227, 6, 19, 0.35); }

@@ -52,7 +52,7 @@ export default function Page({ project }: { project: ProjectResponse }) {
       className="fl"
       brand={
         <>
-          <span className="fl-pill">avis</span> <b>Analyse textuelle</b>
+          <img src="/img/brands/flunch.webp" alt="Flunch" className="fl-logo" width={56} height={28} /> <b>Analyse textuelle</b>
         </>
       }
       nav={NAV}

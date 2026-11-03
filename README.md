@@ -28,7 +28,6 @@ Chaque projet a **sa propre page, habillée à l’image de son sujet**, avec un
 | Atelier Convert — relevés → tables | or bronze | lecture PDF / OCR, contrôle des soldes |
 | Atelier Projets — gestion de projet | vert citron | Gantt interactif, Git/GitHub, IA locale |
 | Atelier Trésorerie — finances | bleu roi | budgets, tableaux de bord, IA 100 % locale |
-| Atelier Cuisine — app en ligne | orchidée | Vercel + Supabase (RLS), PWA |
 
 Les rapports PDF de chaque projet sont téléchargeables depuis sa page (`client/public/reports`).
 
@@ -87,7 +86,7 @@ client/   React 19 + Vite : accueil, projets, CV imprimable, une page thématis�
 - **Ajouter un projet** : une fiche JSON + une entrée au catalogue suffisent (la page générique l’affiche) ; une page thématisée peut ensuite être ajoutée dans `client/src/projects/<slug>/` et déclarée dans `registry.ts`.
 
 Les fiches ont été rédigées à partir des rapports de chaque projet : tous les chiffres viennent des documents. Sans rapport fourni, les fiches ARIMA / SARIMA, Porsche, stage ECM et DataMind reprennent le contenu de l’ancien site.
-Les marques citées (Netflix, Flunch, Leboncoin, Porsche…) sont les sujets des études ; leurs logos ne sont pas reproduits.
+Les marques citées (Netflix, Flunch, Leboncoin, Porsche…) sont les sujets des études ; les logos de Netflix, Flunch et Leboncoin (`client/public/img/brands/`) servent uniquement à identifier le sujet de chaque étude.
 
 ---
 

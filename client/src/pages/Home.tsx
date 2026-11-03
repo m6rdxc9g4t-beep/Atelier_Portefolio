@@ -145,7 +145,7 @@ export default function Home() {
                 Le coin <em>atelier</em>.
               </Reveal>
               <Reveal as="p" className="sec-lede" delay={60}>
-                Au-delà de l’analyse, je construis les outils : la <b>Suite Atelier</b>, sept applications que j’ai conçues et développées — BI locale, tableur, conversion de relevés, gestion de projet, finances, cuisine — reliées par <b>Atelier Nexus</b>, un hub d’agents IA qui lisent, analysent et agissent avec une <b>validation humaine</b> de chaque action.
+                Au-delà de l’analyse, je construis les outils : la <b>Suite Atelier</b>, six applications que j’ai conçues et développées — BI locale, tableur, conversion de relevés, gestion de projet, finances — reliées par <b>Atelier Nexus</b>, un hub d’agents IA qui lisent, analysent et agissent avec une <b>validation humaine</b> de chaque action.
               </Reveal>
             </div>
             <Link to="/projets" className="btn btn-ghost">

@@ -27,11 +27,10 @@
           <text x="975" y="132" text-anchor="middle" font-weight="700" font-size="16">Nexus</text>
           <text x="975" y="152" text-anchor="middle" fill="#9AA4B2" font-size="12">agents + orchestrateur</text>
           <text x="975" y="170" text-anchor="middle" fill="#9AA4B2" font-size="12">validation humaine</text>
-          <!-- trésorerie / cuisine -->
-          <rect x="880" y="236" width="90" height="44" rx="10" fill="#0a1628" stroke="#5B7BFF"/>
-          <text x="925" y="263" text-anchor="middle" font-size="12.5">Trésorerie</text>
-          <rect x="980" y="236" width="90" height="44" rx="10" fill="#0a1628" stroke="#E056E2"/>
-          <text x="1025" y="263" text-anchor="middle" font-size="12.5">Cuisine</text>
+          <!-- trésorerie -->
+          <rect x="920" y="236" width="110" height="44" rx="10" fill="#0a1628" stroke="#5B7BFF"/>
+          <text x="975" y="263" text-anchor="middle" font-size="12.5">Trésorerie</text>
+          
         </g>
         <g stroke="#6B7583" stroke-width="1.5" fill="none" marker-end="url(#ar)">
           <path d="M150,142 H206"/>
@@ -43,8 +42,8 @@
           <path d="M880,120 C840,120 840,72 800,72"/>
           <path d="M880,164 C840,164 840,212 800,212"/>
           <path d="M1010,96 V18 H495 V106"/>
-          <path d="M925,188 V236"/>
-          <path d="M1025,188 V236"/>
+          <path d="M975,188 V236"/>
+          
         </g>
         <g font-family="JetBrains Mono, monospace" font-size="11" fill="#6B7583">
           <text x="10" y="292">orchestration des agents ⟶ lecture, analyse, actions validées</text>

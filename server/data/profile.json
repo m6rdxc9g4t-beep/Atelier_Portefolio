@@ -5,7 +5,7 @@
   "school": "Master 2 Économétrie appliquée · Université de Lille",
   "intro": "Je transforme des données complexes en **modèles lisibles** et en **décisions actionnables**. Mon terrain : la modélisation économétrique, le scoring du risque, les séries temporelles et la data-visualisation. J’y ajoute l’**IA agentique** et le **développement d’applications** : des agents qui automatisent l’analyse, des outils de BI et des applications web sur mesure.",
   "motto": "Un bon modèle se mesure à la décision qu’il rend possible.",
-  "about": "Formé à l’économétrie appliquée à l’Université de Lille, j’aime les projets où il faut nettoyer, modéliser puis expliquer : scoring, prévision, analyse de survie, économétrie spatiale, analyse textuelle et tableaux de bord. Après mon stage de fin d’études chez ECM, où j’ai conçu un outil de reporting Power BI utilisé au quotidien, j’y poursuis depuis septembre 2026 comme ingénieur d’études data analyst. En parallèle, j’ai conçu et développé la Suite Atelier : sept applications (BI, tableur, gestion de projet, conversion de relevés, finances, cuisine) reliées par un hub d’agents IA.",
+  "about": "Formé à l’économétrie appliquée à l’Université de Lille, j’aime les projets où il faut nettoyer, modéliser puis expliquer : scoring, prévision, analyse de survie, économétrie spatiale, analyse textuelle et tableaux de bord. Après mon stage de fin d’études chez ECM, où j’ai conçu un outil de reporting Power BI utilisé au quotidien, j’y poursuis depuis septembre 2026 comme ingénieur d’études data analyst. En parallèle, j’ai conçu et développé la Suite Atelier : six applications (BI, tableur, gestion de projet, conversion de relevés, finances) reliées par un hub d’agents IA.",
   "photo": "/photo.jpg",
   "cv": "/reports/CV_Francois_Pichon.pdf",
   "contact": {
@@ -145,7 +145,7 @@
       "org": "IA agentique & développement",
       "tag": "IA & dev",
       "points": [
-        "Conception et développement de sept applications reliées par un hub d’agents IA.",
+        "Conception et développement de six applications reliées par un hub d’agents IA.",
         "Python, TypeScript, React, FastAPI, Claude et Ollama."
       ]
     },

@@ -1,0 +1,76 @@
+/* « Résultats & tests en graphiques » : pied de page projet, couleurs reprises des variables --pe-* du thème */
+.rg {
+  --c-bar: var(--pe-accent, currentColor);
+  --c-value: var(--pe-ink, #eceae3);
+  --c-tick: var(--pe-muted, #97a1ad);
+  --c-label: var(--pe-ink, #eceae3);
+  --c-grid: var(--pe-line, rgba(255, 255, 255, 0.1));
+  --c-track: var(--pe-line, rgba(255, 255, 255, 0.1));
+  --c-font: var(--pe-mono, var(--mono));
+}
+.rg-intro { color: var(--pe-muted, #97a1ad); font-size: 14px; margin: -6px 0 18px; max-width: 720px; }
+.rg-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.rg-panel { margin: 0; background: var(--pe-card, rgba(255, 255, 255, 0.04)); border: 1px solid var(--pe-line, rgba(255, 255, 255, 0.1)); border-radius: 14px; padding: 22px 24px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.rg-panel.is-wide { grid-column: 1 / -1; }
+.rg-panel h3 { font-family: var(--pe-display, inherit); font-size: 17px; font-weight: 600; line-height: 1.3; }
+.rg-body { min-width: 0; }
+.rg-panel figcaption { font-size: 12.5px; line-height: 1.55; color: var(--pe-muted, #97a1ad); display: flex; flex-direction: column; gap: 5px; border-top: 1px solid var(--pe-line, rgba(255, 255, 255, 0.1)); padding-top: 10px; margin-top: auto; }
+.rg-approx { font-family: var(--pe-mono, var(--mono)); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--pe-accent, currentColor); }
+.rg-note { opacity: 0.9; }
+.rg-kpi { margin-top: 12px; font-size: 14px; color: var(--pe-muted, #97a1ad); }
+.rg-kpi b { color: var(--pe-ink, inherit); font-family: var(--pe-mono, var(--mono)); }
+
+.rg-legend { display: flex; flex-wrap: wrap; gap: 16px; font-size: 12.5px; color: var(--pe-muted, #97a1ad); margin-bottom: 6px; }
+.rg-legend span { display: inline-flex; align-items: center; gap: 7px; }
+.rg-legend i { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+
+/* Barre empilée */
+.rg-split-bar { display: flex; height: 18px; border-radius: 9px; overflow: hidden; background: var(--pe-line, rgba(255, 255, 255, 0.1)); }
+.rg-split-bar span { display: block; height: 100%; }
+.rg-split-bar span + span { border-left: 2px solid var(--pe-bg, #0d1117); }
+.rg-split-legend { display: flex; flex-wrap: wrap; gap: 10px 24px; margin-top: 12px; font-size: 13.5px; }
+.rg-split-legend div { display: inline-flex; align-items: baseline; gap: 8px; }
+.rg-split-legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; transform: translateY(1px); }
+.rg-split-legend b { font-family: var(--pe-mono, var(--mono)); font-weight: 600; }
+.rg-split-legend span { color: var(--pe-muted, #97a1ad); }
+
+/* Tableaux */
+.rg-table-wrap { overflow-x: auto; border: 1px solid var(--pe-line, rgba(255, 255, 255, 0.1)); border-radius: 10px; }
+.rg-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.rg-table th { font-family: var(--pe-mono, var(--mono)); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--pe-muted, #97a1ad); font-weight: 500; text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--pe-line, rgba(255, 255, 255, 0.1)); background: rgba(127, 127, 127, 0.06); }
+.rg-table td { padding: 9px 12px; border-bottom: 1px solid var(--pe-line, rgba(255, 255, 255, 0.08)); vertical-align: top; line-height: 1.45; }
+.rg-table tr:last-child td { border-bottom: none; }
+.rg-table .a-r { text-align: right; font-variant-numeric: tabular-nums; }
+.rg-table .a-c { text-align: center; }
+.rg-table td.a-r { font-family: var(--pe-mono, var(--mono)); font-size: 12.5px; }
+.rg-table code { font-family: var(--pe-mono, var(--mono)); font-size: 12px; color: var(--pe-accent, currentColor); }
+.rg-check { color: var(--pe-accent, currentColor); font-weight: 700; }
+.rg-dash { opacity: 0.35; }
+.rg-down { color: var(--pe-accent, currentColor); }
+.rg-verdict { display: inline-block; font-size: 12px; padding: 2px 9px; border-radius: 20px; border: 1px solid currentColor; white-space: nowrap; }
+.rg-verdict.is-ok { color: var(--pe-accent, currentColor); }
+.rg-verdict.is-ko { color: var(--pe-muted, #97a1ad); }
+
+/* Matrice de confusion */
+.rg-cm { display: grid; grid-template-columns: auto 1fr 1fr; gap: 6px; align-items: stretch; }
+.rg-cm-h { font-family: var(--pe-mono, var(--mono)); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--pe-muted, #97a1ad); text-align: center; align-self: end; padding-bottom: 4px; }
+.rg-cm-row { text-align: right; align-self: center; padding: 0 8px 0 0; }
+.rg-cm-cell { border-radius: 10px; padding: 16px 12px; text-align: center; display: flex; flex-direction: column; gap: 4px; border: 1px solid var(--pe-line, rgba(255, 255, 255, 0.1)); }
+.rg-cm-cell.is-good { background: color-mix(in srgb, var(--pe-accent, #7cc4ff) calc(var(--a) * 45%), transparent); }
+.rg-cm-cell.is-bad { background: color-mix(in srgb, var(--pe-muted, #97a1ad) calc(var(--a) * 40%), transparent); }
+.rg-cm-cell b { font-family: var(--pe-mono, var(--mono)); font-size: 22px; font-weight: 600; }
+.rg-cm-cell small { font-size: 11.5px; color: var(--pe-muted, #97a1ad); }
+
+/* Pastilles et colonnes */
+.rg-two { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.rg-two h4 { font-family: var(--pe-mono, var(--mono)); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--pe-muted, #97a1ad); font-weight: 500; margin-bottom: 10px; }
+.rg-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.rg-chips span { font-family: var(--pe-mono, var(--mono)); font-size: 12px; padding: 4px 10px; border-radius: 20px; border: 1px solid var(--pe-line, rgba(255, 255, 255, 0.16)); color: var(--pe-muted, #97a1ad); }
+.rg-chips.is-strong span { color: var(--pe-accent, currentColor); border-color: color-mix(in srgb, var(--pe-accent, currentColor) 50%, transparent); }
+.rg-three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+
+@media (max-width: 860px) {
+  .rg-grid, .rg-three { grid-template-columns: 1fr; }
+  .rg-two { grid-template-columns: 1fr; }
+  .rg-cm-cell b { font-size: 18px; }
+}

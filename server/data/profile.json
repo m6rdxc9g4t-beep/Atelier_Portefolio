@@ -5,7 +5,7 @@
   "school": "Master 2 Économétrie appliquée · Université de Lille",
   "intro": "Je transforme des données complexes en **modèles lisibles** et en **décisions actionnables**. Mon terrain : la modélisation économétrique, le scoring du risque, les séries temporelles et la data-visualisation. J’y ajoute l’**IA agentique** et le **développement d’applications** : des agents qui automatisent l’analyse, des outils de BI et des applications web sur mesure.",
   "motto": "Un bon modèle se mesure à la décision qu’il rend possible.",
-  "about": "Formé à l’économétrie appliquée à l’Université de Lille, j’aime les projets où il faut nettoyer, modéliser puis expliquer : scoring, prévision, analyse de survie, économétrie spatiale, analyse textuelle et tableaux de bord. Mon stage de fin d’études chez ECM m’a permis de concevoir un outil de reporting Power BI utilisé au quotidien. En parallèle, j’ai conçu et développé la Suite Atelier : sept applications (BI, tableur, gestion de projet, conversion de relevés, finances, cuisine) reliées par un hub d’agents IA.",
+  "about": "Formé à l’économétrie appliquée à l’Université de Lille, j’aime les projets où il faut nettoyer, modéliser puis expliquer : scoring, prévision, analyse de survie, économétrie spatiale, analyse textuelle et tableaux de bord. Après mon stage de fin d’études chez ECM, où j’ai conçu un outil de reporting Power BI utilisé au quotidien, j’y poursuis depuis septembre 2026 comme ingénieur d’études data analyst. En parallèle, j’ai conçu et développé la Suite Atelier : sept applications (BI, tableur, gestion de projet, conversion de relevés, finances, cuisine) reliées par un hub d’agents IA.",
   "photo": "/photo.jpg",
   "cv": "/reports/CV_Francois_Pichon.pdf",
   "contact": {
@@ -118,11 +118,22 @@
   ],
   "experiences": [
     {
+      "when": "Septembre 2026 – aujourd’hui",
+      "title": "Ingénieur d’études Data Analyst / Power BI",
+      "org": "ECM",
+      "tag": "En cours",
+      "featured": true,
+      "points": [
+        "Suite du stage : conception de bout en bout de l’interface de pilotage du contrôle de gestion, adossée à l’ERP.",
+        "Chaîne de données SQL (ERP et SharePoint), modèle en étoile, mesures DAX et documentation de chaque indicateur."
+      ]
+    },
+    {
       "when": "Février 2026 – Août 2026",
       "title": "Stage de fin d’études — Analyste data / Reporting",
       "org": "ECM",
       "tag": "Power BI",
-      "featured": true,
+      "featured": false,
       "points": [
         "Développement d’un outil interne de reporting sous Power BI.",
         "Conception de tableaux de bord et automatisation du suivi d’activité."

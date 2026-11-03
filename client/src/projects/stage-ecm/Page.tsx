@@ -31,7 +31,7 @@ export default function Page({ project }: { project: ProjectResponse }) {
       <nav className="ecm-nav">
         <div className="ecm-wrap ecm-nav-in">
           <span className="ecm-brand">
-            <span className="ecm-dot" /> Stage · <b>ECM</b>
+            <span className="ecm-dot" /> Stage puis ingénieur d’études · <b>ECM</b>
           </span>
           <BackToPortfolio />
         </div>

@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import NotFound from './pages/NotFound';
 
 const Projects = lazy(() => import('./pages/Projects'));
+const IaDev = lazy(() => import('./pages/IaDev'));
 const CV = lazy(() => import('./pages/CV'));
 const ProjectRoute = lazy(() => import('./pages/ProjectRoute'));
 
@@ -28,6 +29,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<SiteLayout><Home /></SiteLayout>} />
           <Route path="/projets" element={<SiteLayout><Projects /></SiteLayout>} />
+          <Route path="/ia-dev" element={<SiteLayout><IaDev /></SiteLayout>} />
           <Route path="/cv" element={<SiteLayout><CV /></SiteLayout>} />
           {/* Les pages projets ont leur propre habillage (pas de barre du portfolio). */}
           <Route path="/projets/:slug" element={<ProjectRoute />} />

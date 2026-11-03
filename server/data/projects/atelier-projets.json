@@ -1,0 +1,79 @@
+{
+  "slug": "atelier-projets",
+  "level": "Perso",
+  "date": "2026",
+  "authors": [
+    "François Pichon"
+  ],
+  "supervisor": null,
+  "course": "Projet personnel — Développement · Suite Atelier",
+  "figures": {},
+  "title": "Atelier Projets — gestion de projet, Git & IA",
+  "subtitle": "La rigueur d'OpenProject et l'esthétique de Linear : Gantt interactif, suivi des temps et intégration GitHub.",
+  "tools": [
+    "TypeScript",
+    "Fastify",
+    "Prisma",
+    "SQLite",
+    "React",
+    "Zustand",
+    "Playwright",
+    "Electron",
+    "Ollama"
+  ],
+  "methods": [
+    "API REST",
+    "Planification",
+    "Intégration Git",
+    "IA locale",
+    "Tests de bout en bout"
+  ],
+  "abstract": "Atelier Projets est un gestionnaire de projets agile local : hiérarchie stricte (epics, stories, tâches), jalons, budgets et suivi des temps, avec un Gantt interactif (glisser-déposer, dépendances, chemin critique). Il analyse le dépôt Git du projet et relie commits et pull requests GitHub aux tâches. Une IA locale découpe une story en tâches estimées et résume les commits pour le journal d'avancement.",
+  "question": "Peut-on réunir planification, code et IA dans un seul outil de suivi de projet ?",
+  "kpis": [
+    {
+      "value": "6",
+      "label": "Phases livrées : socle, API, Git, interface, IA, planification"
+    },
+    {
+      "value": "OpenAPI",
+      "label": "Contrat d'API, types de l'interface générés"
+    },
+    {
+      "value": "Gantt",
+      "label": "Interactif, avec chemin critique"
+    },
+    {
+      "value": "E2E",
+      "label": "Tests de navigateur Playwright"
+    }
+  ],
+  "sections": [
+    {
+      "id": "fonctions",
+      "title": "Fonctionnalités",
+      "blocks": [
+        {
+          "type": "list",
+          "items": [
+            "**Gantt interactif** : glisser-déposer des barres et des jalons, dépendances « fin → début », conflits et replanification, chemin critique, impression PDF.",
+            "**Suivi** : tableau de bord, tableau des temps exportable en CSV, chronomètre, journal d'avancement horodaté.",
+            "**Git & GitHub** : analyse du dépôt local, tâches citées dans les commits (#ID), synchronisation des pull requests.",
+            "**IA** : découpage d'une story en tâches estimées et résumé des commits par un modèle local (Qwen, Gemma), ou Claude.",
+            "**Import** des tables d'Atelier Tab et jeux de données pour Atelier Viz."
+          ]
+        },
+        {
+          "type": "text",
+          "md": "L'application fait partie de la **Suite Atelier**, un ensemble d'outils de travail que j'ai conçus et développés en 2026, avec l'IA (Claude Code) comme copilote de développement. Les applications partagent un **contrat commun** (format de tables atelier-table/1, manifeste d'actions pour les agents), un design system et un principe : **les données restent sur la machine par défaut**, l'IA en ligne ne s'active que par un interrupteur explicite."
+        }
+      ]
+    }
+  ],
+  "conclusions": [
+    "Un outil de suivi complet, développé par phases validées une à une — la même méthode que j'applique en mission."
+  ],
+  "limits": [
+    "Pensé pour un usage individuel ou une petite équipe, sans gestion fine des droits."
+  ]
+}

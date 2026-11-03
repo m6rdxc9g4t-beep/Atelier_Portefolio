@@ -1,0 +1,112 @@
+{
+  "slug": "atelier-viz",
+  "level": "Perso",
+  "date": "2026",
+  "authors": [
+    "François Pichon"
+  ],
+  "supervisor": null,
+  "course": "Projet personnel — Data-visualisation · Suite Atelier",
+  "figures": {},
+  "title": "Atelier Viz — Business Intelligence locale",
+  "subtitle": "Un outil de BI dans l'esprit de Power BI : rapports multipages, 22 visuels, filtrage croisé et export PowerPoint modifiable.",
+  "tools": [
+    "React 19",
+    "TypeScript",
+    "Recharts",
+    "d3-geo",
+    "FastAPI",
+    "DuckDB",
+    "pandas"
+  ],
+  "methods": [
+    "Data-visualisation",
+    "Modélisation de données",
+    "Requêtes SQL",
+    "Assistant IA"
+  ],
+  "abstract": "Atelier Viz reprend ce que j'utilise au quotidien dans Power BI — import, modèle de données, rapports, segments, filtrage croisé — dans une application locale que je maîtrise de bout en bout. Les jeux de données sont stockés dans DuckDB ; un langage de requête maison est traduit en SQL paramétré ; les rapports s'exportent en PowerPoint modifiable et se versionnent dans GitHub. Un assistant IA (Ollama en local, Claude en ligne) aide à explorer les données.",
+  "question": "Peut-on retrouver l'essentiel de Power BI dans un outil local, léger et ouvert à l'IA ?",
+  "kpis": [
+    {
+      "value": "22",
+      "label": "Types de visuels"
+    },
+    {
+      "value": "5",
+      "label": "Sources : SQL Server, PostgreSQL, MySQL, SQLite, SharePoint"
+    },
+    {
+      "value": "573",
+      "label": "Ventes du jeu de démonstration (30 magasins, 13 régions)"
+    },
+    {
+      "value": "PPTX",
+      "label": "Export PowerPoint modifiable"
+    }
+  ],
+  "sections": [
+    {
+      "id": "fonctions",
+      "title": "Fonctionnalités",
+      "blocks": [
+        {
+          "type": "list",
+          "items": [
+            "**Rapports multipages** sur un canevas libre, 22 types de visuels (graphiques, tableaux, cartes hors ligne, éléments interactifs).",
+            "**Segments, filtres et filtrage croisé** ; **relations** entre jeux (ventes → régions) avec diagnostic des correspondances pendant la saisie.",
+            "**Colonnes et mesures calculées** dans un langage d'expressions vérifié avant exécution.",
+            "**Automatisation** : actualisation planifiée, alertes sur seuil avec anti-rebond, boutons d'action (URL, webhooks).",
+            "**Partage** : export PowerPoint modifiable, signets, rapports versionnés dans GitHub."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "architecture",
+      "title": "Architecture",
+      "blocks": [
+        {
+          "type": "table",
+          "columns": [
+            "Couche",
+            "Choix"
+          ],
+          "rows": [
+            [
+              "Interface",
+              "React 19, TypeScript strict, Vite, Tailwind, Recharts, d3-geo + topojson"
+            ],
+            [
+              "API",
+              "FastAPI, Pydantic v2"
+            ],
+            [
+              "Moteur",
+              "DuckDB : une table par jeu de données + profils des colonnes"
+            ],
+            [
+              "Import",
+              "pandas + openpyxl (CSV français ou anglais, XLSX, JSON)"
+            ],
+            [
+              "IA",
+              "Ollama en local ou Claude, derrière un interrupteur « En ligne »"
+            ]
+          ]
+        },
+        {
+          "type": "text",
+          "md": "L'application fait partie de la **Suite Atelier**, un ensemble d'outils de travail que j'ai conçus et développés en 2026, avec l'IA (Claude Code) comme copilote de développement. Les applications partagent un **contrat commun** (format de tables atelier-table/1, manifeste d'actions pour les agents), un design system et un principe : **les données restent sur la machine par défaut**, l'IA en ligne ne s'active que par un interrupteur explicite."
+        }
+      ]
+    }
+  ],
+  "conclusions": [
+    "Une BI complète construite de zéro : la meilleure façon de comprendre ce que fait vraiment un outil comme Power BI."
+  ],
+  "limits": [
+    "Outil personnel : il ne remplace pas Power BI Service pour le partage en entreprise.",
+    "Les mesures DAX proposées par l'assistant ne sont pas vérifiées par Viz (seul son propre langage l'est)."
+  ]
+}

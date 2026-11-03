@@ -73,6 +73,8 @@
 
 /* ── Cartes projets ── */
 .proj-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+.suite-schema { margin-top: 36px; border-radius: 18px; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 24px 60px -30px rgba(0,0,0,.6); }
+.suite-schema img { display: block; width: 100%; height: auto; }
 .proj-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin-top: 42px; }
 .pcard-wrap { height: 100%; }
 .pcard { position: relative; display: flex; flex-direction: column; height: 100%; border-radius: 16px; padding: 20px; overflow: hidden; background: radial-gradient(120% 80% at 0% 0%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 60%), var(--surface); border: 1px solid var(--border); transition: transform 0.18s, border-color 0.18s, box-shadow 0.18s; }
@@ -80,6 +82,8 @@
 .pcard:hover, .pcard:focus-visible { transform: translateY(-5px); border-color: color-mix(in srgb, var(--accent) 60%, var(--border)); box-shadow: 0 16px 42px -14px color-mix(in srgb, var(--accent) 50%, transparent); }
 .p-top { display: flex; align-items: center; gap: 13px; margin-bottom: 13px; }
 .p-icon { width: 46px; height: 46px; border-radius: 13px; flex-shrink: 0; font-size: 23px; display: flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--accent) 16%, transparent); border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); }
+.p-icon.has-logo { background: transparent; border-color: transparent; }
+.p-icon img { width: 52px; height: 52px; object-fit: contain; filter: drop-shadow(0 4px 10px color-mix(in srgb, var(--accent) 35%, transparent)); }
 .pcard h3 { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.22; }
 .p-tag { font-family: var(--mono); font-size: 10px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent); margin-top: 4px; filter: brightness(1.25); }
 .p-desc { font-size: 13px; color: var(--text-dim); line-height: 1.55; flex: 1; }

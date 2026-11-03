@@ -14,7 +14,8 @@ export default function Home() {
 
   const projects = list?.projects ?? [];
   const featured = projects.filter((p) => p.featured);
-  const interactiveCount = projects.length;
+  const atelier = projects.filter((p) => p.category === 'ia' || p.category === 'dev' || p.slug.startsWith('atelier-'));
+  const interactiveCount = projects.filter((p) => !p.slug.startsWith('atelier-')).length;
   const reportCount = projects.reduce((n, p) => n + (p.reports?.length ?? 0), 0);
 
   return (
@@ -60,7 +61,7 @@ export default function Home() {
                 <div className="chips">
                   {profile?.skills
                     .flatMap((g) => g.items.map((it) => ({ it, hot: g.highlight?.includes(it) })))
-                    .slice(0, 22)
+                    .slice(0, 30)
                     .map(({ it, hot }) => (
                       <span key={it} className={`chip ${hot ? 'hot' : ''}`}>
                         {it}
@@ -81,13 +82,13 @@ export default function Home() {
               <div className="v">
                 <CountUp value={String(interactiveCount || 16)} />
               </div>
-              <div className="k">Projets, chacun avec sa page interactive</div>
+              <div className="k">Projets d’analyse, chacun avec sa page interactive</div>
             </div>
             <div className="stat">
               <div className="v">
-                <CountUp value={String(list?.categories.length ?? 8)} />
+                <CountUp value={String(atelier.length || 8)} />
               </div>
-              <div className="k">Domaines : santé, risque, finance, spatial…</div>
+              <div className="k">Applications IA &amp; dev, reliées par un hub d’agents</div>
             </div>
             <div className="stat">
               <div className="v">
@@ -126,6 +127,36 @@ export default function Home() {
           </div>
           <div className="proj-grid">
             {featured.map((p, i) => (
+              <ProjectCard key={p.slug} project={p} index={i} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════ IA & DÉVELOPPEMENT ══════════ */}
+      <section id="ia-dev" className="sec">
+        <div className="wrap">
+          <div className="proj-head">
+            <div>
+              <Reveal>
+                <span className="eyebrow">IA &amp; développement</span>
+              </Reveal>
+              <Reveal as="h2" className="sec-title">
+                Le coin <em>atelier</em>.
+              </Reveal>
+              <Reveal as="p" className="sec-lede" delay={60}>
+                Au-delà de l’analyse, je construis les outils : la <b>Suite Atelier</b>, sept applications que j’ai conçues et développées — BI locale, tableur, conversion de relevés, gestion de projet, finances, cuisine — reliées par <b>Atelier Nexus</b>, un hub d’agents IA qui lisent, analysent et agissent avec une <b>validation humaine</b> de chaque action.
+              </Reveal>
+            </div>
+            <Link to="/projets" className="btn btn-ghost">
+              Tous les projets <span aria-hidden>→</span>
+            </Link>
+          </div>
+          <Reveal className="suite-schema" delay={80}>
+            <img src="/img/atelier/suite-atelier.svg" alt="Schéma de la Suite Atelier : Convert lit les fichiers, Tab les structure, Projets et Viz les exploitent, Nexus orchestre les agents IA" width={1120} height={340} loading="lazy" />
+          </Reveal>
+          <div className="proj-grid">
+            {atelier.map((p, i) => (
               <ProjectCard key={p.slug} project={p} index={i} />
             ))}
           </div>
@@ -231,7 +262,7 @@ export default function Home() {
               Parlons <em>données</em>.
             </Reveal>
             <Reveal as="p" className="sec-lede" delay={60}>
-              Un poste en analyse de données, un projet de scoring ou de prévision, une question sur l’un de mes travaux ? Écrivez-moi : le message arrive directement sur le serveur du portfolio.
+              Un poste en analyse de données, un projet de scoring ou de prévision, un tableau de bord, un agent IA ou une application à construire ? Écrivez-moi : le message arrive directement sur le serveur du portfolio.
             </Reveal>
             <Reveal className="contact-direct" delay={100}>
               <a href={`mailto:${profile?.contact.email}`}>✉️ {profile?.contact.email}</a>

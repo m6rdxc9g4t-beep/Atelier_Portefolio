@@ -1,0 +1,166 @@
+{
+  "slug": "atelier-nexus",
+  "level": "Perso",
+  "date": "2026",
+  "authors": [
+    "François Pichon"
+  ],
+  "supervisor": null,
+  "course": "Projet personnel — IA agentique · Suite Atelier",
+  "figures": {},
+  "title": "Atelier Nexus — hub d'agents IA",
+  "subtitle": "17 agents experts, des agents personnalisés et un orchestrateur qui délègue, avec une validation humaine de chaque action.",
+  "tools": [
+    "Python",
+    "FastAPI",
+    "Next.js",
+    "React Flow",
+    "PostgreSQL",
+    "Redis",
+    "Docker",
+    "Claude",
+    "Ollama"
+  ],
+  "methods": [
+    "Agents IA",
+    "Orchestration multi-agents",
+    "Routage de modèles",
+    "Workflows",
+    "Validation humaine"
+  ],
+  "abstract": "Atelier Nexus est le cerveau de la Suite Atelier : un hub d'agents IA qui lisent et agissent dans les autres applications (tableur, gestion de projet, BI, finances, cuisine). Un orchestrateur découpe une demande, lit lui-même les données utiles, confie la rédaction ou l'expertise à des agents spécialisés et assemble le livrable. Chaque action passe par une validation humaine, et les données financières ne quittent jamais la machine : un modèle local (Ollama) est alors imposé.",
+  "question": "Comment laisser des agents IA agir dans de vrais outils sans jamais perdre le contrôle ni exposer de données sensibles ?",
+  "kpis": [
+    {
+      "value": "17",
+      "label": "Agents experts fournis"
+    },
+    {
+      "value": "1",
+      "label": "Orchestrateur qui délègue et assemble"
+    },
+    {
+      "value": "2",
+      "label": "Moteurs : Claude (en ligne) ou Ollama (local)"
+    },
+    {
+      "value": "100 %",
+      "label": "Local pour les données financières"
+    }
+  ],
+  "sections": [
+    {
+      "id": "agents",
+      "title": "Agents et orchestration",
+      "blocks": [
+        {
+          "type": "text",
+          "md": "Tous les agents partagent la même boucle, le même routeur de modèles et des **boîtes à outils** branchées sur les applications de la suite. Les agents experts couvrent la donnée, le tableur, la gestion de projet, le développement, la finance, l'apprentissage et plusieurs métiers ; d'autres agents se créent depuis l'interface."
+        },
+        {
+          "type": "table",
+          "title": "Quelques agents et leurs outils",
+          "columns": [
+            "Agent",
+            "Rôle",
+            "Applications lues"
+          ],
+          "rows": [
+            [
+              "Orchestrateur",
+              "Lit la suite, délègue rédaction et expertise, assemble",
+              "Viz, Projets, Tab"
+            ],
+            [
+              "Data Analyst / Power BI",
+              "Exploration préalable obligatoire, mesures DAX, modèle en étoile",
+              "Viz, Tab"
+            ],
+            [
+              "Tableur",
+              "Totaux calculés par l'outil, erreurs de formule, modifications validées",
+              "Tab, Projets"
+            ],
+            [
+              "Chef de projet",
+              "Points d'avancement, saisie de temps, statuts, plannings",
+              "Projets, Tab"
+            ],
+            [
+              "Développeur",
+              "Branches, commits liés aux tâches, PR brouillons",
+              "GitHub, Projets"
+            ],
+            [
+              "Finance / Comptable",
+              "Budget, TVA, hypothèses montrées — 100 % local",
+              "Trésorerie, Cuisine"
+            ]
+          ]
+        },
+        {
+          "type": "figure",
+          "src": "img/atelier/suite-atelier.svg",
+          "caption": "La Suite Atelier : les fichiers passent par Convert, Tab les structure, Projets et Viz les exploitent ; Nexus orchestre les agents sur l'ensemble."
+        }
+      ]
+    },
+    {
+      "id": "controle",
+      "title": "Garder le contrôle",
+      "blocks": [
+        {
+          "type": "list",
+          "items": [
+            "**Validation de chaque action** par défaut, lecture comprise, y compris dans un workflow lancé par un horaire ou un événement : on voit ce qui va s'exécuter avant d'autoriser.",
+            "**Une validation vaut pour l'action montrée, et elle seule** : un paramètre modifié ou une étape déplacée redemande l'accord.",
+            "**Rien d'inventé** : les outils font foi, une donnée manquante se dit.",
+            "**Contenu lu = donnée, jamais consigne** : une instruction trouvée dans un fichier, un ticket ou une cellule n'est pas suivie, elle est signalée.",
+            "**Routage hybride Claude ↔ Ollama** : un modèle local est imposé dès que des données financières sont en jeu."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "workflows",
+      "title": "Workflows rejouables",
+      "blocks": [
+        {
+          "type": "callout",
+          "md": "« L'agent explore, le workflow industrialise. »"
+        },
+        {
+          "type": "text",
+          "md": "Quand un agent a trouvé le bon chemin (lire le schéma d'un jeu de données, lancer l'agrégation, publier la mesure), ce chemin s'enregistre en **workflow** et se relance **sans modèle** : mêmes outils, même ordre, résultat immédiat, aucun jeton consommé. Un studio visuel permet de composer des workflows entre applications, avec contrôle de chaque étape avant exécution et arrêt à la première erreur."
+        }
+      ]
+    },
+    {
+      "id": "architecture",
+      "title": "Architecture",
+      "blocks": [
+        {
+          "type": "list",
+          "items": [
+            "**API** FastAPI (Python), événements en flux (SSE), PostgreSQL et Redis, le tout lancé par Docker Compose.",
+            "**Interface** Next.js + React : conversation, studio de workflows (React Flow), panneau de livrables, état des applications.",
+            "**Applications de bureau** macOS et Windows qui se mettent à jour seules après un git pull.",
+            "**Évaluations** automatiques des agents et tests contrôlant que la documentation correspond au registre réel des agents et des outils."
+          ]
+        },
+        {
+          "type": "text",
+          "md": "L'application fait partie de la **Suite Atelier**, un ensemble d'outils de travail que j'ai conçus et développés en 2026, avec l'IA (Claude Code) comme copilote de développement. Les applications partagent un **contrat commun** (format de tables atelier-table/1, manifeste d'actions pour les agents), un design system et un principe : **les données restent sur la machine par défaut**, l'IA en ligne ne s'active que par un interrupteur explicite."
+        }
+      ]
+    }
+  ],
+  "conclusions": [
+    "Des agents utiles parce qu'ils agissent dans de vrais outils, et sûrs parce que chaque action reste sous contrôle humain.",
+    "Le même principe s'applique à une PME : un assistant branché sur ses fichiers et ses logiciels, qui prépare le travail et laisse valider."
+  ],
+  "limits": [
+    "Projet personnel : utilisé sur mes propres données, pas encore déployé chez un client.",
+    "Les modèles locaux (Ollama) sont plus lents et moins précis que Claude sur les tâches longues."
+  ]
+}

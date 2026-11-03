@@ -1,0 +1,75 @@
+{
+  "slug": "atelier-tab",
+  "level": "Perso",
+  "date": "2026",
+  "authors": [
+    "François Pichon"
+  ],
+  "supervisor": null,
+  "course": "Projet personnel — Développement · Suite Atelier",
+  "figures": {},
+  "title": "Atelier Tab — tableur et base de données",
+  "subtitle": "La liberté de calcul d'Excel et la rigueur d'Airtable dans un même espace, avec un serveur MCP pour l'IA.",
+  "tools": [
+    "React",
+    "TypeScript",
+    "Vite",
+    "Electron",
+    "IndexedDB",
+    "MCP"
+  ],
+  "methods": [
+    "Moteur de formules",
+    "Typage des données",
+    "Import CSV",
+    "Outils pour agents IA"
+  ],
+  "abstract": "Atelier Tab réunit un tableur (formules, références A1:C10, recalcul instantané) et une base de données (colonnes typées, statuts colorés, vues Kanban, fiches par ligne). Les données restent sur l'ordinateur dans des fichiers lisibles. Un serveur MCP expose 25 outils pour que Claude ou un modèle local manipulent les tables avec les mêmes règles que l'interface, et le module DataFlow exporte les tables vers Atelier Projets et Atelier Viz.",
+  "question": "Comment donner à une IA un tableur qu'elle peut lire et modifier sans casser les formules ?",
+  "kpis": [
+    {
+      "value": "~100",
+      "label": "Fonctions, en français ou en anglais"
+    },
+    {
+      "value": "25",
+      "label": "Outils MCP pour les agents IA"
+    },
+    {
+      "value": "4",
+      "label": "Vues : grille, tableur, Kanban, fiche"
+    },
+    {
+      "value": "0",
+      "label": "eval() dans le moteur de formules"
+    }
+  ],
+  "sections": [
+    {
+      "id": "fonctions",
+      "title": "Fonctionnalités",
+      "blocks": [
+        {
+          "type": "list",
+          "items": [
+            "**Moteur de formules maison** : SOMME.SI, NB.SI.ENS, RECHERCHEX, INDEX/EQUIV, DATEDIF, NB.JOURS.OUVRES… recalcul incrémental, cycles détectés, erreurs au format Excel.",
+            "**Saisie comme Excel** : plages, copier-coller avec Excel et Google Sheets, poignée de recopie, annuler / rétablir, autocomplétion des fonctions.",
+            "**Colonnes typées** : nombre, devise, pourcentage, statut, date, case à cocher, responsable, formule — changement de type sans perte.",
+            "**Import CSV** : séparateur et encodage détectés (Windows-1252 compris), formats français, types et statuts déduits.",
+            "**IA** : serveur MCP (25 outils) et assistant intégré ; le contenu d'une cellule est traité comme une donnée, jamais comme une consigne."
+          ]
+        },
+        {
+          "type": "text",
+          "md": "L'application fait partie de la **Suite Atelier**, un ensemble d'outils de travail que j'ai conçus et développés en 2026, avec l'IA (Claude Code) comme copilote de développement. Les applications partagent un **contrat commun** (format de tables atelier-table/1, manifeste d'actions pour les agents), un design system et un principe : **les données restent sur la machine par défaut**, l'IA en ligne ne s'active que par un interrupteur explicite."
+        }
+      ]
+    }
+  ],
+  "conclusions": [
+    "Un tableur que l'IA peut piloter proprement : mêmes règles pour l'humain et pour l'agent."
+  ],
+  "limits": [
+    "En développement actif : certaines fonctions avancées d'Excel (tableaux croisés dynamiques) ne sont pas encore couvertes."
+  ]
+}

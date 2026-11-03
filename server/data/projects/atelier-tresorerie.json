@@ -1,0 +1,79 @@
+{
+  "slug": "atelier-tresorerie",
+  "level": "Perso",
+  "date": "2026",
+  "authors": [
+    "François Pichon"
+  ],
+  "supervisor": null,
+  "course": "Projet personnel — Data & développement · Suite Atelier",
+  "figures": {},
+  "title": "Atelier Trésorerie — finances et IA locale",
+  "subtitle": "Comptes, budgets, épargne et placements, avec les conseils d'une IA qui ne quitte pas l'ordinateur.",
+  "tools": [
+    "Python",
+    "Flask",
+    "SQLite",
+    "Ollama",
+    "Electron",
+    "pytest"
+  ],
+  "methods": [
+    "Tableaux de bord",
+    "Catégorisation automatique",
+    "Import de données",
+    "IA locale"
+  ],
+  "abstract": "Atelier Trésorerie est une application web locale de gestion financière : comptes, opérations, virements, budgets mensuels, objectifs d'épargne et suivi des placements (titres, crypto, or, argent). Les relevés s'importent en CSV ou Excel avec aperçu et anti-doublons ; les opérations se catégorisent à partir de l'historique ou par l'IA. L'assistant tourne sur Ollama : aucune donnée financière ne quitte la machine.",
+  "question": "Peut-on profiter d'un assistant IA sur ses finances sans envoyer ses données dans le cloud ?",
+  "kpis": [
+    {
+      "value": "0",
+      "label": "Donnée financière envoyée hors de la machine"
+    },
+    {
+      "value": "6",
+      "label": "Mois de données de démonstration"
+    },
+    {
+      "value": "API",
+      "label": "REST JSON, règles métier testables seules"
+    },
+    {
+      "value": "Mac",
+      "label": "Application de bureau (Electron)"
+    }
+  ],
+  "sections": [
+    {
+      "id": "fonctions",
+      "title": "Fonctionnalités",
+      "blocks": [
+        {
+          "type": "list",
+          "items": [
+            "**Tableau de bord** : soldes, dépenses par catégorie, taux d'épargne et indicateurs clés.",
+            "**Budgets** mensuels et objectifs d'épargne.",
+            "**Import** CSV / Excel (aperçu puis validation, anti-doublons) et historique Trading 212.",
+            "**Placements** : positions et valorisation (actions, ETF, crypto, or, argent).",
+            "**Assistant IA local** : questions sur ses finances et catégorisation, à partir d'un résumé détaillé ou agrégé."
+          ]
+        },
+        {
+          "type": "text",
+          "md": "Architecture en couches : routes minces, **règles métier sans Flask** (testables seules), calculs financiers purs, base SQLite avec migrations."
+        },
+        {
+          "type": "text",
+          "md": "L'application fait partie de la **Suite Atelier**, un ensemble d'outils de travail que j'ai conçus et développés en 2026, avec l'IA (Claude Code) comme copilote de développement. Les applications partagent un **contrat commun** (format de tables atelier-table/1, manifeste d'actions pour les agents), un design system et un principe : **les données restent sur la machine par défaut**, l'IA en ligne ne s'active que par un interrupteur explicite."
+        }
+      ]
+    }
+  ],
+  "conclusions": [
+    "L'IA au service de données sensibles, sans compromis sur la confidentialité."
+  ],
+  "limits": [
+    "Usage personnel, sur une seule machine : pas de synchronisation entre appareils."
+  ]
+}

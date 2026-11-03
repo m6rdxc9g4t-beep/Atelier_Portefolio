@@ -34,6 +34,17 @@ describe('contenu', () => {
     }
   });
 
+  it('expose la Suite Atelier (IA & dev) avec ses logos', async () => {
+    const r = await request(app).get('/api/projects');
+    const atelier = r.body.projects.filter((p: { slug: string }) => p.slug.startsWith('atelier-'));
+    expect(atelier.length).toBe(7);
+    for (const p of atelier) {
+      expect(['ia', 'dev', 'bi']).toContain(p.category);
+      const file = path.resolve(__dirname, '../../client/public', p.logo.replace(/^\//, ''));
+      expect(fs.existsSync(file), `${p.slug} : logo manquant ${p.logo}`).toBe(true);
+    }
+  });
+
   it('filtre par catégorie', async () => {
     const r = await request(app).get('/api/projects?category=bi');
     expect(r.body.projects.every((p: { category: string }) => p.category === 'bi')).toBe(true);

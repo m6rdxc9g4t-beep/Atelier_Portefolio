@@ -38,7 +38,7 @@ export default function Projects() {
             Des données brutes à la <em>décision</em>.
           </Reveal>
           <Reveal as="p" className="sec-lede" delay={60}>
-            {data?.count ?? 16} projets — santé publique, scoring du risque, séries temporelles, immobilier, économétrie spatiale, NLP, tableaux de bord… Chaque page reprend les codes visuels de son sujet et propose un <b>module interactif</b> construit à partir des résultats du rapport.
+            {data?.count ?? 23} projets — santé publique, scoring du risque, séries temporelles, immobilier, économétrie spatiale, NLP, tableaux de bord… Chaque projet d’analyse reprend les codes visuels de son sujet et propose un <b>module interactif</b> construit à partir des résultats du rapport ; la <b>Suite Atelier</b> rassemble mes applications IA &amp; développement.
           </Reveal>
         </div>
       </header>

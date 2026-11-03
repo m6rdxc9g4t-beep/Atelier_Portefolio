@@ -107,7 +107,7 @@
     },
     {
       "id": "controle",
-      "title": "Garder le contrôle",
+      "title": "Contrôle humain et garde-fous",
       "blocks": [
         {
           "type": "list",

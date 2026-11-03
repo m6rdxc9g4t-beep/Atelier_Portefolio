@@ -28,6 +28,8 @@ Chaque projet a **sa propre page, habillée à l’image de son sujet**, avec un
 | Atelier Convert — relevés → tables | or bronze | lecture PDF / OCR, contrôle des soldes |
 | Atelier Projets — gestion de projet | vert citron | Gantt interactif, Git/GitHub, IA locale |
 | Atelier Trésorerie — finances | bleu roi | budgets, tableaux de bord, IA 100 % locale |
+| Atelier Mission — mini-CRM freelance | ambre | devis, factures Malt et Factur-X, relances, liens Projets / Trésorerie |
+| Agent Ops Lab — TMS piloté par un agent IA | violet | agent de dispatch, validation humaine, carte de la flotte |
 
 Les rapports PDF de chaque projet sont téléchargeables depuis sa page (`client/public/reports`).
 

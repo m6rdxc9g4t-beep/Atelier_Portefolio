@@ -261,6 +261,26 @@ export const CATALOG: ProjectMeta[] = [
     interactive: 'Budgets, tableaux de bord & IA 100 % locale',
     year: 2026,
   },
+  {
+    slug: 'atelier-mission',
+    order: 23,
+    category: 'dev',
+    accent: '#f59f00',
+    icon: '💼',
+    logo: '/img/atelier/mission.webp',
+    interactive: 'Devis, factures Malt & Factur-X, relances',
+    year: 2026,
+  },
+  {
+    slug: 'agent-ops-lab',
+    order: 24,
+    category: 'dev',
+    accent: '#7c5cff',
+    icon: '🚚',
+    logo: '/img/atelier/ops.webp',
+    interactive: 'Agent de dispatch, validation humaine & carte',
+    year: 2026,
+  },
 ];
 
 export function getMeta(slug: string): ProjectMeta | undefined {

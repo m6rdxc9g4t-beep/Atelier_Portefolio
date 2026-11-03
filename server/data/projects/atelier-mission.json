@@ -1,0 +1,135 @@
+{
+  "slug": "atelier-mission",
+  "level": "Perso",
+  "date": "2026",
+  "authors": [
+    "François Pichon"
+  ],
+  "supervisor": null,
+  "figures": {},
+  "title": "Atelier Mission — mini-CRM pour freelance",
+  "subtitle": "Prospects Malt et clients directs, devis, factures, encaissements et relances, relié au temps saisi et à la trésorerie.",
+  "course": "Projet personnel — Développement · Suite Atelier",
+  "tools": [
+    "TypeScript",
+    "Fastify 5",
+    "Drizzle ORM",
+    "SQLite",
+    "React 19",
+    "Vite",
+    "Tailwind CSS",
+    "Zustand",
+    "pdf-lib",
+    "Brevo"
+  ],
+  "methods": [
+    "Application web",
+    "Règles métier testées",
+    "Facturation électronique (Factur-X)",
+    "Intégrations entre applications"
+  ],
+  "abstract": "Atelier Mission est l'outil commercial d'un freelance : un pipeline de prospects (Malt ou clients directs), des devis numérotés, des factures aux mentions légales, le suivi des encaissements et des relances par e-mail. C'est l'application de la Suite Atelier qui en relie le plus d'autres : elle importe le temps saisi dans Atelier Projets pour le facturer, écrit chaque encaissement dans Atelier Trésorerie et publie ses événements pour les agents d'Atelier Nexus.",
+  "question": "Comment passer d'un prospect à une facture encaissée sans ressaisie, en respectant les règles de facturation françaises ?",
+  "kpis": [
+    {
+      "value": "8",
+      "label": "Écrans : tableau de bord, pipeline, clients, devis, factures, temps, relances, paramètres"
+    },
+    {
+      "value": "65",
+      "label": "Tests automatisés du backend"
+    },
+    {
+      "value": "Factur-X",
+      "label": "Export PDF/A-3 + XML EN 16931"
+    },
+    {
+      "value": "3",
+      "label": "Applications reliées : Projets, Trésorerie, Nexus"
+    }
+  ],
+  "sections": [
+    {
+      "id": "fonctions",
+      "title": "Pipeline et facturation, du prospect à l’encaissement",
+      "blocks": [
+        {
+          "type": "figure",
+          "src": "img/projets/mission-tableau-de-bord.webp",
+          "caption": "Tableau de bord : encaissé, à encaisser, en retard, pipeline pondéré, temps non facturé et liste « À faire » (données de démonstration fictives)."
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Pipeline** en kanban (Nouveau → Qualifié → Devis envoyé → Négociation → Gagné / Perdu), montant direct ou TJM × jours, probabilité par étape, prochaine action datée.",
+            "**Devis** numérotés D-AAAA-NNNN, TVA par taux ou franchise, nouvelle version, impression PDF et transformation en facture.",
+            "**Factures** : numéro légal chronologique F-AAAA-NNNN à l'émission, coordonnées figées, facture émise non modifiable (correction par avoir), encaissements partiels, statut « en retard » calculé.",
+            "**Temps** importé d'Atelier Projets : une saisie n'est jamais facturée deux fois, et une saisie modifiée après facturation est signalée.",
+            "**Relances** J+3, J+15, J+30 au ton croissant, envoyées par Brevo uniquement en mode « En ligne »."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "malt",
+      "title": "Malt : facture, frais et net versé",
+      "blocks": [
+        {
+          "type": "figure",
+          "src": "img/projets/mission-facture-malt.webp",
+          "caption": "Facture Malt : montant facturé, frais de service Malt et net versé, encaissement envoyé vers Atelier Trésorerie (données fictives)."
+        },
+        {
+          "type": "text",
+          "md": "Sur Malt, c'est la plateforme qui émet la facture au nom du freelance, encaisse le client et verse le net après ses frais. Atelier Mission en tient compte : un client Malt n'a pas de numéro de facture propre ni de relance, ses **frais de service** sont figés sur chaque facture, et Trésorerie reçoit deux opérations à l'encaissement — le montant facturé en revenu et les frais Malt en dépense — pour que le **chiffre d'affaires reste le montant brut**."
+        }
+      ]
+    },
+    {
+      "id": "architecture",
+      "title": "Architecture et rigueur",
+      "blocks": [
+        {
+          "type": "table",
+          "columns": [
+            "Couche",
+            "Choix"
+          ],
+          "rows": [
+            [
+              "Backend",
+              "Fastify 5, TypeScript, Drizzle ORM, SQLite ; règles métier pures et testées (montants, TVA, numérotation, Malt, relances)"
+            ],
+            [
+              "Interface",
+              "React 19, Vite, Tailwind CSS 4, Zustand ; aucun calcul métier côté navigateur"
+            ],
+            [
+              "Documents",
+              "Factures, devis et avoirs imprimables ; Factur-X (PDF/A-3b + XML CII EN 16931), validé par Mustang"
+            ],
+            [
+              "Intégrations",
+              "Projets en lecture, Trésorerie en écriture, Brevo pour les e-mails, nœud atelier-node/1 pour Nexus"
+            ]
+          ]
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Montants en centimes entiers**, un seul arrondi en fin de calcul, TVA calculée par taux sur la base HT.",
+            "**Local d'abord** : l'API n'écoute que sur la machine et refuse les hôtes et origines étrangers ; Brevo est le seul flux sortant, désactivé par défaut.",
+            "**65 tests** : domaine, parcours complet, temps, relances, sécurité, contrats HTTP et Factur-X."
+          ]
+        }
+      ]
+    }
+  ],
+  "conclusions": [
+    "Un outil de gestion complet, construit avec les contraintes réelles d'un freelance : Malt, numérotation légale et facturation électronique."
+  ],
+  "limits": [
+    "Application sans connexion propre : sur le serveur, elle reste derrière le portail de la suite.",
+    "Les conditions de frais Malt évoluent : elles se règlent par client."
+  ]
+}

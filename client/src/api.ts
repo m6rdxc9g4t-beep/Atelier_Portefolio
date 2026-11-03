@@ -25,6 +25,8 @@ export interface Profile {
   about: string;
   photo: string;
   cv: string;
+  /** Version « freelance » du CV (missions), facultative. */
+  cvFreelance?: string;
   contact: { email: string; phone: string; phoneHref: string; linkedin: string; github: string; location: string };
   skills: { group: string; certified?: boolean; items: string[]; highlight?: string[] }[];
   languages: { name: string; level: string }[];

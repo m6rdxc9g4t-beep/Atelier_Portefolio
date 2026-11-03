@@ -63,7 +63,7 @@ export default function Home() {
                 <div className="chips">
                   {profile?.skills
                     .flatMap((g) => g.items.map((it) => ({ it, hot: g.highlight?.includes(it) })))
-                    .slice(0, 30)
+                    .slice(0, 39)
                     .map(({ it, hot }) => (
                       <span key={it} className={`chip ${hot ? 'hot' : ''}`}>
                         {it}

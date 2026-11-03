@@ -64,7 +64,7 @@ export default function Page({ project }: { project: ProjectResponse }) {
       <header className="lbc-top">
         <div className="lbc-wrap lbc-top-in">
           <span className="lbc-brand">
-            <i>VO</i> Marché de l’occasion · Lille
+            <img src="/img/brands/leboncoin.webp" alt="leboncoin" className="lbc-logo" width={120} height={24} /> <i>VO</i> Marché de l’occasion · Lille
           </span>
           <div className="lbc-search" aria-hidden>
             🔍 Rechercher « véhicule d’occasion, région lilloise »

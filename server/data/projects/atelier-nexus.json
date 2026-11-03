@@ -28,7 +28,7 @@
     "Workflows",
     "Validation humaine"
   ],
-  "abstract": "Atelier Nexus est le cerveau de la Suite Atelier : un hub d'agents IA qui lisent et agissent dans les autres applications (tableur, gestion de projet, BI, finances, cuisine). Un orchestrateur découpe une demande, lit lui-même les données utiles, confie la rédaction ou l'expertise à des agents spécialisés et assemble le livrable. Chaque action passe par une validation humaine, et les données financières ne quittent jamais la machine : un modèle local (Ollama) est alors imposé.",
+  "abstract": "Atelier Nexus est le cerveau de la Suite Atelier : un hub d'agents IA qui lisent et agissent dans les autres applications (tableur, gestion de projet, BI, finances). Un orchestrateur découpe une demande, lit lui-même les données utiles, confie la rédaction ou l'expertise à des agents spécialisés et assemble le livrable. Chaque action passe par une validation humaine, et les données financières ne quittent jamais la machine : un modèle local (Ollama) est alors imposé.",
   "question": "Comment laisser des agents IA agir dans de vrais outils sans jamais perdre le contrôle ni exposer de données sensibles ?",
   "kpis": [
     {
@@ -94,7 +94,7 @@
             [
               "Finance / Comptable",
               "Budget, TVA, hypothèses montrées — 100 % local",
-              "Trésorerie, Cuisine"
+              "Trésorerie"
             ]
           ]
         },

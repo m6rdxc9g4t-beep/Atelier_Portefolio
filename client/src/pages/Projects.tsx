@@ -25,6 +25,13 @@ export default function Projects() {
     );
   }, [data, cat, level, q]);
 
+  // Projets data d'un côté, applications IA & développement de l'autre (Suite Atelier, DataMind).
+  const isBuild = (p: { slug: string; category: Category }) => p.slug.startsWith('atelier-') || p.category === 'ia' || p.category === 'dev';
+  const groups = [
+    { id: 'data', title: 'Projets data — analyse, data science & visualisation', items: filtered.filter((p) => !isBuild(p)) },
+    { id: 'build', title: 'IA & développement — la Suite Atelier', items: filtered.filter(isBuild) },
+  ];
+
   const levelsPresent = LEVELS.filter((l) => l === 'Tous' || data?.projects.some((p) => p.level === l));
 
   return (
@@ -74,11 +81,22 @@ export default function Projects() {
         <p className="pp-count" aria-live="polite">
           {filtered.length} projet{filtered.length > 1 ? 's' : ''}
         </p>
-        <div className="proj-grid proj-grid-full">
-          {filtered.map((p, i) => (
-            <ProjectCard key={p.slug} project={p} index={i} showKpis />
-          ))}
-        </div>
+        {groups.map((g) =>
+          g.items.length === 0 ? null : (
+            <div key={g.id} className="pp-group">
+              {groups.filter((x) => x.items.length > 0).length > 1 && (
+                <h2 className="pp-group-title">
+                  {g.title} <span>{g.items.length}</span>
+                </h2>
+              )}
+              <div className="proj-grid proj-grid-full">
+                {g.items.map((p, i) => (
+                  <ProjectCard key={p.slug} project={p} index={i} showKpis />
+                ))}
+              </div>
+            </div>
+          ),
+        )}
         {data && filtered.length === 0 && <p className="pp-empty">Aucun projet ne correspond à ces filtres.</p>}
       </section>
     </main>

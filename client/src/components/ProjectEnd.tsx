@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import type { ProjectResponse } from '../api';
 import { CodeBlock } from './CodeBlock';
 import { Md } from './Md';
+import { ResultsGallery } from './ResultsGallery';
 import './project-end.css';
 
 /**
@@ -13,6 +14,8 @@ export function ProjectEnd({ project, showCode = true }: { project: ProjectRespo
   return (
     <footer className="pe">
       <div className="pe-wrap">
+        <ResultsGallery project={project} />
+
         {showCode && c.codeSnippet && (
           <section className="pe-code" aria-label="Extrait du code du projet">
             <h2 className="pe-h">Dans le code</h2>

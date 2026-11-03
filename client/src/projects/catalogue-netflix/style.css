@@ -10,6 +10,7 @@
 
 .nf-head { position: fixed; inset: 0 0 auto; z-index: 50; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 16px 48px; background: linear-gradient(180deg, rgba(10, 10, 10, 0.95), rgba(10, 10, 10, 0.75)); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
 .nf-mark { display: flex; align-items: center; gap: 12px; font-family: var(--serif); font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+.nf-logo { width: 30px; height: 30px; object-fit: contain; border-radius: 7px; box-shadow: 0 0 18px rgba(229, 9, 20, 0.45); }
 .nf-mark i { width: 10px; height: 28px; background: var(--red); display: inline-block; box-shadow: 0 0 18px rgba(229, 9, 20, 0.6); }
 .nf-head nav { display: flex; gap: 30px; }
 .nf-head nav a { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); transition: color 0.2s; }

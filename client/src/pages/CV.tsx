@@ -16,11 +16,19 @@ export default function CV() {
         </Link>
         <div className="cv-actions">
           <Link className="btn btn-ghost" to="/projets">
-            Mes projets
+            Projets data
+          </Link>
+          <Link className="btn btn-ghost" to="/ia-dev">
+            IA &amp; dev
           </Link>
           <button className="btn btn-ghost" onClick={() => window.print()}>
             🖨️ Imprimer
           </button>
+          {p.cvFreelance && (
+            <a className="btn btn-ghost" href={p.cvFreelance} target="_blank" rel="noopener noreferrer">
+              📄 CV freelance (PDF)
+            </a>
+          )}
           <a className="btn btn-primary" href={p.cv} target="_blank" rel="noopener noreferrer">
             📄 CV en PDF
           </a>
@@ -48,6 +56,11 @@ export default function CV() {
               <a href={p.contact.linkedin} target="_blank" rel="noopener noreferrer">
                 <span className="ci">in</span> linkedin.com/in/françois-pichon
               </a>
+              {p.contact.github && (
+                <a href={p.contact.github} target="_blank" rel="noopener noreferrer">
+                  <span className="ci">⌘</span> github.com/{p.contact.github.split('/').pop()}
+                </a>
+              )}
             </div>
           </div>
         </header>

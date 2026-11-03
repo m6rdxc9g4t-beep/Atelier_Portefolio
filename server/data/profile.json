@@ -5,7 +5,7 @@
   "school": "Master 2 Économétrie appliquée · Université de Lille",
   "intro": "Je transforme des données complexes en **modèles lisibles** et en **décisions actionnables**. Mon terrain : la modélisation économétrique, le scoring du risque, les séries temporelles et la data-visualisation. J’y ajoute l’**IA agentique** et le **développement d’applications** : des agents qui automatisent l’analyse, des outils de BI et des applications web sur mesure.",
   "motto": "Un bon modèle se mesure à la décision qu’il rend possible.",
-  "about": "Formé à l’économétrie appliquée à l’Université de Lille, j’aime les projets où il faut nettoyer, modéliser puis expliquer : scoring, prévision, analyse de survie, économétrie spatiale, analyse textuelle et tableaux de bord. Après mon stage de fin d’études chez ECM, où j’ai conçu un outil de reporting Power BI utilisé au quotidien, j’y poursuis depuis septembre 2026 comme ingénieur d’études data analyst. En parallèle, j’ai conçu et développé la Suite Atelier : sept applications (BI, tableur, gestion de projet, conversion de relevés, finances, CRM freelance) reliées par un hub d’agents IA, et Agent Ops Lab, une simulation de logiciel de transport pilotée par un agent IA.",
+  "about": "Data analyst spécialisé Power BI, formé à l’économétrie appliquée (Master Économie appliquée, Université de Lille). Depuis février 2026 chez ECM (groupe CRIT), je conçois et fais évoluer l’écosystème décisionnel du contrôle de gestion adossé à l’ERP : extraction SQL, modélisation dimensionnelle, développement DAX, fiabilisation et documentation des indicateurs, en lien direct avec les business units et le comité de direction. J’aime les projets où il faut nettoyer, modéliser puis expliquer : scoring, prévision, analyse de survie, économétrie spatiale, analyse textuelle et tableaux de bord. En parallèle, j’ai conçu et développé la Suite Atelier : sept applications (BI, tableur, gestion de projet, conversion de relevés, finances, CRM freelance) reliées par un hub d’agents IA, et Agent Ops Lab, une simulation de logiciel de transport pilotée par un agent IA.",
   "photo": "/photo.jpg",
   "cv": "/reports/CV_Francois_Pichon.pdf",
   "contact": {
@@ -18,17 +18,48 @@
   },
   "skills": [
     {
+      "group": "Business Intelligence",
+      "certified": true,
+      "items": [
+        "Power BI",
+        "DAX",
+        "Power Query",
+        "Power BI Service",
+        "Passerelles",
+        "Modèle en étoile"
+      ],
+      "highlight": [
+        "Power BI",
+        "DAX"
+      ]
+    },
+    {
+      "group": "Données",
+      "certified": true,
+      "items": [
+        "SQL",
+        "ERP",
+        "SharePoint",
+        "Modélisation dimensionnelle",
+        "Qualité de données",
+        "Dictionnaire d’indicateurs"
+      ],
+      "highlight": [
+        "SQL"
+      ]
+    },
+    {
       "group": "Programmation",
       "certified": true,
       "items": [
         "Python",
-        "PySpark",
-        "scikit-learn",
         "pandas",
         "NumPy",
+        "scikit-learn",
+        "PySpark",
         "R",
-        "ggplot2",
         "dplyr",
+        "ggplot2",
         "SAS"
       ],
       "highlight": [
@@ -37,19 +68,17 @@
       ]
     },
     {
-      "group": "Outils & cloud",
-      "certified": true,
+      "group": "Modélisation",
       "items": [
-        "Power BI",
-        "SQL",
-        "Azure",
-        "AWS",
-        "Databricks",
-        "Office"
-      ],
-      "highlight": [
-        "Power BI",
-        "SQL"
+        "Logit",
+        "Probit",
+        "Tobit",
+        "Modèles dynamiques",
+        "Panel",
+        "Séries temporelles",
+        "Analyse de survie",
+        "Économétrie spatiale",
+        "Scoring"
       ]
     },
     {
@@ -71,17 +100,15 @@
       ]
     },
     {
-      "group": "Modélisation",
+      "group": "Cloud & outils",
+      "certified": true,
       "items": [
-        "Logit",
-        "Probit",
-        "Tobit",
-        "Modèles dynamiques",
-        "Panel",
-        "Séries temporelles",
-        "Analyse de survie",
-        "Économétrie spatiale",
-        "Scoring"
+        "Azure",
+        "AWS",
+        "Azure DevOps",
+        "Git",
+        "Databricks",
+        "Office"
       ]
     },
     {
@@ -119,24 +146,28 @@
   "experiences": [
     {
       "when": "Septembre 2026 – aujourd’hui",
-      "title": "Ingénieur d’études Data Analyst / Power BI",
-      "org": "ECM",
+      "title": "Ingénieur d’études — Data / Power BI",
+      "org": "ECM (groupe CRIT)",
       "tag": "En cours",
       "featured": true,
       "points": [
-        "Suite du stage : conception de bout en bout de l’interface de pilotage du contrôle de gestion, adossée à l’ERP.",
-        "Chaîne de données SQL (ERP et SharePoint), modèle en étoile, mesures DAX et documentation de chaque indicateur."
+        "Évolution de l’écosystème décisionnel du contrôle de gestion adossé à l’ERP : extraction SQL, modélisation dimensionnelle, développement DAX.",
+        "Fiabilisation et documentation des indicateurs, en lien direct avec les business units et le comité de direction."
       ]
     },
     {
       "when": "Février 2026 – Août 2026",
-      "title": "Stage de fin d’études — Analyste data / Reporting",
-      "org": "ECM",
+      "title": "Data Analyst — Stage de fin d’études M2",
+      "org": "ECM (groupe CRIT)",
       "tag": "Power BI",
       "featured": false,
       "points": [
-        "Développement d’un outil interne de reporting sous Power BI.",
-        "Conception de tableaux de bord et automatisation du suivi d’activité."
+        "Conception de l’interface de pilotage du contrôle de gestion opérationnel : 5 modules, 25 pages.",
+        "Chaîne de données : une vingtaine de requêtes SQL sur l’ERP et SharePoint en couches successives (extraction, préparation, modèle, restitution), modèle en étoile partagé par les cinq modules.",
+        "Plan de charges : consolidation de 3 business units ; estimation du chiffre d’affaires en 4 composantes (réalisé, commandé, estimé, pipeline pondéré).",
+        "Pilotage commercial : indicateur d’énergie commerciale (9 types d’actions pondérés), pipeline d’opportunités, taux de transformation corrigés du biais de censure.",
+        "Finance et charge : chiffre d’affaires, marges brutes réelle et théorique, résultat d’exploitation, TJM, budget / réalisé / N-1, temps non facturable.",
+        "Fiabilisation : plusieurs centaines de mesures DAX, 6 documents de référence (source, définition, formule et limites de chaque indicateur)."
       ]
     },
     {
@@ -145,8 +176,9 @@
       "org": "IA agentique & développement",
       "tag": "IA & dev",
       "points": [
-        "Conception et développement de sept applications reliées par un hub d’agents IA.",
-        "Python, TypeScript, React, FastAPI, Claude et Ollama."
+        "Conception et développement de sept applications reliées par Atelier Nexus, un hub de 17 agents IA avec validation humaine de chaque action.",
+        "Atelier Mission (CRM freelance : devis, factures Malt, Factur-X) et Agent Ops Lab (agent IA de dispatch dans un logiciel de transport simulé).",
+        "Python, TypeScript, React, FastAPI, Claude et Ollama ; tests automatisés et intégration continue."
       ]
     },
     {
@@ -163,7 +195,7 @@
       "title": "Bénévole",
       "org": "Croix-Rouge française",
       "points": [
-        "Aide et accompagnement aux personnes en difficulté."
+        "Aide et accompagnement des personnes en difficulté."
       ]
     }
   ],
@@ -176,7 +208,7 @@
     {
       "when": "2017 – 2022",
       "title": "Licence Économie & Gestion — parcours Finance",
-      "org": "Université de Villetaneuse"
+      "org": "Université Sorbonne Paris Nord"
     },
     {
       "when": "2017",
@@ -186,21 +218,27 @@
   ],
   "highlights": [
     {
+      "level": "Master 2",
+      "items": [
+        "Rapport de stage : interface de pilotage du contrôle de gestion opérationnel — « De la base transactionnelle à l’indicateur de pilotage »",
+        "Études de cas : scoring en assurance, prévisions en assurance, analyse textuelle des avis Flunch, analyse de la base Netflix",
+        "Modèles de durée, ARCH/GARCH, économétrie spatiale, microéconométrie"
+      ]
+    },
+    {
       "level": "Master 1",
       "items": [
-        "Mémoire : inégalités de santé infantile en Inde",
-        "Étude de cas : modélisation des prix hédoniques (Maine-et-Loire)",
-        "Étude de cas : scoring en marketing",
+        "Mémoire de recherche : inégalités de santé infantile en Inde",
+        "Études de cas : prix hédoniques (Maine-et-Loire), scoring en marketing",
         "Projet SHARE : recours aux soins en Europe"
       ]
     },
     {
-      "level": "Master 2",
+      "level": "IA & développement",
       "items": [
-        "Étude de cas : scoring en assurance",
-        "Analyse textuelle des avis Flunch",
-        "Analyse exploratoire du catalogue Netflix",
-        "Modèles de durée, ARCH/GARCH, économétrie spatiale, microéconométrie"
+        "Suite Atelier : Nexus, Viz, Tab, Convert, Projets, Trésorerie, Mission",
+        "Agent Ops Lab : agent IA de dispatch, validation humaine",
+        "DataMind : agent data analyst sur fichiers CSV"
       ]
     }
   ],
@@ -246,5 +284,6 @@
       ],
       "accent": "#ef6b6b"
     }
-  ]
+  ],
+  "cvFreelance": "/reports/CV_Francois_Pichon_Freelance_Data.pdf"
 }

@@ -1,12 +1,16 @@
 import { Link } from 'react-router-dom';
 import { useApi, type Profile, type ProjectsResponse } from '../api';
-import { Reveal } from '../components/Reveal';
 import { CountUp } from '../components/CountUp';
 import { Md } from '../components/Md';
 import { useTitle } from '../components/SiteChrome';
 import { ProjectCard } from './ProjectCard';
 import { ContactForm } from './ContactForm';
 import { splitProjects } from '../lib/groups';
+import { Icon, type IconName } from '../components/Icon';
+import { SuiteSchema } from '../components/SuiteSchema';
+
+/** Glyphe à trait de chaque passion (à la place des emoji du profil). */
+const PASSION_ICONS: Record<string, IconName> = { Photographie: 'camera', Voyages: 'plane', 'Sports mécaniques': 'flag' };
 
 export default function Home() {
   useTitle('François Pichon — Économètre · Portfolio');
@@ -24,17 +28,15 @@ export default function Home() {
     <main className="home">
       {/* ══════════ MOI ══════════ */}
       <header className="moi" id="moi">
-        <div className="moi-grid-bg" aria-hidden />
         <div className="wrap">
           <div className="moi-inner">
-            <Reveal className="photo-frame">
+            <div className="photo-frame">
               <img src="/photo.jpg" alt="Portrait de François Pichon" width={782} height={1004} />
-              <span className="photo-tag">📷 François Pichon</span>
-            </Reveal>
+            </div>
 
-            <Reveal delay={80}>
+            <div className="moi-text">
               <span className="badge">
-                <span className="pulse" /> {profile?.status ?? 'En recherche d’un CDI en analyse de données'}
+                <span className="dot" aria-hidden /> {profile?.status ?? 'En recherche d’un CDI en analyse de données'}
               </span>
               <h1>
                 François<em>Pichon.</em>
@@ -44,17 +46,17 @@ export default function Home() {
               {profile && <p className="moi-motto">« {profile.motto} »</p>}
 
               <div className="moi-actions">
-                <Link to="/cv" className="btn btn-primary">
-                  📄 Mon CV
+                <Link to="/cv" className="btn btn-primary btn-lg">
+                  <Icon name="file-text" /> Mon CV
                 </Link>
-                <Link to="/projets" className="btn btn-ghost">
-                  ◆ Mes projets
+                <Link to="/projets" className="btn btn-lg">
+                  <Icon name="folder-open" /> Mes projets
                 </Link>
-                <a href={profile?.contact.linkedin} target="_blank" rel="noopener noreferrer" className="btn btn-li">
-                  in&nbsp; LinkedIn
+                <a href={profile?.contact.linkedin} target="_blank" rel="noopener noreferrer" className="btn btn-lg">
+                  <Icon name="linkedin" /> LinkedIn
                 </a>
-                <a href={`mailto:${profile?.contact.email ?? 'francois_pichon@outlook.fr'}`} className="btn btn-ghost">
-                  ✉️ Email
+                <a href={`mailto:${profile?.contact.email ?? 'francois_pichon@outlook.fr'}`} className="btn btn-lg">
+                  <Icon name="mail" /> Email
                 </a>
               </div>
 
@@ -76,10 +78,10 @@ export default function Home() {
                   ))}
                 </div>
               </div>
-            </Reveal>
+            </div>
           </div>
 
-          <Reveal className="stat-band" delay={120}>
+          <div className="stat-band">
             <div className="stat">
               <div className="v">
                 <CountUp value={String(interactiveCount || 15)} />
@@ -104,7 +106,7 @@ export default function Home() {
               </div>
               <div className="k">Familles de modèles : logit, Tobit, survie, GARCH, spatial…</div>
             </div>
-          </Reveal>
+          </div>
         </div>
       </header>
 
@@ -113,23 +115,20 @@ export default function Home() {
         <div className="wrap">
           <div className="proj-head">
             <div>
-              <Reveal>
-                <span className="eyebrow">Mes projets</span>
-              </Reveal>
-              <Reveal as="h2" className="sec-title">
+              <h2 className="sec-title">
                 Le coin <em>analyse</em>.
-              </Reveal>
-              <Reveal as="p" className="sec-lede" delay={60}>
+              </h2>
+              <p className="sec-lede">
                 Chaque projet a sa page, habillée à l’image de son sujet — une plateforme de streaming pour Netflix, une enseigne de restauration pour les avis Flunch, un journal financier pour la volatilité du S&amp;P 500 — avec <b>un module à manipuler</b> : simulateur de décision, courbe de survie, estimateur de prix…
-              </Reveal>
+              </p>
             </div>
-            <Link to="/projets" className="btn btn-primary">
-              Voir les {interactiveCount || 15} projets data <span aria-hidden>→</span>
+            <Link to="/projets" className="btn">
+              Voir les {interactiveCount || 15} projets data <Icon name="arrow-right" />
             </Link>
           </div>
           <div className="proj-grid">
-            {featured.map((p, i) => (
-              <ProjectCard key={p.slug} project={p} index={i} />
+            {featured.map((p) => (
+              <ProjectCard key={p.slug} project={p} />
             ))}
           </div>
         </div>
@@ -140,26 +139,21 @@ export default function Home() {
         <div className="wrap">
           <div className="proj-head">
             <div>
-              <Reveal>
-                <span className="eyebrow">IA &amp; développement</span>
-              </Reveal>
-              <Reveal as="h2" className="sec-title">
+              <h2 className="sec-title">
                 Le coin <em>atelier</em>.
-              </Reveal>
-              <Reveal as="p" className="sec-lede" delay={60}>
+              </h2>
+              <p className="sec-lede">
                 Au-delà de l’analyse, je construis les outils : la <b>Suite Atelier</b>, sept applications que j’ai conçues et développées — BI locale, tableur, conversion de relevés, gestion de projet, finances, CRM freelance — reliées par <b>Atelier Nexus</b>, un hub d’agents IA qui lisent, analysent et agissent avec une <b>validation humaine</b> de chaque action. Et <b>Agent Ops Lab</b>, un logiciel de transport simulé où un agent IA anticipe les retards.
-              </Reveal>
+              </p>
             </div>
-            <Link to="/ia-dev" className="btn btn-ghost">
-              Page IA &amp; dev <span aria-hidden>→</span>
+            <Link to="/ia-dev" className="btn">
+              Page IA &amp; dev <Icon name="arrow-right" />
             </Link>
           </div>
-          <Reveal className="suite-schema" delay={80}>
-            <img src="/img/atelier/suite-atelier.svg" alt="Schéma de la Suite Atelier : Convert lit les fichiers, Tab les structure, Projets et Viz les exploitent, Nexus orchestre les agents IA" width={1120} height={340} loading="lazy" />
-          </Reveal>
+          <SuiteSchema />
           <div className="proj-grid">
-            {atelier.map((p, i) => (
-              <ProjectCard key={p.slug} project={p} index={i} />
+            {atelier.map((p) => (
+              <ProjectCard key={p.slug} project={p} />
             ))}
           </div>
         </div>
@@ -168,19 +162,16 @@ export default function Home() {
       {/* ══════════ PARCOURS ══════════ */}
       <section id="parcours" className="sec">
         <div className="wrap">
-          <Reveal>
-            <span className="eyebrow">Parcours</span>
-          </Reveal>
-          <Reveal as="h2" className="sec-title">
+          <h2 className="sec-title">
             De la finance à l’<em>économétrie</em>.
-          </Reveal>
+          </h2>
           {profile && (
-            <Reveal as="p" className="sec-lede" delay={60}>
+            <p className="sec-lede">
               {profile.about}
-            </Reveal>
+            </p>
           )}
           <div className="timeline-cols">
-            <Reveal className="tl-col">
+            <div className="tl-col">
               <h3>Expériences</h3>
               <ol className="tl">
                 {profile?.experiences.map((e) => (
@@ -192,14 +183,14 @@ export default function Home() {
                     <span className="tl-org">{e.org}</span>
                     {e.featured && (
                       <Link to="/projets/stage-ecm" className="tl-link">
-                        Voir l’outil de reporting →
+                        Voir l’outil de reporting <Icon name="arrow-right" size={14} />
                       </Link>
                     )}
                   </li>
                 ))}
               </ol>
-            </Reveal>
-            <Reveal className="tl-col" delay={80}>
+            </div>
+            <div className="tl-col">
               <h3>Formation</h3>
               <ol className="tl">
                 {profile?.education.map((e) => (
@@ -210,7 +201,7 @@ export default function Home() {
                   </li>
                 ))}
               </ol>
-            </Reveal>
+            </div>
           </div>
         </div>
       </section>
@@ -218,24 +209,18 @@ export default function Home() {
       {/* ══════════ PASSIONS ══════════ */}
       <section id="passions" className="sec">
         <div className="wrap">
-          <Reveal>
-            <span className="eyebrow">Mes passions</span>
-          </Reveal>
-          <Reveal as="h2" className="sec-title">
+          <h2 className="sec-title">
             Au-delà des <em>données</em>.
-          </Reveal>
-          <Reveal as="p" className="sec-lede" delay={60}>
+          </h2>
+          <p className="sec-lede">
             Ce qui m’anime en dehors de l’économétrie — et qui nourrit la même curiosité et la même rigueur.
-          </Reveal>
+          </p>
           <div className="passions">
-            {profile?.passions.map((p, i) => (
-              <Reveal key={p.title} className="passion" delay={i * 80} style={{ ['--accent' as string]: p.accent }}>
-                <div className="pa-glyph" aria-hidden>
-                  {p.icon}
-                </div>
-                <div className="pa-ic" aria-hidden>
-                  {p.icon}
-                </div>
+            {profile?.passions.map((p) => (
+              <div key={p.title} className="passion">
+                <span className="pa-ic" aria-hidden>
+                  <Icon name={PASSION_ICONS[p.title] ?? 'sparkles'} size={18} />
+                </span>
                 <div className="pa-num">
                   <CountUp value={p.figure} />
                   <small>{p.unit}</small>
@@ -247,7 +232,7 @@ export default function Home() {
                     <span key={t}>{t}</span>
                   ))}
                 </div>
-              </Reveal>
+              </div>
             ))}
           </div>
         </div>
@@ -257,26 +242,25 @@ export default function Home() {
       <section id="contact" className="sec">
         <div className="wrap contact-grid">
           <div>
-            <Reveal>
-              <span className="eyebrow">Contact</span>
-            </Reveal>
-            <Reveal as="h2" className="sec-title">
+            <h2 className="sec-title">
               Parlons <em>données</em>.
-            </Reveal>
-            <Reveal as="p" className="sec-lede" delay={60}>
+            </h2>
+            <p className="sec-lede">
               Un poste en analyse de données, un projet de scoring ou de prévision, un tableau de bord, un agent IA ou une application à construire ? Écrivez-moi : le message arrive directement sur le serveur du portfolio.
-            </Reveal>
-            <Reveal className="contact-direct" delay={100}>
-              <a href={`mailto:${profile?.contact.email}`}>✉️ {profile?.contact.email}</a>
-              <a href={profile?.contact.phoneHref}>📞 {profile?.contact.phone}</a>
-              <a href={profile?.contact.linkedin} target="_blank" rel="noopener noreferrer">
-                in · LinkedIn
+            </p>
+            <div className="contact-direct">
+              <a href={`mailto:${profile?.contact.email}`}>
+                <Icon name="mail" /> {profile?.contact.email}
               </a>
-            </Reveal>
+              <a href={profile?.contact.phoneHref}>
+                <Icon name="phone" /> {profile?.contact.phone}
+              </a>
+              <a href={profile?.contact.linkedin} target="_blank" rel="noopener noreferrer">
+                <Icon name="linkedin" /> LinkedIn
+              </a>
+            </div>
           </div>
-          <Reveal delay={120}>
-            <ContactForm />
-          </Reveal>
+          <ContactForm />
         </div>
       </section>
     </main>

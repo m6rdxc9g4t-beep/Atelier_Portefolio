@@ -2,7 +2,8 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { CATEGORY_LABELS, type Category } from '@atelier/shared';
 import { useApi, type ProjectsResponse } from '../api';
-import { Reveal } from '../components/Reveal';
+import { Icon } from '../components/Icon';
+import { SuiteSchema } from '../components/SuiteSchema';
 import { CountUp } from '../components/CountUp';
 import { useTitle } from '../components/SiteChrome';
 import { splitProjects } from '../lib/groups';
@@ -26,16 +27,13 @@ export default function IaDev() {
     <main className="projects-page iadev-page">
       <header className="pp-hero">
         <div className="wrap">
-          <Reveal>
-            <span className="eyebrow">IA &amp; développement</span>
-          </Reveal>
-          <Reveal as="h1">
+          <h1>
             Des agents et des applications qui <em>travaillent</em> ensemble.
-          </Reveal>
-          <Reveal as="p" className="sec-lede" delay={60}>
+          </h1>
+          <p className="sec-lede">
             Au-delà de l’analyse, je construis les outils : la <b>Suite Atelier</b> — BI locale, tableur, conversion de relevés, gestion de projet, finances, CRM freelance — reliée par <b>Atelier Nexus</b>, un hub d’agents IA qui lisent, analysent et agissent avec une <b>validation humaine</b> de chaque action. Et des prototypes d’agents dans des logiciels métier, comme <b>Agent Ops Lab</b>.
-          </Reveal>
-          <Reveal className="stat-band iadev-stats" delay={100}>
+          </p>
+          <div className="stat-band iadev-stats">
             <div className="stat">
               <div className="v">
                 <CountUp value={String(build.length || 9)} />
@@ -58,61 +56,63 @@ export default function IaDev() {
               <div className="v">100&nbsp;%</div>
               <div className="k">Local possible pour les données sensibles</div>
             </div>
-          </Reveal>
+          </div>
         </div>
       </header>
 
       <section className="wrap iadev-schema-sec">
-        <Reveal className="suite-schema">
-          <img src="/img/atelier/suite-atelier.svg" alt="Schéma de la Suite Atelier : Convert lit les fichiers, Tab les structure, Projets et Viz les exploitent, Nexus orchestre les agents IA" width={1120} height={340} loading="lazy" />
-        </Reveal>
+        <SuiteSchema />
         <div className="iadev-principles">
-          <Reveal className="iadev-principle">
-            <span>01</span>
+          <div className="iadev-principle">
+            <Icon name="shield-check" size={18} />
             <h3>L’humain valide</h3>
             <p>Les agents proposent, expliquent leur raisonnement et attendent l’accord avant d’agir.</p>
-          </Reveal>
-          <Reveal className="iadev-principle" delay={60}>
-            <span>02</span>
+          </div>
+          <div className="iadev-principle">
+            <Icon name="hard-drive" size={18} />
             <h3>Local d’abord</h3>
             <p>Les données restent sur la machine par défaut ; l’IA en ligne ne s’active que sur demande.</p>
-          </Reveal>
-          <Reveal className="iadev-principle" delay={120}>
-            <span>03</span>
+          </div>
+          <div className="iadev-principle">
+            <Icon name="link-2" size={18} />
             <h3>Un contrat commun</h3>
             <p>Les applications partagent un format de tables et un manifeste d’actions : rien n’est ressaisi.</p>
-          </Reveal>
+          </div>
         </div>
       </section>
 
       <section className="wrap pp-body">
         <div className="pp-filters" role="search">
           <div className="pp-chips" aria-label="Filtrer par type">
-            <button className={cat === 'all' ? 'is-on' : ''} onClick={() => setCat('all')}>
+            <button aria-pressed={cat === 'all'} onClick={() => setCat('all')}>
               Tous <span>{build.length || ''}</span>
             </button>
             {cats.map((c) => (
-              <button key={c.id} className={cat === c.id ? 'is-on' : ''} onClick={() => setCat(c.id)}>
+              <button key={c.id} aria-pressed={cat === c.id} onClick={() => setCat(c.id)}>
                 {c.label} <span>{c.count}</span>
               </button>
             ))}
           </div>
         </div>
-        {error && <p className="form-error">Impossible de charger les projets : {error.message}</p>}
+        {error && (
+          <p className="form-error" role="alert">
+            <Icon name="circle-alert" /> Impossible de charger les projets : {error.message}
+          </p>
+        )}
         <div className="proj-grid proj-grid-full">
-          {shown.map((p, i) => (
-            <ProjectCard key={p.slug} project={p} index={i} showKpis />
+          {shown.map((p) => (
+            <ProjectCard key={p.slug} project={p} showKpis />
           ))}
         </div>
-        <Reveal className="pp-switch">
+        <div className="pp-switch">
           <div>
             <strong>Le cœur de mon métier reste la donnée.</strong>
             <span>Scoring, séries temporelles, économétrie spatiale, analyse textuelle, tableaux de bord : chaque étude a sa page interactive.</span>
           </div>
           <Link to="/projets" className="btn btn-primary">
-            Voir les projets data <span aria-hidden>→</span>
+            Voir les projets data <Icon name="arrow-right" />
           </Link>
-        </Reveal>
+        </div>
       </section>
     </main>
   );

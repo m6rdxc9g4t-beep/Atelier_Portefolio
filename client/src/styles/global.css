@@ -57,9 +57,15 @@ p, li, figcaption, blockquote { text-wrap: pretty; }
 .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1); }
 .reveal.in { opacity: 1; transform: none; }
 
-/* Barre de chargement / erreurs communes */
-.page-loading { min-height: 70vh; display: grid; place-items: center; font-family: var(--mono); font-size: 13px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-faint); }
-.page-loading span { animation: pulse-op 1.4s ease-in-out infinite; }
-@keyframes pulse-op { 50% { opacity: 0.35; } }
+/* Chargement (enveloppe et pages projets) : système commun, neutre, suit le thème. */
+.page-loading { min-height: 70vh; display: grid; place-items: center; background: var(--atelier-bg); color: var(--atelier-muted); font-family: var(--atelier-font); font-size: 13.5px; font-weight: 500; }
+.page-loading span { display: inline-flex; align-items: center; gap: 10px; }
+.page-loading span::before { content: ''; width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--atelier-border-soft); border-top-color: var(--atelier-ink); animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+body:has(> #root > .page-loading) { background: var(--atelier-bg); }
+
+/* Pages à habillage propre : elles gardent le rendu d'origine du navigateur (schéma sombre),
+   quel que soit le thème choisi pour l'enveloppe (atelier-theme.js pose color-scheme en ligne). */
+html[data-surface='habillage'] { color-scheme: dark !important; }
 
 .katex { font-size: 1.05em; }

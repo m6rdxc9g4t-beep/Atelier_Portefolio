@@ -95,6 +95,8 @@ export interface ProjectMeta {
   icon: string;
   /** Logo de l'application (client/public), affiché à la place du pictogramme. */
   logo?: string;
+  /** App de la Suite Atelier (data-atelier-app) : icône carrée et couleur signature communes à la suite. */
+  atelierApp?: 'nexus' | 'viz' | 'tab' | 'convert' | 'projets' | 'tresorerie' | 'mission' | 'ops';
   /** Nom du module interactif de la page. */
   interactive: string;
   year: number;

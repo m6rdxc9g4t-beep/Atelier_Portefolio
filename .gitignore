@@ -9,3 +9,7 @@ coverage/
 .DS_Store
 *.log
 .vite/
+
+# Données DVF générées par scripts/dvf/fetch-dvf.mjs (construction Docker) : jamais commitées
+client/public/data/dvf/*
+!client/public/data/dvf/.gitkeep

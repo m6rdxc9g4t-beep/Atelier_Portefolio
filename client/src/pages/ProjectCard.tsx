@@ -1,41 +1,54 @@
 import { Link } from 'react-router-dom';
 import { CATEGORY_LABELS, type ProjectSummary } from '@atelier/shared';
-import { Reveal } from '../components/Reveal';
+import { AppTile, Icon } from '../components/Icon';
+import { projectGlyph } from '../lib/projectIcons';
 
-export function ProjectCard({ project: p, index = 0, showKpis = false }: { project: ProjectSummary; index?: number; showKpis?: boolean }) {
+/** Vignette d'un projet : icône carrée (app de la Suite Atelier) ou glyphe / logo du sujet sur fond neutre. */
+export function ProjectMark({ project: p }: { project: ProjectSummary }) {
+  if (p.atelierApp) return <AppTile app={p.atelierApp} size="lg" />;
+  if (p.logo)
+    return (
+      <span className="p-icon p-icon--logo" aria-hidden>
+        <img src={p.logo} alt="" width={36} height={36} loading="lazy" />
+      </span>
+    );
   return (
-    <Reveal delay={(index % 3) * 70} className="pcard-wrap">
-      <Link to={`/projets/${p.slug}`} className="pcard" style={{ ['--accent' as string]: p.accent }}>
-        <div className="p-top">
-          <div className={`p-icon ${p.logo ? 'has-logo' : ''}`} aria-hidden>
-            {p.logo ? <img src={p.logo} alt="" width={46} height={46} loading="lazy" /> : p.icon}
+    <span className="p-icon" aria-hidden>
+      <Icon name={projectGlyph(p.slug)} size={18} />
+    </span>
+  );
+}
+
+export function ProjectCard({ project: p, showKpis = false }: { project: ProjectSummary; index?: number; showKpis?: boolean }) {
+  return (
+    <Link to={`/projets/${p.slug}`} className="pcard">
+      <div className="p-top">
+        <ProjectMark project={p} />
+        <div className="p-head">
+          <h3>{p.title}</h3>
+          <div className="p-tag">
+            {p.level !== 'Projet' ? `${p.level} · ` : ''}
+            {CATEGORY_LABELS[p.category]}
           </div>
-          <div>
-            <h3>{p.title}</h3>
-            <div className="p-tag">
-              {p.level !== 'Projet' ? `${p.level} · ` : ''}
-              {CATEGORY_LABELS[p.category]}
+        </div>
+      </div>
+      <p className="p-desc">{p.subtitle}</p>
+      {showKpis && p.kpis.length > 0 && (
+        <dl className="p-kpis">
+          {p.kpis.slice(0, 4).map((k) => (
+            <div key={k.label} className="p-kpi">
+              <dt className="k">{k.label}</dt>
+              <dd className="v">{k.value}</dd>
             </div>
-          </div>
-        </div>
-        <p className="p-desc">{p.subtitle}</p>
-        {showKpis && p.kpis.length > 0 && (
-          <div className="p-kpis">
-            {p.kpis.slice(0, 4).map((k) => (
-              <div key={k.label} className="p-kpi">
-                <div className="v">{k.value}</div>
-                <div className="k">{k.label}</div>
-              </div>
-            ))}
-          </div>
-        )}
-        <div className="p-foot">
-          <span className="p-interactive">◆ {p.interactive}</span>
-          <span className="arr" aria-hidden>
-            →
-          </span>
-        </div>
-      </Link>
-    </Reveal>
+          ))}
+        </dl>
+      )}
+      <div className="p-foot">
+        <span className="p-interactive">
+          <Icon name="mouse-pointer-click" size={14} /> {p.interactive}
+        </span>
+        <Icon name="arrow-right" size={16} className="arr" />
+      </div>
+    </Link>
   );
 }

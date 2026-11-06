@@ -121,3 +121,78 @@
   .ed-lede { font-size: 18.5px; }
   .ed-section { padding: 56px 0; }
 }
+
+/* ═══ Variante « Suite Atelier » (pages Nexus, Viz, Tab, Convert, Projets, Trésorerie, Mission, Ops Lab) ═══
+   Le sujet de ces pages est la suite elle-même : elles prennent son système commun (charte v2 « Linear »),
+   jetons --atelier-* en clair et en sombre, Inter, plat, et la signature de l'app (data-atelier-app) comme accent. */
+.ed.ed--atelier {
+  --ed-paper: var(--atelier-bg); --ed-paper-2: var(--atelier-surface-2); --ed-ink: var(--atelier-text);
+  --ed-ink-soft: color-mix(in oklab, var(--atelier-text) 80%, var(--atelier-muted)); --ed-muted: var(--atelier-muted);
+  --ed-line: var(--atelier-line); --ed-card: var(--atelier-surface);
+  --ed-accent: var(--atelier-signature); --ed-accent-2: var(--atelier-signature); --ed-brick: var(--atelier-muted); --ed-gold: var(--atelier-ink);
+  --ed-display: var(--atelier-font); --ed-body: var(--atelier-font); --ed-mono: var(--atelier-font);
+  --b-hover: var(--atelier-surface-2); --b-head: var(--atelier-surface-2);
+  --pe-bg: var(--atelier-sidebar); --pe-ink: var(--atelier-text); --pe-muted: var(--atelier-muted); --pe-line: var(--atelier-line);
+  --pe-card: var(--atelier-surface); --pe-accent: var(--atelier-ink); --pe-display: var(--atelier-font); --pe-mono: var(--atelier-font);
+  --pbi-accent: var(--atelier-signature); --pbi-on-accent: #fff;
+  color-scheme: light; font-feature-settings: 'cv11', 'ss03'; font-size: 16px; line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+:root[data-theme='dark'] .ed.ed--atelier { color-scheme: dark; }
+.ed--atelier::before, .ed--atelier .ed-hero-deco { display: none; }
+.ed--atelier ::selection { background: color-mix(in oklab, var(--atelier-signature) 30%, transparent); color: inherit; }
+.ed--atelier :focus-visible { outline: 2px solid var(--atelier-ink); outline-offset: 2px; }
+.ed--atelier strong { font-weight: 600; }
+
+/* barre : marque de l'app, sections, thème, retour */
+.ed--atelier .ed-nav { background: color-mix(in oklab, var(--atelier-bg) 88%, transparent); backdrop-filter: blur(10px) saturate(1.4); -webkit-backdrop-filter: blur(10px) saturate(1.4); }
+.ed--atelier .ed-nav-in { padding-top: 10px; padding-bottom: 10px; }
+.ed--atelier .ed-brand { font-family: var(--atelier-font); }
+.ed--atelier .ed-links a { font-family: var(--atelier-font); font-size: 13px; font-weight: 500; text-transform: none; letter-spacing: 0; color: var(--ed-ink-soft); padding: 0 10px; height: 30px; display: inline-flex; align-items: center; border-radius: var(--atelier-radius-md); }
+.ed--atelier .ed-links a:hover { color: var(--atelier-text); background: var(--atelier-surface-2); }
+.ed--atelier .ed-links a.active { color: var(--atelier-text); background: var(--atelier-surface-3); }
+.ed-tools { display: flex; align-items: center; gap: 10px; flex: none; }
+.ed--atelier .ed-nav .back-portfolio { color: var(--ed-ink-soft); border-color: var(--atelier-border-soft); }
+
+/* titres et texte : hiérarchie par la graisse, casse de phrase, pas d'ornement */
+.ed--atelier .ed-hero { padding: 132px 0 56px; }
+.ed--atelier .ed-kicker { font-family: var(--atelier-font); font-size: 13.5px; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--atelier-muted); margin-bottom: 16px; }
+.ed--atelier .ed-title { font-weight: 600; font-size: clamp(36px, 5vw, 58px); letter-spacing: -0.036em; line-height: 1.04; max-width: 20ch; }
+.ed--atelier .ed-title em { font-style: normal; color: inherit; font-weight: 600; }
+.ed--atelier .ed-lede { font-size: 18px; line-height: 1.6; max-width: 64ch; color: var(--ed-ink-soft); }
+.ed--atelier .ed-author .nm { font-size: 15px; }
+.ed--atelier .ed-author .rl, .ed--atelier .ed-course { font-size: 12.5px; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--atelier-faint); font-variant-numeric: tabular-nums; }
+.ed--atelier .ed-stats { border-top-color: var(--atelier-line); border-bottom-color: var(--atelier-line); }
+.ed--atelier .ed-stat .num { color: var(--atelier-text); font-size: clamp(26px, 3vw, 36px); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.ed--atelier .ed-stat .lab { font-size: 13px; letter-spacing: 0; text-transform: none; color: var(--atelier-muted); }
+.ed--atelier .ed-section { padding: 72px 0; }
+.ed--atelier .ed-sec-no { font-size: 13px; font-weight: 500; letter-spacing: 0; color: var(--atelier-faint); font-variant-numeric: tabular-nums; }
+.ed--atelier .ed-sec-head h2 { font-size: clamp(26px, 3.2vw, 36px); letter-spacing: -0.028em; line-height: 1.12; }
+.ed--atelier .ed-sec-sub { font-size: 13.5px; letter-spacing: 0; text-transform: none; }
+.ed--atelier .hl { background: var(--atelier-signature-soft); border-radius: 3px; }
+.ed--atelier .ed-aside, .ed--atelier .ed-chart-card, .ed--atelier .ed-fcard { border-radius: var(--atelier-radius-lg); border: 1px solid var(--atelier-border); box-shadow: none; }
+.ed--atelier .ed-aside h4, .ed--atelier .ed-chart-card .cs { font-size: 12.5px; letter-spacing: 0; text-transform: none; color: var(--atelier-muted); }
+.ed--atelier .ed-aside li span:last-child { font-variant-numeric: tabular-nums; }
+.ed--atelier .ed-chart-card .ct, .ed--atelier .ed-fcard h5 { font-size: 17px; letter-spacing: -0.015em; }
+.ed--atelier .ed-fcard::before { font-size: 28px; font-weight: 600; color: var(--atelier-surface-3); }
+.ed--atelier .ed-pull { font-style: normal; font-weight: 600; letter-spacing: -0.025em; }
+.ed--atelier .ed-pull em { color: inherit; font-style: normal; }
+.ed--atelier .ed-limits li::before { font-size: 12px; color: var(--atelier-muted); border-color: var(--atelier-border-soft); font-variant-numeric: tabular-nums; }
+.ed--atelier .ed-closing { background: var(--atelier-sidebar); color: var(--atelier-text); border-top: 1px solid var(--atelier-line); }
+.ed--atelier .ed-closing h3 { font-size: 22px; letter-spacing: -0.02em; }
+.ed--atelier .ed-closing-meta { font-size: 13px; letter-spacing: 0; color: var(--atelier-muted); line-height: 1.8; }
+.ed--atelier .ed-closing-meta b { color: var(--atelier-text); }
+.ed--atelier .pe { border-top: 1px solid var(--atelier-line); }
+.ed--atelier .pe-h, .ed--atelier .pe-card dt, .ed--atelier .pe-nav small, .ed--atelier .pe-all { letter-spacing: 0 !important; text-transform: none; }
+.ed--atelier .pe-h { font-size: 13px; font-weight: 600; color: var(--atelier-text); }
+.ed--atelier .pe-card { border-radius: var(--atelier-radius-lg); }
+.ed--atelier .pe-docs a:hover { transform: none; }
+@media (max-width: 560px) {
+  .ed--atelier .ed-hero { padding-top: 108px; }
+  .ed--atelier .ed-lede { font-size: 17px; }
+}
+/* blocs de contenu dans la variante Atelier : encadré à filet fin, puces discrètes */
+.ed--atelier .blk-callout { border: 1px solid var(--atelier-border); border-radius: var(--atelier-radius-lg); background: var(--atelier-surface); }
+.ed--atelier .blk-list li::before { color: var(--atelier-faint); font-weight: 500; }
+.ed--atelier .blk-formula figcaption, .ed--atelier .blk-figure figcaption { font-size: 13px; }
+.ed--atelier .rg-approx { letter-spacing: 0; text-transform: none; font-size: 12px; }

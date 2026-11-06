@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import type { ProjectResponse } from '../api';
 import { CodeBlock } from './CodeBlock';
+import { Icon } from './Icon';
 import { Md } from './Md';
 import { ResultsGallery } from './ResultsGallery';
 import { isBuildProject } from '../lib/groups';
@@ -111,8 +112,8 @@ export function ProjectEnd({ project, showCode = true }: { project: ProjectRespo
 /** Lien discret de retour au portfolio, placé dans la barre de navigation de chaque thème. */
 export function BackToPortfolio({ className = '' }: { className?: string }) {
   return (
-    <Link to="/projets" className={`back-portfolio ${className}`} aria-label="Retour aux projets du portfolio">
-      <span aria-hidden>←</span> Portfolio
+    <Link to="/projets" className={`back-portfolio ${className}`.trim()} aria-label="Retour aux projets du portfolio">
+      <Icon name="arrow-left" size={14} /> Portfolio
     </Link>
   );
 }

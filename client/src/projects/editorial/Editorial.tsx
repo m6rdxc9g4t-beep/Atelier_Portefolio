@@ -33,10 +33,16 @@ export function EditorialPage({
   nav,
   children,
   closing,
+  app,
+  tools,
 }: {
   project: ProjectResponse;
   className?: string;
   style?: CSSProperties;
+  /** App de la Suite Atelier (data-atelier-app) : sa signature devient l'accent de la page. */
+  app?: string;
+  /** Contrôles ajoutés à droite de la barre (ex. choix du thème). */
+  tools?: ReactNode;
   brand: ReactNode;
   nav: NavItem[];
   children: ReactNode;
@@ -44,7 +50,7 @@ export function EditorialPage({
 }) {
   const active = useScrollSpy(nav.map((n) => n.id));
   return (
-    <div className={`ed ${className}`} style={style}>
+    <div className={`ed ${className}`.trim()} style={style} data-atelier-app={app}>
       <nav className="ed-nav" aria-label={`Sections — ${project.title}`}>
         <div className="ed-nav-in">
           <div className="ed-brand">{brand}</div>
@@ -55,7 +61,10 @@ export function EditorialPage({
               </a>
             ))}
           </div>
-          <BackToPortfolio />
+          <div className="ed-tools">
+            {tools}
+            <BackToPortfolio />
+          </div>
         </div>
       </nav>
       {children}

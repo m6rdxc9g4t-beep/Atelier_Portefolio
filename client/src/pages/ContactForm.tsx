@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { api, ApiError } from '../api';
+import { Icon } from '../components/Icon';
 
 type Status = { kind: 'idle' } | { kind: 'sending' } | { kind: 'sent' } | { kind: 'error'; message: string; fields?: Record<string, string> };
 
@@ -27,10 +28,12 @@ export function ContactForm() {
   if (status.kind === 'sent') {
     return (
       <div className="contact-card contact-ok" role="status">
-        <div className="contact-ok-ic">✓</div>
+        <div className="contact-ok-ic" aria-hidden>
+          <Icon name="check" size={20} />
+        </div>
         <h3>Message bien reçu.</h3>
         <p>Merci ! Je vous réponds au plus vite.</p>
-        <button className="btn btn-ghost" onClick={() => setStatus({ kind: 'idle' })}>
+        <button className="btn" onClick={() => setStatus({ kind: 'idle' })}>
           Envoyer un autre message
         </button>
       </div>
@@ -66,9 +69,14 @@ export function ContactForm() {
         <input name="website" tabIndex={-1} autoComplete="off" />
       </label>
       <button type="submit" className="btn btn-primary" disabled={status.kind === 'sending'}>
-        {status.kind === 'sending' ? 'Envoi…' : 'Envoyer le message →'}
+        {status.kind === 'sending' ? 'Envoi…' : 'Envoyer le message'}
+        {status.kind !== 'sending' && <Icon name="arrow-right" />}
       </button>
-      {status.kind === 'error' && !status.fields && <p className="form-error">{status.message}</p>}
+      {status.kind === 'error' && !status.fields && (
+        <p className="form-error" role="alert">
+          <Icon name="circle-alert" /> {status.message}
+        </p>
+      )}
     </form>
   );
 }

@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
+import { useThemePref, type ThemePref } from '../lib/theme';
+import { AppTile, Icon, type IconName } from './Icon';
 
 /** Sections de l'accueil suivies par le menu, dans l'ordre de la page. */
 const HOME_SECTIONS = ['moi', 'projets', 'ia-dev', 'parcours', 'passions', 'contact'] as const;
@@ -34,18 +36,44 @@ function useHomeSection(enabled: boolean): HomeSection {
   return current;
 }
 
+const THEMES: { id: ThemePref; label: string; icon: IconName }[] = [
+  { id: 'system', label: 'Thème du système', icon: 'monitor' },
+  { id: 'light', label: 'Thème clair', icon: 'sun' },
+  { id: 'dark', label: 'Thème sombre', icon: 'moon' },
+];
+
+/** Choix du thème (Système / Clair / Sombre), commun à la Suite Atelier. */
+export function ThemeSwitch({ className = '' }: { className?: string }) {
+  const [pref, setPref] = useThemePref();
+  return (
+    <div className={`theme-switch ${className}`.trim()} role="group" aria-label="Thème">
+      {THEMES.map((t) => (
+        <button key={t.id} type="button" aria-pressed={pref === t.id} aria-label={t.label} title={t.label} onClick={() => setPref(t.id)}>
+          <Icon name={t.icon} size={14} />
+        </button>
+      ))}
+    </div>
+  );
+}
+
 /** Barre de navigation du portfolio : Moi, Projets (data), IA & dev, Parcours, Contact, CV. */
 export function SiteNav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12);
+    const onScroll = () => setScrolled(window.scrollY > 4);
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
   useEffect(() => setOpen(false), [pathname]);
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open]);
   const onHome = pathname === '/';
   const section = useHomeSection(onHome);
   // Sur l'accueil, l'entrée active suit la section affichée ; ailleurs, elle suit la page.
@@ -56,39 +84,40 @@ export function SiteNav() {
     parcours: onHome && section === 'parcours',
     contact: onHome && section === 'contact',
   };
-  const cls = (on: boolean) => (on ? 'active' : '');
+  const cur = (on: boolean) => (on ? 'page' : undefined);
 
   return (
     <nav className={`site-nav ${scrolled ? 'scrolled' : ''} ${open ? 'open' : ''}`} aria-label="Navigation principale">
       <div className="wrap site-nav-in">
-        <Link to="/" className="logo">
-          <span className="logo-mark">F</span>
+        <Link to="/" className="logo atelier-brand">
+          <AppTile app="portfolio" />
           <span className="logo-name">
             François Pichon<small>Data analyst · IA &amp; dev</small>
           </span>
         </Link>
         <div className="site-links" id="site-links">
-          <Link to="/" className={cls(active.moi)} aria-current={active.moi ? 'page' : undefined}>
+          <Link to="/" aria-current={cur(active.moi)}>
             Moi
           </Link>
-          <Link to="/projets" className={cls(active.projets)} aria-current={active.projets ? 'page' : undefined}>
+          <Link to="/projets" aria-current={cur(active.projets)}>
             Projets
           </Link>
-          <Link to="/ia-dev" className={cls(active.iaDev)} aria-current={active.iaDev ? 'page' : undefined}>
+          <Link to="/ia-dev" aria-current={cur(active.iaDev)}>
             IA &amp; dev
           </Link>
-          <Link to="/#parcours" className={cls(active.parcours)}>
+          <Link to="/#parcours" aria-current={active.parcours ? 'location' : undefined}>
             Parcours
           </Link>
-          <Link to="/#contact" className={cls(active.contact)}>
+          <Link to="/#contact" aria-current={active.contact ? 'location' : undefined}>
             Contact
           </Link>
-          <NavLink to="/cv" className="nav-cta">
-            📄 Mon CV
+          <ThemeSwitch className="nav-theme" />
+          <NavLink to="/cv" className="btn btn-primary nav-cta">
+            <Icon name="file-text" size={15} /> Mon CV
           </NavLink>
         </div>
-        <button className="burger" aria-label="Menu" aria-expanded={open} aria-controls="site-links" onClick={() => setOpen((o) => !o)}>
-          {open ? '✕' : '☰'}
+        <button className="burger" aria-label={open ? 'Fermer le menu' : 'Ouvrir le menu'} aria-expanded={open} aria-controls="site-links" onClick={() => setOpen((o) => !o)}>
+          <Icon name={open ? 'x' : 'menu'} size={18} />
         </button>
       </div>
     </nav>
@@ -99,9 +128,7 @@ export function SiteFooter() {
   return (
     <footer className="site-footer">
       <div className="wrap site-footer-in">
-        <div className="sf-left">
-          <span className="status-dot" /> François Pichon · Portfolio · M2 Économétrie appliquée
-        </div>
+        <div className="sf-left">François Pichon · Portfolio · M2 Économétrie appliquée</div>
         <div className="sf-links">
           <Link to="/">Moi</Link>
           <Link to="/projets">Projets</Link>

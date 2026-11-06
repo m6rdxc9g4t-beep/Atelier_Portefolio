@@ -21,17 +21,25 @@ Chaque projet a **sa propre page, habillée à l’image de son sujet**, avec un
 | Prévision ARIMA / SARIMA | deux séries | démarche Box–Jenkins pas à pas |
 | Porsche — Power BI | automobile premium | sélecteur de gamme + rapports Power BI |
 | DataMind — agent data analyst (perso) | terminal vert | exploration CSV + agent IA (proxy serveur) |
-| **Suite Atelier — IA & développement (perso)** | logos de la suite, page éditoriale | schéma de la suite sur l’accueil (section « Le coin atelier ») |
-| Atelier Nexus — hub d’agents IA | orange Nexus | orchestrateur, 17 agents, validation humaine, workflows rejouables |
-| Atelier Viz — BI locale | jaune Viz | rapports multipages, 22 visuels, export PowerPoint |
-| Atelier Tab — tableur & base | vert Tab | moteur de formules, serveur MCP (25 outils) |
-| Atelier Convert — relevés → tables | or bronze | lecture PDF / OCR, contrôle des soldes |
-| Atelier Projets — gestion de projet | vert citron | Gantt interactif, Git/GitHub, IA locale |
-| Atelier Trésorerie — finances | bleu roi | budgets, tableaux de bord, IA 100 % locale |
-| Atelier Mission — mini-CRM freelance | ambre | devis, factures Malt et Factur-X, relances, liens Projets / Trésorerie |
-| Agent Ops Lab — TMS piloté par un agent IA | violet | agent de dispatch, validation humaine, carte de la flotte |
+| **Suite Atelier — IA & développement (perso)** | système commun de la suite (charte v2 « Linear ») | schéma de la suite sur l’accueil (section « Le coin atelier ») |
+| Atelier Nexus — hub d’agents IA | signature Nexus (orange) | orchestrateur, 17 agents, validation humaine, workflows rejouables |
+| Atelier Viz — BI locale | signature Viz (or) | rapports multipages, 22 visuels, export PowerPoint |
+| Atelier Tab — tableur & base | signature Tab (vert) | moteur de formules, serveur MCP (25 outils) |
+| Atelier Convert — relevés → tables | signature Convert (ocre) | lecture PDF / OCR, contrôle des soldes |
+| Atelier Projets — gestion de projet | signature Projets (vert olive) | Gantt interactif, Git/GitHub, IA locale |
+| Atelier Trésorerie — finances | signature Trésorerie (bleu roi) | budgets, tableaux de bord, IA 100 % locale |
+| Atelier Mission — mini-CRM freelance | signature Mission (ambre) | devis, factures Malt et Factur-X, relances, liens Projets / Trésorerie |
+| Agent Ops Lab — TMS piloté par un agent IA | signature Ops Lab (améthyste) | agent de dispatch, validation humaine, carte de la flotte |
 
 Les rapports PDF de chaque projet sont téléchargeables depuis sa page (`client/public/reports`).
+
+### Apparence
+
+- **Enveloppe du site** (accueil, projets, IA & dev, CV, contact, 404, barre et pied de page, lien « Portfolio » des pages projets) : système commun de la Suite Atelier, charte v2 « Linear » (`Atelier_Deploy/DESIGN.md`) — structure neutre, Inter, plat, thème clair et sombre, accent = signature du portfolio (ardoise `#4a5468`, `data-atelier-app="portfolio"`). Styles : `client/src/styles/site.css`, tous scopés sous `.site`.
+- **Marque v2** : copie verbatim de `Atelier_Projets/design-system/brand/` dans `client/public/atelier-brand/` (`atelier-brand.css`, `atelier-theme.js`, Inter + licence), chargée par `client/index.html`. Toute modification se fait à la source puis dans la copie.
+- **Thème** : Système / Clair / Sombre, préférence commune à la suite (`window.atelierTheme`) : cookie `atelier_theme` sur le VPS (`portfolio.atelier.<domaine>`), `localStorage` ailleurs (adresse Netlify, local).
+- **Pages à habillage propre** : inchangées, elles gardent leurs couleurs et polices quel que soit le thème.
+- **Pages des apps de la Suite Atelier** : gabarit éditorial dans la variante `.ed--atelier` (système de la suite, icône carrée et signature de l’app, clair / sombre).
 
 ## Démarrer
 
@@ -84,7 +92,7 @@ client/   React 19 + Vite : accueil, projets, CV imprimable, une page thématis�
 
 - **Profil, compétences, parcours** : `server/data/profile.json`
 - **Un projet** : `server/data/projects/<slug>.json` (texte, chiffres clés, tableaux, données des graphiques, modèle)
-- **Ordre, couleurs, logos, rapports, liens Power BI** : `shared/src/catalog.ts` (logos de la Suite Atelier : `client/public/img/atelier/`)
+- **Ordre, couleurs, logos, rapports, liens Power BI** : `shared/src/catalog.ts` (apps de la Suite Atelier : champ `atelierApp`, icônes carrées dans `client/public/img/atelier/<app>.svg`)
 - **Ajouter un projet** : une fiche JSON + une entrée au catalogue suffisent (la page générique l’affiche) ; une page thématisée peut ensuite être ajoutée dans `client/src/projects/<slug>/` et déclarée dans `registry.ts`.
 
 Les fiches ont été rédigées à partir des rapports de chaque projet : tous les chiffres viennent des documents. Sans rapport fourni, les fiches ARIMA / SARIMA, Porsche, stage ECM et DataMind reprennent le contenu de l’ancien site.

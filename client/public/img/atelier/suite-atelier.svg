@@ -1,51 +1,48 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="-20 -20 1120 340" role="img" aria-label="Schéma de la Suite Atelier : les fichiers passent par Convert vers Tab, Tab alimente Projets et Viz, Nexus orchestre l'ensemble">
-        <rect x="-20" y="-20" width="1120" height="340" rx="18" fill="#0f2038"/><defs>
-          <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#6B7583"/></marker>
-        </defs>
-        <g font-family="Inter, sans-serif" font-size="14" fill="#E8ECF1">
-          <!-- source -->
-          <rect x="10" y="110" width="140" height="64" rx="12" fill="#0a1628" stroke="#2a4d7a"/>
-          <text x="80" y="138" text-anchor="middle" font-weight="600">Vos fichiers</text>
-          <text x="80" y="158" text-anchor="middle" fill="#9AA4B2" font-size="12">PDF · CSV · Excel</text>
-          <!-- convert -->
-          <rect x="210" y="110" width="150" height="64" rx="12" fill="#0a1628" stroke="#C9951D"/>
-          <text x="285" y="138" text-anchor="middle" font-weight="600">Convert</text>
-          <text x="285" y="158" text-anchor="middle" fill="#9AA4B2" font-size="12">lecture et nettoyage</text>
-          <!-- tab -->
-          <rect x="420" y="110" width="150" height="64" rx="12" fill="#0a1628" stroke="#21A366"/>
-          <text x="495" y="138" text-anchor="middle" font-weight="600">Tab</text>
-          <text x="495" y="158" text-anchor="middle" fill="#9AA4B2" font-size="12">tables et formules</text>
-          <!-- projets / viz -->
-          <rect x="640" y="40" width="160" height="64" rx="12" fill="#0a1628" stroke="#94D82D"/>
-          <text x="720" y="68" text-anchor="middle" font-weight="600">Projets</text>
-          <text x="720" y="88" text-anchor="middle" fill="#9AA4B2" font-size="12">planning et suivi</text>
-          <rect x="640" y="180" width="160" height="64" rx="12" fill="#0a1628" stroke="#F2C811"/>
-          <text x="720" y="208" text-anchor="middle" font-weight="600">Viz</text>
-          <text x="720" y="228" text-anchor="middle" fill="#9AA4B2" font-size="12">rapports et KPI</text>
-          <!-- nexus -->
-          <rect x="880" y="96" width="190" height="92" rx="14" fill="#1d1a1f" stroke="#E8590C" stroke-width="1.5"/>
-          <text x="975" y="132" text-anchor="middle" font-weight="700" font-size="16">Nexus</text>
-          <text x="975" y="152" text-anchor="middle" fill="#9AA4B2" font-size="12">agents + orchestrateur</text>
-          <text x="975" y="170" text-anchor="middle" fill="#9AA4B2" font-size="12">validation humaine</text>
-          <!-- trésorerie -->
-          <rect x="920" y="236" width="110" height="44" rx="10" fill="#0a1628" stroke="#5B7BFF"/>
-          <text x="975" y="263" text-anchor="middle" font-size="12.5">Trésorerie</text>
-          
-        </g>
-        <g stroke="#6B7583" stroke-width="1.5" fill="none" marker-end="url(#ar)">
-          <path d="M150,142 H206"/>
-          <path d="M360,142 H416"/>
-          <path d="M570,130 C605,130 605,72 636,72"/>
-          <path d="M570,154 C605,154 605,212 636,212"/>
-        </g>
-        <g stroke="#E8590C" stroke-width="1.3" stroke-dasharray="5 5" fill="none" opacity=".85">
-          <path d="M880,120 C840,120 840,72 800,72"/>
-          <path d="M880,164 C840,164 840,212 800,212"/>
-          <path d="M1010,96 V18 H495 V106"/>
-          <path d="M975,188 V236"/>
-          
-        </g>
-        <g font-family="JetBrains Mono, monospace" font-size="11" fill="#6B7583">
-          <text x="10" y="292">orchestration des agents ⟶ lecture, analyse, actions validées</text>
-        </g>
-      </svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-24 -24 1148 380" role="img" aria-label="Schéma de la Suite Atelier : les fichiers passent par Convert vers Tab, Tab alimente Projets et Viz, Nexus orchestre l'ensemble">
+<style>text{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}.n{font-size:14px;font-weight:600;fill:#1a1b1e}.s{font-size:13px}.r{font-size:12px;fill:#5f636c}</style>
+<rect x="-24" y="-24" width="1148" height="380" fill="#ffffff"/>
+<defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#6c7079"/></marker>
+<linearGradient id="g-nexus" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d47638"/><stop offset="1" stop-color="#c84f00"/></linearGradient>
+<linearGradient id="g-viz" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#af8c38"/><stop offset="1" stop-color="#996c00"/></linearGradient>
+<linearGradient id="g-tab" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4ea16c"/><stop offset="1" stop-color="#1c8742"/></linearGradient>
+<linearGradient id="g-convert" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b38d4e"/><stop offset="1" stop-color="#9d6d1c"/></linearGradient>
+<linearGradient id="g-projets" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7b9d38"/><stop offset="1" stop-color="#568100"/></linearGradient>
+<linearGradient id="g-tresorerie" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6791e2"/><stop offset="1" stop-color="#3c72da"/></linearGradient>
+</defs>
+<g fill="none" stroke="#6c7079" stroke-width="1.4" marker-end="url(#ar)"><path d="M150,150 H196"/><path d="M382,150 H426"/><path d="M612,138 C640,138 640,70 664,70"/><path d="M612,162 C640,162 640,230 664,230"/></g>
+<g fill="none" stroke="#6c7079" stroke-width="1.2" stroke-dasharray="4 4" opacity=".7"><path d="M908,128 C884,128 884,70 858,70"/><path d="M908,172 C884,172 884,230 858,230"/><path d="M1040,104 V14 H521 V118"/><path d="M1004,196 V248"/></g>
+<rect x="0" y="118" width="150" height="64" rx="10" fill="#fbfbfc" stroke="#d0d2d8" stroke-dasharray="4 3"/>
+<text x="75.0" y="147.0" text-anchor="middle" class="n">Vos fichiers</text>
+<text x="75.0" y="166.0" text-anchor="middle" class="r">PDF · CSV · Excel</text>
+<rect x="200" y="118" width="182" height="64" rx="10" fill="#fbfbfc" stroke="#d0d2d8"/>
+<rect x="214" y="138.0" width="24" height="24" rx="5.76" fill="url(#g-convert)"/>
+<svg x="218.56" y="142.56" width="14.88" height="14.88" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3 4 7l4 4M4 7h16M16 21l4-4-4-4M20 17H4"/></svg>
+<text x="248" y="147.0" text-anchor="start" class="n">Convert</text>
+<text x="248" y="166.0" text-anchor="start" class="r">lecture et nettoyage</text>
+<rect x="430" y="118" width="182" height="64" rx="10" fill="#fbfbfc" stroke="#d0d2d8"/>
+<rect x="444" y="138.0" width="24" height="24" rx="5.76" fill="url(#g-tab)"/>
+<svg x="448.56" y="142.56" width="14.88" height="14.88" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M12 3v18M3 9h18M3 15h18"/></svg>
+<text x="478" y="147.0" text-anchor="start" class="n">Tab</text>
+<text x="478" y="166.0" text-anchor="start" class="r">tables et formules</text>
+<rect x="668" y="38" width="190" height="64" rx="10" fill="#fbfbfc" stroke="#d0d2d8"/>
+<rect x="682" y="58.0" width="24" height="24" rx="5.76" fill="url(#g-projets)"/>
+<svg x="686.56" y="62.56" width="14.88" height="14.88" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5v11M12 5v6M18 5v14"/></svg>
+<text x="716" y="67.0" text-anchor="start" class="n">Projets</text>
+<text x="716" y="86.0" text-anchor="start" class="r">planning et suivi</text>
+<rect x="668" y="198" width="190" height="64" rx="10" fill="#fbfbfc" stroke="#d0d2d8"/>
+<rect x="682" y="218.0" width="24" height="24" rx="5.76" fill="url(#g-viz)"/>
+<svg x="686.56" y="222.56" width="14.88" height="14.88" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg>
+<text x="716" y="227.0" text-anchor="start" class="n">Viz</text>
+<text x="716" y="246.0" text-anchor="start" class="r">rapports et KPI</text>
+<rect x="908" y="104" width="192" height="92" rx="10" fill="#fbfbfc" stroke="#d0d2d8"/>
+<rect x="922" y="138.0" width="24" height="24" rx="5.76" fill="url(#g-nexus)"/>
+<svg x="926.56" y="142.56" width="14.88" height="14.88" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="8" x="3" y="3" rx="2"/><path d="M7 11v4a2 2 0 0 0 2 2h4"/><rect width="8" height="8" x="13" y="13" rx="2"/></svg>
+<text x="956" y="138.0" text-anchor="start" class="n">Nexus</text>
+<text x="956" y="157.0" text-anchor="start" class="r">agents + orchestrateur</text>
+<text x="956" y="174.0" text-anchor="start" class="r">validation humaine</text>
+<rect x="934" y="248" width="140" height="44" rx="10" fill="#fbfbfc" stroke="#d0d2d8"/>
+<rect x="948" y="260.0" width="20" height="20" rx="4.80" fill="url(#g-tresorerie)"/>
+<svg x="951.80" y="263.80" width="12.40" height="12.40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg>
+<text x="978" y="275.0" text-anchor="start" class="n s">Trésorerie</text>
+<text x="0" y="336" class="r" fill="#6c7079">Orchestration des agents : lecture, analyse, actions validées.</text>
+</svg>

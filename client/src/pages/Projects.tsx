@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { CATEGORY_LABELS, type Category, type Level } from '@atelier/shared';
 import { splitProjects } from '../lib/groups';
 import { useApi, type ProjectsResponse } from '../api';
-import { Reveal } from '../components/Reveal';
+import { Icon } from '../components/Icon';
 import { useTitle } from '../components/SiteChrome';
 import { ProjectCard } from './ProjectCard';
 
@@ -40,26 +40,23 @@ export default function Projects() {
     <main className="projects-page">
       <header className="pp-hero">
         <div className="wrap">
-          <Reveal>
-            <span className="eyebrow">Projets data · M2 Économétrie appliquée</span>
-          </Reveal>
-          <Reveal as="h1">
+          <h1>
             Des données brutes à la <em>décision</em>.
-          </Reveal>
-          <Reveal as="p" className="sec-lede" delay={60}>
+          </h1>
+          <p className="sec-lede">
             {dataProjects.length || 15} projets d’analyse, de data science et de visualisation — santé publique, scoring du risque, séries temporelles, immobilier, économétrie spatiale, NLP, tableaux de bord… Chaque page reprend les codes visuels de son sujet et propose un <b>module interactif</b> construit à partir des résultats du rapport, avec ses <b>tests et résultats en graphiques</b>.
-          </Reveal>
+          </p>
         </div>
       </header>
 
       <section className="wrap pp-body">
         <div className="pp-filters" role="search">
           <div className="pp-chips" aria-label="Filtrer par domaine">
-            <button className={cat === 'all' ? 'is-on' : ''} onClick={() => setCat('all')}>
+            <button aria-pressed={cat === 'all'} onClick={() => setCat('all')}>
               Tous les domaines <span>{dataProjects.length || ''}</span>
             </button>
             {categories.map((c) => (
-              <button key={c.id} className={cat === c.id ? 'is-on' : ''} onClick={() => setCat(c.id)}>
+              <button key={c.id} aria-pressed={cat === c.id} onClick={() => setCat(c.id)}>
                 {c.label} <span>{c.count}</span>
               </button>
             ))}
@@ -67,38 +64,57 @@ export default function Projects() {
           <div className="pp-row">
             <div className="pp-levels" aria-label="Filtrer par niveau">
               {levelsPresent.map((l) => (
-                <button key={l} className={level === l ? 'is-on' : ''} onClick={() => setLevel(l)}>
+                <button key={l} aria-pressed={level === l} onClick={() => setLevel(l)}>
                   {LEVEL_LABEL[l]}
                 </button>
               ))}
             </div>
             <label className="pp-search">
               <span className="sr-only">Rechercher un projet</span>
+              <Icon name="search" size={15} />
               <input type="search" placeholder="Rechercher : logit, R, Power BI, survie…" value={q} onChange={(e) => setQ(e.target.value)} />
             </label>
           </div>
         </div>
 
-        {error && <p className="form-error">Impossible de charger les projets : {error.message}</p>}
+        {error && (
+          <p className="form-error" role="alert">
+            <Icon name="circle-alert" /> Impossible de charger les projets : {error.message}
+          </p>
+        )}
         <p className="pp-count" aria-live="polite">
           {filtered.length} projet{filtered.length > 1 ? 's' : ''}
         </p>
         <div className="proj-grid proj-grid-full">
-          {filtered.map((p, i) => (
-            <ProjectCard key={p.slug} project={p} index={i} showKpis />
+          {filtered.map((p) => (
+            <ProjectCard key={p.slug} project={p} showKpis />
           ))}
         </div>
-        {data && filtered.length === 0 && <p className="pp-empty">Aucun projet ne correspond à ces filtres.</p>}
+        {data && filtered.length === 0 && (
+          <div className="pp-empty">
+            <p>Aucun projet ne correspond à ces filtres.</p>
+            <button
+              className="btn"
+              onClick={() => {
+                setCat('all');
+                setLevel('Tous');
+                setQ('');
+              }}
+            >
+              Effacer les filtres
+            </button>
+          </div>
+        )}
         {build.length > 0 && (
-          <Reveal className="pp-switch">
+          <div className="pp-switch">
             <div>
               <strong>IA &amp; développement : {build.length} projets de plus.</strong>
               <span>La Suite Atelier, son hub d’agents IA et des prototypes d’agents dans des logiciels métier.</span>
             </div>
             <Link to="/ia-dev" className="btn btn-primary">
-              Voir la page IA &amp; dev <span aria-hidden>→</span>
+              Voir la page IA &amp; dev <Icon name="arrow-right" />
             </Link>
-          </Reveal>
+          </div>
         )}
       </section>
     </main>

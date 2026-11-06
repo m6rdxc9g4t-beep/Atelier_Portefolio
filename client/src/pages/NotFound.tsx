@@ -6,7 +6,6 @@ export default function NotFound() {
   return (
     <main className="notfound">
       <div className="wrap">
-        <span className="eyebrow">Erreur 404</span>
         <h1>
           Observation <em>hors échantillon</em>.
         </h1>
@@ -15,10 +14,11 @@ export default function NotFound() {
           <Link to="/" className="btn btn-primary">
             Retour à l’accueil
           </Link>
-          <Link to="/projets" className="btn btn-ghost">
+          <Link to="/projets" className="btn">
             Voir les projets
           </Link>
         </div>
+        <p className="notfound-code">Erreur 404</p>
       </div>
     </main>
   );

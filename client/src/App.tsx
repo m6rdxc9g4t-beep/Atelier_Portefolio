@@ -8,6 +8,8 @@ const Projects = lazy(() => import('./pages/Projects'));
 const IaDev = lazy(() => import('./pages/IaDev'));
 const CV = lazy(() => import('./pages/CV'));
 const ProjectRoute = lazy(() => import('./pages/ProjectRoute'));
+const Demos = lazy(() => import('./pages/Demos'));
+const DemoRoute = lazy(() => import('./pages/DemoRoute'));
 
 function SiteLayout({ children }: { children: ReactNode }) {
   return (
@@ -31,6 +33,8 @@ export default function App() {
           <Route path="/projets" element={<SiteLayout><Projects /></SiteLayout>} />
           <Route path="/ia-dev" element={<SiteLayout><IaDev /></SiteLayout>} />
           <Route path="/cv" element={<SiteLayout><CV /></SiteLayout>} />
+          <Route path="/demos" element={<SiteLayout><Demos /></SiteLayout>} />
+          <Route path="/demos/:slug" element={<SiteLayout><DemoRoute /></SiteLayout>} />
           {/* Les pages projets ont leur propre habillage (pas de barre du portfolio). */}
           <Route path="/projets/:slug" element={<ProjectRoute />} />
           <Route path="*" element={<SiteLayout><NotFound /></SiteLayout>} />

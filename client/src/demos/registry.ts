@@ -45,7 +45,7 @@ export const DEMOS: DemoEntry[] = [
   {
     slug: 'prevision-ventes',
     title: 'Prévision de ventes',
-    summary: 'Charge un CSV (ou un exemple) et obtiens une prévision avec intervalles de confiance et explication.',
+    summary: 'Chargez un CSV (ou un exemple) et obtenez une prévision avec ses intervalles et son explication.',
     skills: ['Séries temporelles', 'Prévision', 'Validation hors échantillon'],
     icon: 'trending-up',
     Page: lazy(() => import('./prevision-ventes')),

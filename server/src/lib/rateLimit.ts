@@ -1,13 +1,14 @@
 import type { NextFunction, Request, Response } from 'express';
+import { clientIp } from './clientIp.js';
 
 /**
- * Limiteur de débit en mémoire (fenêtre fixe par adresse IP).
+ * Limiteur de débit en mémoire (fenêtre fixe par adresse du visiteur, relais Netlify compris : voir clientIp).
  * Suffisant pour un portfolio mono-instance ; à remplacer par Redis si l'app est répliquée.
  */
 export function rateLimit({ windowMs, max }: { windowMs: number; max: number }) {
   const hits = new Map<string, { count: number; reset: number }>();
   return (req: Request, res: Response, next: NextFunction) => {
-    const key = req.ip ?? 'unknown';
+    const key = clientIp(req);
     const now = Date.now();
     const entry = hits.get(key);
     if (!entry || entry.reset < now) {

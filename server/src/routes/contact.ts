@@ -4,6 +4,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { config } from '../config.js';
 import { rateLimit } from '../lib/rateLimit.js';
+import { clientIp } from '../lib/clientIp.js';
 
 export const contactRouter = Router();
 
@@ -25,7 +26,7 @@ contactRouter.post('/contact', rateLimit({ windowMs: 10 * 60_000, max: 5 }), asy
     });
   }
   const { website: _honeypot, ...message } = parsed.data;
-  const entry = { ...message, receivedAt: new Date().toISOString(), ip: req.ip };
+  const entry = { ...message, receivedAt: new Date().toISOString(), ip: clientIp(req) };
   await fs.mkdir(path.dirname(config.messagesFile), { recursive: true });
   await fs.appendFile(config.messagesFile, JSON.stringify(entry) + '\n', 'utf8');
   res.status(201).json({ ok: true });

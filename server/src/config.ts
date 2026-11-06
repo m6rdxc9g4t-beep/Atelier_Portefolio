@@ -17,4 +17,6 @@ export const config = {
   /** Clé optionnelle : active l'agent DataMind (proxy vers l'API Claude). */
   anthropicApiKey: process.env.ANTHROPIC_API_KEY ?? '',
   anthropicModel: process.env.ANTHROPIC_MODEL ?? 'claude-sonnet-5-5',
+  /** Secret partagé avec le relais Netlify (réécriture signée) : permet de reconnaître l'adresse réelle du visiteur. */
+  netlifyProxySecret: process.env.NETLIFY_PROXY_SECRET ?? '',
 };

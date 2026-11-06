@@ -1,0 +1,337 @@
+/* ═════════════════════════════════════════════════════════════
+   Démo « Observatoire immobilier » — scopée sous .observatoire-immobilier, classes oi-*.
+   Enveloppe : jetons --atelier-* (charte v2 « Linear »). Palettes de données définies ici une fois,
+   validées (dataviz/validate_palette.js) contre la surface claire #ffffff et sombre #17181b :
+   · séquentielle bleue à 5 classes (ordinale, claire → foncée en clair, foncée → claire en sombre) ;
+   · catégorielle à 2 séries : maisons (orange), appartements (violet).
+   ═════════════════════════════════════════════════════════════ */
+.observatoire-immobilier {
+  color-scheme: light;
+  --oi-seq-0: #86b6ef;
+  --oi-seq-1: #5598e7;
+  --oi-seq-2: #2a78d6;
+  --oi-seq-3: #1c5cab;
+  --oi-seq-4: #0d366b;
+  --oi-m: #eb6834;
+  --oi-a: #6250d6;
+  --oi-bar: color-mix(in oklab, var(--atelier-text) 52%, transparent);
+  --oi-bar-neg: color-mix(in oklab, var(--atelier-text) 26%, transparent);
+}
+:root.dark .observatoire-immobilier,
+:root[data-theme='dark'] .observatoire-immobilier {
+  color-scheme: dark;
+  --oi-seq-0: #184f95;
+  --oi-seq-1: #256abf;
+  --oi-seq-2: #3987e5;
+  --oi-seq-3: #6da7ec;
+  --oi-seq-4: #b7d3f6;
+  --oi-m: #d95926;
+  --oi-a: #9085e9;
+}
+
+.observatoire-immobilier .oi-sr {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ── En-tête ── */
+.observatoire-immobilier .oi-head h1 {
+  font-size: clamp(30px, 3.6vw, 44px); letter-spacing: -0.03em; line-height: 1.08; max-width: 22ch; text-wrap: balance;
+}
+.observatoire-immobilier .oi-head .sec-lede { margin-top: 16px; }
+.observatoire-immobilier .oi-chips { list-style: none; margin: 20px 0 0; padding: 0; }
+
+/* ── Outil ── */
+.observatoire-immobilier .oi-tool { margin-top: 40px; }
+.observatoire-immobilier .oi-toolbar {
+  display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 20px;
+  padding: 12px 14px; border: 1px solid var(--atelier-border); border-radius: var(--atelier-radius-lg); background: var(--atelier-surface);
+}
+.observatoire-immobilier .oi-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.observatoire-immobilier .oi-label { font-size: 12px; font-weight: 500; line-height: 1.2; color: var(--atelier-muted); }
+.observatoire-immobilier .oi-seg {
+  display: inline-flex; gap: 2px; padding: 2px; border-radius: var(--atelier-radius-md); background: var(--atelier-surface-2); max-width: 100%; overflow-x: auto;
+  scrollbar-width: none;
+}
+.observatoire-immobilier .oi-seg button {
+  flex: none; height: 26px; padding: 0 10px; border: 0; border-radius: var(--atelier-radius-sm); background: transparent;
+  font: inherit; font-size: 12.5px; font-weight: 500; color: var(--atelier-muted); cursor: pointer; font-variant-numeric: tabular-nums;
+  transition: background-color 0.15s, color 0.15s;
+}
+.observatoire-immobilier .oi-seg button:hover { color: var(--atelier-text); }
+.observatoire-immobilier .oi-seg button[aria-pressed='true'] {
+  background: var(--atelier-surface); color: var(--atelier-text); box-shadow: 0 1px 2px rgb(0 0 0 / 0.08), 0 0 0 1px var(--atelier-line);
+}
+.observatoire-immobilier .oi-seg button:focus-visible { outline-offset: 0; }
+.observatoire-immobilier .oi-seg-sm button { height: 24px; padding: 0 8px; font-size: 12px; }
+.observatoire-immobilier .oi-select {
+  height: 30px; padding: 0 8px; border: 1px solid var(--atelier-border-soft); border-radius: var(--atelier-radius-md);
+  background: var(--atelier-field); color: var(--atelier-text); font: inherit; font-size: 13px; min-width: 0;
+}
+
+.observatoire-immobilier .oi-search { position: relative; margin-left: auto; width: 250px; max-width: 100%; }
+.observatoire-immobilier .oi-search-ic { position: absolute; left: 10px; top: 8px; color: var(--atelier-faint); pointer-events: none; }
+.site .observatoire-immobilier .oi-search input {
+  width: 100%; height: 30px; padding: 0 10px 0 31px; border: 1px solid var(--atelier-border-soft); border-radius: var(--atelier-radius-md);
+  background: var(--atelier-field); color: var(--atelier-text); font: inherit; font-size: 13px;
+}
+.observatoire-immobilier .oi-search input::placeholder { color: var(--atelier-faint); }
+.site .observatoire-immobilier .oi-search input:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+.observatoire-immobilier .oi-search-list {
+  position: absolute; z-index: 20; top: calc(100% + 4px); left: 0; right: 0; margin: 0; padding: 4px; list-style: none;
+  background: var(--atelier-surface); border: 1px solid var(--atelier-border-soft); border-radius: var(--atelier-radius-md); box-shadow: var(--atelier-glow-strong);
+}
+.observatoire-immobilier .oi-search-list li {
+  display: flex; flex-direction: column; gap: 1px; padding: 6px 8px; border-radius: var(--atelier-radius-sm); font-size: 13px; cursor: pointer;
+}
+.observatoire-immobilier .oi-search-list li[aria-selected='true'] { background: var(--atelier-surface-2); }
+.observatoire-immobilier .oi-search-list .oi-search-none { color: var(--atelier-muted); cursor: default; }
+.observatoire-immobilier .oi-search-meta { font-size: 11.5px; color: var(--atelier-muted); font-variant-numeric: tabular-nums; }
+
+.observatoire-immobilier .oi-source { margin: 10px 2px 16px; font-size: 12.5px; line-height: 1.5; color: var(--atelier-muted); }
+.observatoire-immobilier .oi-example {
+  display: flex; align-items: flex-start; gap: 8px; margin-bottom: 12px; padding: 9px 12px; font-size: 13px; line-height: 1.45;
+  border: 1px solid color-mix(in oklab, var(--atelier-warn) 45%, transparent); border-radius: var(--atelier-radius-md);
+  background: color-mix(in oklab, var(--atelier-warn) 8%, transparent); color: var(--atelier-text);
+}
+.observatoire-immobilier .oi-example .ic { color: var(--atelier-warn); margin-top: 1px; }
+
+/* ── Grille carte + panneau ── */
+.observatoire-immobilier .oi-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 12px; align-items: start; }
+.observatoire-immobilier .oi-col-map,
+.observatoire-immobilier .oi-col-panel,
+.observatoire-immobilier .oi-est-form,
+.observatoire-immobilier .oi-est-result,
+.observatoire-immobilier .oi-coefs {
+  min-width: 0; border: 1px solid var(--atelier-border); border-radius: var(--atelier-radius-lg); background: var(--atelier-surface); padding: 16px;
+}
+
+/* Carte */
+.observatoire-immobilier .oi-map { position: relative; }
+.observatoire-immobilier .oi-map svg { display: block; overflow: visible; }
+.observatoire-immobilier .oi-dot { stroke: var(--atelier-surface); stroke-width: 0.75; cursor: pointer; transition: stroke 0.12s; }
+.observatoire-immobilier .oi-dot:hover { stroke: var(--atelier-text); stroke-width: 1.5; }
+.observatoire-immobilier .oi-dot-na { fill: transparent; stroke: var(--atelier-faint); stroke-width: 0.9; }
+.observatoire-immobilier .oi-seq-0 { fill: var(--oi-seq-0); background: var(--oi-seq-0); }
+.observatoire-immobilier .oi-seq-1 { fill: var(--oi-seq-1); background: var(--oi-seq-1); }
+.observatoire-immobilier .oi-seq-2 { fill: var(--oi-seq-2); background: var(--oi-seq-2); }
+.observatoire-immobilier .oi-seq-3 { fill: var(--oi-seq-3); background: var(--oi-seq-3); }
+.observatoire-immobilier .oi-seq-4 { fill: var(--oi-seq-4); background: var(--oi-seq-4); }
+.observatoire-immobilier .oi-map-label {
+  font-size: 11.5px; font-weight: 550; fill: var(--atelier-text); pointer-events: none;
+  paint-order: stroke; stroke: var(--atelier-surface); stroke-width: 3px; stroke-linejoin: round;
+}
+.observatoire-immobilier .oi-map-label-strong { font-size: 12.5px; font-weight: 650; }
+.observatoire-immobilier .oi-map-selected circle { fill: none; stroke: var(--atelier-text); stroke-width: 2; pointer-events: none; }
+
+.observatoire-immobilier .oi-legend {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--atelier-line);
+  font-size: 12px; color: var(--atelier-muted); font-variant-numeric: tabular-nums;
+}
+.observatoire-immobilier .oi-legend-title { font-weight: 500; color: var(--atelier-text); }
+.observatoire-immobilier .oi-legend-scale { display: flex; flex-wrap: wrap; gap: 4px 12px; margin: 0; padding: 0; list-style: none; }
+.observatoire-immobilier .oi-legend-scale li,
+.observatoire-immobilier .oi-legend-note { display: inline-flex; align-items: center; gap: 5px; }
+.observatoire-immobilier .oi-swatch { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.observatoire-immobilier .oi-swatch-na { border: 1px solid var(--atelier-faint); width: 7px; height: 7px; }
+
+/* Infobulle (graphiques) */
+.observatoire-immobilier .oi-chart { position: relative; }
+.observatoire-immobilier .oi-chart svg { display: block; overflow: visible; }
+.observatoire-immobilier .oi-tip {
+  position: absolute; z-index: 10; min-width: 180px; max-width: 240px; padding: 8px 10px; display: flex; flex-direction: column; gap: 4px;
+  background: var(--atelier-surface); border: 1px solid var(--atelier-border-soft); border-radius: var(--atelier-radius-md);
+  box-shadow: var(--atelier-glow-strong); font-size: 12.5px; line-height: 1.35; pointer-events: none;
+}
+.observatoire-immobilier .oi-tip strong { font-weight: 600; }
+.observatoire-immobilier .oi-tip-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; color: var(--atelier-muted); }
+.observatoire-immobilier .oi-tip-row b { color: var(--atelier-text); font-weight: 600; font-variant-numeric: tabular-nums; }
+.observatoire-immobilier .oi-tip-block { display: flex; flex-direction: column; gap: 1px; }
+.observatoire-immobilier .oi-tip-sub { font-size: 11.5px; color: var(--atelier-muted); padding-left: 15px; font-variant-numeric: tabular-nums; }
+
+/* Séries */
+.observatoire-immobilier .oi-s-m { --c: var(--oi-m); }
+.observatoire-immobilier .oi-s-a { --c: var(--oi-a); }
+.observatoire-immobilier .oi-key { display: inline-block; width: 10px; height: 10px; border-radius: 3px; background: var(--c); vertical-align: -1px; }
+.observatoire-immobilier .oi-line { fill: none; stroke: var(--c); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.observatoire-immobilier .oi-band { fill: var(--c); opacity: 0.13; }
+.observatoire-immobilier .oi-mark { fill: var(--c); stroke: var(--atelier-surface); stroke-width: 2; }
+.observatoire-immobilier .oi-bar { fill: var(--c); }
+.observatoire-immobilier .oi-bar-hover .oi-bar { opacity: 0.72; }
+.observatoire-immobilier .oi-gridline { stroke: var(--atelier-line); stroke-width: 1; }
+.observatoire-immobilier .oi-axis { font-size: 11px; fill: var(--atelier-faint); font-variant-numeric: tabular-nums; }
+.observatoire-immobilier .oi-axis-strong { fill: var(--atelier-text); font-weight: 600; }
+.observatoire-immobilier .oi-crosshair { stroke: var(--atelier-border-soft); stroke-width: 1; }
+.observatoire-immobilier .oi-median-rule line { stroke: var(--atelier-text); stroke-width: 1.5; stroke-dasharray: 3 3; }
+.observatoire-immobilier .oi-series-legend { display: flex; gap: 12px; margin: 0; padding: 0; list-style: none; font-size: 12px; color: var(--atelier-muted); }
+.observatoire-immobilier .oi-series-legend li { display: inline-flex; align-items: center; gap: 5px; }
+
+/* Panneau commune */
+.observatoire-immobilier .oi-panel-head h3 { font-size: 18px; letter-spacing: -0.012em; line-height: 1.3; }
+.observatoire-immobilier .oi-meta { font-size: 12.5px; line-height: 1.45; color: var(--atelier-muted); font-variant-numeric: tabular-nums; }
+.observatoire-immobilier .oi-stats {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 14px 0 0; border-top: 1px solid var(--atelier-line); border-bottom: 1px solid var(--atelier-line);
+}
+.observatoire-immobilier .oi-stats > div { padding: 10px 10px 10px 0; min-width: 0; }
+.observatoire-immobilier .oi-stats > div + div { padding-left: 10px; border-left: 1px solid var(--atelier-line); }
+.observatoire-immobilier .oi-stats dt { font-size: 11.5px; line-height: 1.3; color: var(--atelier-muted); }
+.observatoire-immobilier .oi-stats dd { margin: 4px 0 0; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.observatoire-immobilier .oi-stats .oi-stat-main { font-size: 17px; }
+.observatoire-immobilier .oi-panel-block { margin-top: 22px; }
+.observatoire-immobilier .oi-block-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 12px; margin-bottom: 10px; }
+.observatoire-immobilier .oi-block-head h4 { font-size: 13.5px; font-weight: 600; color: var(--atelier-text); }
+.observatoire-immobilier .oi-caption { margin-top: 6px; font-size: 12px; line-height: 1.5; color: var(--atelier-muted); }
+.observatoire-immobilier .oi-empty-note {
+  margin-top: 12px; padding: 10px 12px; border-radius: var(--atelier-radius-md); background: var(--atelier-surface-2);
+  font-size: 13px; line-height: 1.5; color: var(--atelier-muted);
+}
+
+/* Tableaux */
+.observatoire-immobilier .oi-table-wrap { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--atelier-line); }
+.observatoire-immobilier .oi-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.observatoire-immobilier .oi-table th { padding: 6px 8px; text-align: left; font-size: 12px; font-weight: 500; color: var(--atelier-muted); border-bottom: 1px solid var(--atelier-border); }
+.observatoire-immobilier .oi-table td { padding: 7px 8px; border-bottom: 1px solid var(--atelier-line); vertical-align: top; }
+.observatoire-immobilier .oi-table tbody tr { transition: background-color 0.12s; }
+.observatoire-immobilier .oi-table-wrap tbody tr { cursor: pointer; }
+.observatoire-immobilier .oi-table-wrap tbody tr:hover { background: var(--atelier-surface-2); }
+.observatoire-immobilier .oi-table tbody tr[aria-selected='true'] { background: var(--atelier-signature-soft); }
+.observatoire-immobilier .oi-table .oi-num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.observatoire-immobilier .oi-linkbtn {
+  padding: 0; border: 0; background: none; font: inherit; font-weight: 500; color: var(--atelier-text); cursor: pointer; text-align: left;
+}
+.observatoire-immobilier .oi-more { margin-top: 8px; height: 30px; font-size: 13px; }
+
+/* ── Estimation ── */
+.observatoire-immobilier .oi-section { margin-top: 56px; }
+.observatoire-immobilier .oi-section-head { margin-bottom: 16px; }
+.observatoire-immobilier .oi-section-head h2,
+.observatoire-immobilier .oi-method h2 { font-size: 24px; letter-spacing: -0.02em; line-height: 1.2; }
+.observatoire-immobilier .oi-section-head p { margin-top: 8px; max-width: 72ch; font-size: 14.5px; line-height: 1.6; color: var(--ink-2); }
+.observatoire-immobilier .oi-est { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: 12px; align-items: start; }
+.observatoire-immobilier .oi-coefs { grid-column: 1 / -1; }
+.observatoire-immobilier .oi-est-form { display: flex; flex-direction: column; gap: 18px; }
+.observatoire-immobilier .oi-input-unit { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--atelier-muted); }
+.site .observatoire-immobilier .oi-input-unit input {
+  width: 96px; height: 34px; padding: 0 10px; border: 1px solid var(--atelier-border-soft); border-radius: var(--atelier-radius-md);
+  background: var(--atelier-field); color: var(--atelier-text); font: inherit; font-size: 14px; font-variant-numeric: tabular-nums;
+}
+.observatoire-immobilier .oi-input-unit input[aria-invalid='true'] { border-color: var(--atelier-down); }
+.observatoire-immobilier input[type='range'] { width: 100%; accent-color: var(--atelier-signature); margin: 2px 0 0; }
+.observatoire-immobilier .oi-hint { font-size: 12px; color: var(--atelier-faint); }
+.observatoire-immobilier .oi-error { font-size: 12px; color: var(--atelier-down); }
+.observatoire-immobilier .oi-stepper { display: inline-flex; align-items: center; gap: 4px; }
+.observatoire-immobilier .oi-stepper button {
+  display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid var(--atelier-border-soft); border-radius: var(--atelier-radius-md);
+  background: var(--atelier-surface); color: var(--atelier-text); cursor: pointer;
+}
+.observatoire-immobilier .oi-stepper button:hover:not(:disabled) { background: var(--atelier-surface-2); }
+.observatoire-immobilier .oi-stepper button:disabled { opacity: 0.45; cursor: default; }
+.observatoire-immobilier .oi-stepper output { min-width: 36px; text-align: center; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.observatoire-immobilier .oi-commune-fixed { display: flex; flex-direction: column; gap: 2px; font-size: 14px; }
+
+.observatoire-immobilier .oi-est-label { font-size: 12.5px; font-weight: 500; color: var(--atelier-muted); }
+.observatoire-immobilier .oi-est-price { margin-top: 2px; font-size: 32px; font-weight: 600; letter-spacing: -0.025em; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.observatoire-immobilier .oi-est-sub { margin-top: 6px; font-size: 13px; color: var(--atelier-muted); font-variant-numeric: tabular-nums; }
+.observatoire-immobilier .oi-factors { margin: 18px 0 0; padding: 0; list-style: none; font-size: 13px; }
+.observatoire-immobilier .oi-factors li {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(80px, 160px) 118px; align-items: center; gap: 12px;
+  padding: 7px 0; border-top: 1px solid var(--atelier-line);
+}
+.observatoire-immobilier .oi-factors b { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.observatoire-immobilier .oi-factors b small { font-size: 11.5px; font-weight: 500; color: var(--atelier-muted); margin-left: 4px; }
+.observatoire-immobilier .oi-factors .oi-factor-ref { grid-template-columns: minmax(0, 1fr) auto; row-gap: 0; border-top: 0; }
+.observatoire-immobilier .oi-factor-ref .oi-factor-note { grid-row: 2; font-size: 12px; color: var(--atelier-muted); }
+.observatoire-immobilier .oi-factor-ref b { grid-row: 1 / span 2; grid-column: 2; }
+.observatoire-immobilier .oi-factors .oi-factor-total { grid-template-columns: minmax(0, 1fr) auto; border-top: 1px solid var(--atelier-border-soft); font-weight: 600; }
+.observatoire-immobilier .oi-factor-bar { position: relative; height: 14px; }
+.observatoire-immobilier .oi-factor-axis { position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--atelier-border-soft); }
+.observatoire-immobilier .oi-factor-fill { position: absolute; top: 3px; height: 8px; border-radius: 2px; background: var(--oi-bar); }
+.observatoire-immobilier .oi-factor-fill.neg { background: var(--oi-bar-neg); }
+
+.observatoire-immobilier .oi-scroll { overflow-x: auto; }
+.observatoire-immobilier .oi-table-coefs { min-width: 720px; }
+.observatoire-immobilier .oi-table-coefs tbody th { padding: 7px 8px; font-size: 13px; font-weight: 500; color: var(--atelier-text); border-bottom: 1px solid var(--atelier-line); white-space: nowrap; vertical-align: top; }
+.observatoire-immobilier .oi-lecture { color: var(--ink-2); font-size: 12.5px; line-height: 1.45; min-width: 280px; }
+.observatoire-immobilier .oi-fit { display: flex; flex-wrap: wrap; gap: 10px 28px; margin: 14px 0 0; }
+.observatoire-immobilier .oi-fit dt { font-size: 11.5px; color: var(--atelier-muted); }
+.observatoire-immobilier .oi-fit dd { margin: 2px 0 0; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ── États ── */
+.observatoire-immobilier .oi-loading {
+  display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 240px; font-size: 13.5px; color: var(--atelier-muted);
+  border: 1px solid var(--atelier-border); border-radius: var(--atelier-radius-lg); background: var(--atelier-surface);
+}
+.observatoire-immobilier .oi-spinner {
+  width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--atelier-border-soft); border-top-color: var(--atelier-text);
+  animation: oi-spin 0.8s linear infinite;
+}
+@keyframes oi-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .observatoire-immobilier .oi-spinner { animation: none; } }
+.observatoire-immobilier .oi-state {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 28px; border: 1px solid var(--atelier-border);
+  border-radius: var(--atelier-radius-lg); background: var(--atelier-surface);
+}
+.observatoire-immobilier .oi-state strong { font-size: 16px; font-weight: 600; }
+.observatoire-immobilier .oi-state p { max-width: 64ch; font-size: 14px; line-height: 1.6; color: var(--ink-2); }
+.observatoire-immobilier .oi-state .btn { margin-top: 6px; }
+.observatoire-immobilier .oi-state-ic { color: var(--atelier-muted); }
+.observatoire-immobilier .oi-state-ic-err { color: var(--atelier-down); }
+.observatoire-immobilier .oi-state-inline { padding: 16px; grid-column: 1 / -1; }
+
+/* ── Méthode, contact ── */
+.observatoire-immobilier .oi-method { margin-top: 80px; }
+.observatoire-immobilier .oi-method > h2 { padding-top: 48px; border-top: 1px solid var(--atelier-line); }
+.observatoire-immobilier .oi-method-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 40px; margin-top: 20px; }
+.observatoire-immobilier .oi-method-wide { grid-column: 1 / -1; }
+.observatoire-immobilier .oi-method h3 { font-size: 14.5px; font-weight: 600; margin-bottom: 8px; }
+.observatoire-immobilier .oi-method p,
+.observatoire-immobilier .oi-method li { font-size: 14px; line-height: 1.65; color: var(--ink-2); max-width: 78ch; }
+.observatoire-immobilier .oi-method ul { margin: 8px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+.observatoire-immobilier .oi-method a { color: var(--atelier-ink); text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.observatoire-immobilier .oi-method .formula-block { display: block; overflow-x: auto; overflow-y: hidden; margin: 6px 0 12px; padding: 4px 0; color: var(--atelier-text); }
+.observatoire-immobilier .oi-method .katex { font-size: 1.08em; }
+.observatoire-immobilier .oi-cta { margin-top: 56px; }
+.observatoire-immobilier .oi-cta-inner {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px;
+  padding-top: 24px; border-top: 1px solid var(--atelier-line);
+}
+.observatoire-immobilier .oi-cta p { max-width: 60ch; font-size: 15px; line-height: 1.55; color: var(--ink-2); }
+.observatoire-immobilier .oi-cta-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ── Écrans étroits ── */
+@media (max-width: 980px) {
+  .observatoire-immobilier .oi-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 720px) {
+  .observatoire-immobilier .oi-toolbar { flex-direction: column; align-items: stretch; }
+  .observatoire-immobilier .oi-search { margin-left: 0; width: 100%; }
+  .observatoire-immobilier .oi-select { height: 34px; }
+  .observatoire-immobilier .oi-seg button { height: 30px; padding: 0 11px; }
+  .observatoire-immobilier .oi-est { grid-template-columns: minmax(0, 1fr); }
+  .observatoire-immobilier .oi-method-grid { grid-template-columns: minmax(0, 1fr); }
+  .observatoire-immobilier .oi-col-map,
+  .observatoire-immobilier .oi-col-panel,
+  .observatoire-immobilier .oi-est-form,
+  .observatoire-immobilier .oi-est-result,
+  .observatoire-immobilier .oi-coefs { padding: 12px; }
+}
+@media (max-width: 720px) {
+  /* Coefficients en lignes empilées : nom, valeurs, puis lecture */
+  .observatoire-immobilier .oi-scroll { overflow: visible; }
+  .observatoire-immobilier .oi-table-coefs { min-width: 0; }
+  .observatoire-immobilier .oi-table-coefs thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .observatoire-immobilier .oi-table-coefs tbody tr {
+    display: grid; grid-template-columns: repeat(3, auto) 1fr; column-gap: 14px; padding: 9px 0; border-bottom: 1px solid var(--atelier-line);
+  }
+  .observatoire-immobilier .oi-table-coefs tbody th { grid-column: 1 / -1; padding: 0 0 3px; border: 0; white-space: normal; }
+  .observatoire-immobilier .oi-table-coefs td { padding: 0; border: 0; text-align: left; font-size: 12.5px; }
+  .observatoire-immobilier .oi-table-coefs td[data-label]::before { content: attr(data-label) ' '; color: var(--atelier-muted); }
+  .observatoire-immobilier .oi-table-coefs td.oi-lecture { grid-column: 1 / -1; min-width: 0; padding-top: 4px; }
+}
+@media (max-width: 520px) {
+  .observatoire-immobilier .oi-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .observatoire-immobilier .oi-stats > div:nth-child(3) { padding-left: 0; border-left: 0; border-top: 1px solid var(--atelier-line); }
+  .observatoire-immobilier .oi-stats > div:nth-child(4) { border-top: 1px solid var(--atelier-line); }
+  .observatoire-immobilier .oi-factors li { grid-template-columns: minmax(0, 1fr) 64px 104px; gap: 8px; }
+  .observatoire-immobilier .oi-table-wrap .oi-table th:nth-child(4),
+  .observatoire-immobilier .oi-table-wrap .oi-table td:nth-child(4) { display: none; }
+}

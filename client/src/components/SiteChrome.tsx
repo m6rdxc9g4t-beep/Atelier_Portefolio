@@ -81,6 +81,7 @@ export function SiteNav() {
     moi: onHome && (section === 'moi' || section === 'passions'),
     projets: pathname.startsWith('/projets') || (onHome && section === 'projets'),
     iaDev: pathname === '/ia-dev' || (onHome && section === 'ia-dev'),
+    demos: pathname.startsWith('/demos'),
     parcours: onHome && section === 'parcours',
     contact: onHome && section === 'contact',
   };
@@ -104,6 +105,9 @@ export function SiteNav() {
           </Link>
           <Link to="/ia-dev" aria-current={cur(active.iaDev)}>
             IA &amp; dev
+          </Link>
+          <Link to="/demos" aria-current={cur(active.demos)}>
+            Démos
           </Link>
           <Link to="/#parcours" aria-current={active.parcours ? 'location' : undefined}>
             Parcours
@@ -133,6 +137,7 @@ export function SiteFooter() {
           <Link to="/">Moi</Link>
           <Link to="/projets">Projets</Link>
           <Link to="/ia-dev">IA &amp; dev</Link>
+          <Link to="/demos">Démos</Link>
           <Link to="/cv">CV</Link>
           <a href="https://www.linkedin.com/in/fran%C3%A7ois-pichon-697329204/" target="_blank" rel="noopener noreferrer">
             LinkedIn

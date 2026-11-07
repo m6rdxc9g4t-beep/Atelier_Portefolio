@@ -139,6 +139,18 @@
   -webkit-font-smoothing: antialiased;
 }
 :root[data-theme='dark'] .ed.ed--atelier { color-scheme: dark; }
+/* Le portfolio est crème en clair et bleu nuit en sombre (§3 ter de la marque). data-atelier-app sur .ed
+   donne à la page la signature de l'app, mais la marque y remet aussi la structure gris froid : on garde
+   celle du site (héritée de <html>), seuls l'accent et ses dérivés (--atelier-ink…) viennent de l'app. */
+:root[data-atelier-app='portfolio'] .ed--atelier[data-atelier-app] {
+  --atelier-bg: inherit; --atelier-sidebar: inherit; --atelier-surface: inherit; --atelier-surface-2: inherit;
+  --atelier-surface-3: inherit; --atelier-field: inherit;
+  --atelier-text: inherit; --atelier-muted: inherit; --atelier-faint: inherit;
+  --atelier-border: inherit; --atelier-border-soft: inherit; --atelier-line: inherit;
+  --atelier-glow: inherit; --atelier-glow-strong: inherit;
+}
+html:has(.ed--atelier) { scrollbar-color: var(--atelier-border-soft) transparent; }
+body:has(.ed--atelier) { background: var(--atelier-bg); }
 .ed--atelier::before, .ed--atelier .ed-hero-deco { display: none; }
 .ed--atelier ::selection { background: color-mix(in oklab, var(--atelier-signature) 30%, transparent); color: inherit; }
 .ed--atelier :focus-visible { outline: 2px solid var(--atelier-ink); outline-offset: 2px; }

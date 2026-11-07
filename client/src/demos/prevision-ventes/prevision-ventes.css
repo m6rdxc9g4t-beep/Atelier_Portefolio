@@ -1,14 +1,15 @@
 /* Démo « Prévision de ventes » : enveloppe du site (charte v2 « Linear »), classes préfixées pv-.
    Palette de données (validée clair / sombre, dataviz) : observé = encre neutre, prévision = bleu,
-   test = orange, tendance = aqua, saison = violet. */
+   test = orange, tendance = aqua, saison = violet. Validée sur la surface crème #fffdf8 et bleu nuit #121b2d :
+   en clair, l'aqua prend son pas foncé (#199e70, 3,2:1) pour que chaque marque passe 3:1. */
 .prevision-ventes {
   --pv-hist: color-mix(in oklab, var(--atelier-text) 82%, var(--atelier-muted));
   --pv-fc: #2a78d6;
   --pv-test: #eb6834;
-  --pv-trend: #1baf7a;
+  --pv-trend: #199e70;
   --pv-season: #6250d6;
   --pv-rest: color-mix(in oklab, var(--atelier-faint) 55%, var(--atelier-surface-3));
-  --pv-pop: 0 1px 2px rgb(16 17 20 / 0.06), 0 8px 24px -8px rgb(16 17 20 / 0.18);
+  --pv-pop: var(--atelier-glow-strong);
   font-size: 14px;
 }
 .dark .prevision-ventes,
@@ -17,7 +18,6 @@
   --pv-test: #d95926;
   --pv-trend: #199e70;
   --pv-season: #9085e9;
-  --pv-pop: 0 1px 2px rgb(0 0 0 / 0.4), 0 12px 32px -10px rgb(0 0 0 / 0.7);
 }
 .prevision-ventes ul { list-style: none; }
 .prevision-ventes .tnum,
@@ -43,7 +43,8 @@
 .pv-seg button:hover { color: var(--atelier-text); }
 .pv-seg button[aria-pressed='true'] { background: var(--atelier-surface); color: var(--atelier-text); box-shadow: 0 1px 2px rgb(0 0 0 / 0.08), 0 0 0 1px var(--atelier-line); }
 .pv-drop { display: flex; align-items: center; gap: 10px; }
-.pv-file { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+/* champ fichier masqué : .site input (largeur 100 %, marges) ne doit pas l'élargir hors de la page */
+.site .prevision-ventes input.pv-file[type='file'] { position: absolute; width: 1px; min-height: 0; height: 1px; padding: 0; border: 0; overflow: hidden; clip-path: inset(50%); opacity: 0; pointer-events: none; }
 .pv-drop label { cursor: pointer; }
 .pv-file:focus-visible + label { outline: 2px solid var(--ring); outline-offset: 2px; }
 .pv-drop-hint { font-size: 13px; color: var(--atelier-faint); }

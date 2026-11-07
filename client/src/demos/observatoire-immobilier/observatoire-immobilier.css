@@ -1,7 +1,7 @@
 /* ═════════════════════════════════════════════════════════════
    Démo « Observatoire immobilier » — scopée sous .observatoire-immobilier, classes oi-*.
    Enveloppe : jetons --atelier-* (charte v2 « Linear »). Palettes de données définies ici une fois,
-   validées (dataviz/validate_palette.js) contre la surface claire #ffffff et sombre #17181b :
+   validées (dataviz/validate_palette.js) contre la surface crème #fffdf8 et bleu nuit #121b2d :
    · séquentielle bleue à 5 classes (ordinale, claire → foncée en clair, foncée → claire en sombre) ;
    · catégorielle à 2 séries : maisons (orange), appartements (violet).
    ═════════════════════════════════════════════════════════════ */
@@ -215,7 +215,7 @@
   background: var(--atelier-field); color: var(--atelier-text); font: inherit; font-size: 14px; font-variant-numeric: tabular-nums;
 }
 .observatoire-immobilier .oi-input-unit input[aria-invalid='true'] { border-color: var(--atelier-down); }
-.observatoire-immobilier input[type='range'] { width: 100%; accent-color: var(--atelier-signature); margin: 2px 0 0; }
+.observatoire-immobilier input[type='range'] { width: 100%; accent-color: var(--atelier-ink); margin: 2px 0 0; }
 .observatoire-immobilier .oi-hint { font-size: 12px; color: var(--atelier-faint); }
 .observatoire-immobilier .oi-error { font-size: 12px; color: var(--atelier-down); }
 .observatoire-immobilier .oi-stepper { display: inline-flex; align-items: center; gap: 4px; }

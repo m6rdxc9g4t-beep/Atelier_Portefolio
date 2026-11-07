@@ -1,18 +1,18 @@
 /* ═════════════════════════════════════════════════════════════
    Démo « Labo A/B et inférence causale » — tout est scopé sous .labo-ab-causal (classes lab-*).
    Enveloppe : charte v2 « Linear » du site (jetons --atelier-*). Seule couleur propre : la palette
-   de données à deux séries (bleu = A / témoins, orange = B / traités), validée en clair et en sombre.
+   de données à deux séries (bleu = A / témoins, orange = B / traités), validée en clair (crème #fffdf8)
+   et en sombre (bleu nuit #121b2d).
    ═════════════════════════════════════════════════════════════ */
 .labo-ab-causal {
   --lab-s1: #2a78d6;
   --lab-s2: #eb6834;
-  --lab-tip-shadow: 0 1px 2px rgb(16 17 20 / 0.06), 0 8px 24px -8px rgb(16 17 20 / 0.18);
+  --lab-tip-shadow: var(--atelier-glow-strong);
 }
 [data-theme='dark'] .labo-ab-causal,
 .dark .labo-ab-causal {
   --lab-s1: #3987e5;
   --lab-s2: #d95926;
-  --lab-tip-shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 12px 32px -10px rgb(0 0 0 / 0.7);
 }
 
 .labo-ab-causal .lab-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -102,16 +102,16 @@
 }
 .labo-ab-causal .lab-range::-webkit-slider-runnable-track {
   height: 4px; border-radius: 2px;
-  background: linear-gradient(to right, var(--atelier-signature) var(--lab-fill), var(--atelier-border-soft) var(--lab-fill));
+  background: linear-gradient(to right, var(--atelier-ink) var(--lab-fill), var(--atelier-border-soft) var(--lab-fill));
 }
 .labo-ab-causal .lab-range::-moz-range-track { height: 4px; border-radius: 2px; background: var(--atelier-border-soft); }
-.labo-ab-causal .lab-range::-moz-range-progress { height: 4px; border-radius: 2px; background: var(--atelier-signature); }
+.labo-ab-causal .lab-range::-moz-range-progress { height: 4px; border-radius: 2px; background: var(--atelier-ink); }
 .labo-ab-causal .lab-range::-webkit-slider-thumb {
   -webkit-appearance: none; width: 16px; height: 16px; margin-top: -6px; border-radius: 50%;
-  background: var(--atelier-surface); border: 1.5px solid var(--atelier-signature); box-shadow: 0 1px 2px rgb(0 0 0 / 0.15);
+  background: var(--atelier-surface); border: 1.5px solid var(--atelier-ink); box-shadow: 0 1px 2px rgb(0 0 0 / 0.15);
 }
 .labo-ab-causal .lab-range::-moz-range-thumb {
-  width: 14px; height: 14px; border-radius: 50%; background: var(--atelier-surface); border: 1.5px solid var(--atelier-signature);
+  width: 14px; height: 14px; border-radius: 50%; background: var(--atelier-surface); border: 1.5px solid var(--atelier-ink);
 }
 .labo-ab-causal .lab-range:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 [data-theme='dark'] .labo-ab-causal .lab-range::-webkit-slider-runnable-track,

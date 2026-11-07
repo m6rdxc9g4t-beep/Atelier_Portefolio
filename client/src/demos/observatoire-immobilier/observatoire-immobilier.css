@@ -168,11 +168,11 @@
 /* Panneau commune */
 .observatoire-immobilier .oi-panel-head h3 { font-size: 18px; letter-spacing: -0.012em; line-height: 1.3; }
 .observatoire-immobilier .oi-meta { font-size: 12.5px; line-height: 1.45; color: var(--atelier-muted); font-variant-numeric: tabular-nums; }
-.observatoire-immobilier .oi-stats {
-  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 14px 0 0; border-top: 1px solid var(--atelier-line); border-bottom: 1px solid var(--atelier-line);
+/* Chiffres de la commune : cartes de chiffres (forme de .atelier-kpi, coins de 12 px), en rangée espacée */
+.observatoire-immobilier .oi-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px; margin: 14px 0 0; }
+.observatoire-immobilier .oi-stats > div {
+  display: flex; flex-direction: column; justify-content: space-between; padding: 10px 12px; min-width: 0; background: var(--atelier-surface); border: 1px solid var(--atelier-border); border-radius: var(--atelier-radius-xl);
 }
-.observatoire-immobilier .oi-stats > div { padding: 10px 10px 10px 0; min-width: 0; }
-.observatoire-immobilier .oi-stats > div + div { padding-left: 10px; border-left: 1px solid var(--atelier-line); }
 .observatoire-immobilier .oi-stats dt { font-size: 11.5px; line-height: 1.3; color: var(--atelier-muted); }
 .observatoire-immobilier .oi-stats dd { margin: 4px 0 0; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .observatoire-immobilier .oi-stats .oi-stat-main { font-size: 17px; }
@@ -328,9 +328,6 @@
   .observatoire-immobilier .oi-table-coefs td.oi-lecture { grid-column: 1 / -1; min-width: 0; padding-top: 4px; }
 }
 @media (max-width: 520px) {
-  .observatoire-immobilier .oi-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .observatoire-immobilier .oi-stats > div:nth-child(3) { padding-left: 0; border-left: 0; border-top: 1px solid var(--atelier-line); }
-  .observatoire-immobilier .oi-stats > div:nth-child(4) { border-top: 1px solid var(--atelier-line); }
   .observatoire-immobilier .oi-factors li { grid-template-columns: minmax(0, 1fr) 64px 104px; gap: 8px; }
   .observatoire-immobilier .oi-table-wrap .oi-table th:nth-child(4),
   .observatoire-immobilier .oi-table-wrap .oi-table td:nth-child(4) { display: none; }

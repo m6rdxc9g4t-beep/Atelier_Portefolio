@@ -35,7 +35,8 @@ Les rapports PDF de chaque projet sont téléchargeables depuis sa page (`client
 
 ### Apparence
 
-- **Enveloppe du site** (accueil, projets, IA & dev, CV, contact, 404, barre et pied de page, lien « Portfolio » des pages projets) : système commun de la Suite Atelier, charte v2 « Linear » (`Atelier_Deploy/DESIGN.md`) — structure neutre, Inter, plat, thème clair et sombre, accent = signature du portfolio (ardoise `#4a5468`, `data-atelier-app="portfolio"`). Styles : `client/src/styles/site.css`, tous scopés sous `.site`.
+- **Enveloppe du site** (accueil, projets, IA & dev, CV, contact, 404, barre et pied de page, lien « Portfolio » des pages projets) : système commun de la Suite Atelier, charte v2 « Linear » (`Atelier_Deploy/DESIGN.md`) — structure crème en clair et bleu nuit en sombre, Inter, plat, accent = signature du portfolio (ardoise `#4a5468`, `data-atelier-app="portfolio"`). Styles : `client/src/styles/site.css`, tous scopés sous `.site`.
+- **Cartes de chiffres** : les chiffres clés (rangée « projets / applications / rapports / familles » de l’accueil, chiffres des cartes projets, indicateurs des démos E-commerce, Labo A/B et Observatoire) sont des cartes arrondies à la forme de `.atelier-kpi` (trait de 1 px, coins de 12 px `--atelier-radius-xl`, plates), en rangées espacées plutôt qu’en bandes à filets.
 - **Marque v2** : copie verbatim de `Atelier_Projets/design-system/brand/` dans `client/public/atelier-brand/` (`atelier-brand.css`, `atelier-theme.js`, Inter + licence), chargée par `client/index.html`. Toute modification se fait à la source puis dans la copie.
 - **Thème** : Système / Clair / Sombre, préférence commune à la suite (`window.atelierTheme`) : cookie `atelier_theme` sur le VPS (`portfolio.atelier.<domaine>`), `localStorage` ailleurs (adresse Netlify, local).
 - **Pages à habillage propre** : inchangées, elles gardent leurs couleurs et polices quel que soit le thème.

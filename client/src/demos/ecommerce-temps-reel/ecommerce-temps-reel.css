@@ -5,12 +5,14 @@
    ═════════════════════════════════════════════════════════════ */
 
 .ecommerce-temps-reel {
-  /* Palette catégorielle (méthode dataviz : ordre validé pour les paires adjacentes, clair et sombre). */
+  /* Palette catégorielle (méthode dataviz : ordre validé pour les paires adjacentes, clair et sombre).
+     Sur la crème, aqua, jaune et magenta prennent leur pas foncé (celui du thème sombre) : toutes les
+     marques passent 3:1 sur #fffdf8 comme sur le bleu nuit #121b2d (validate_palette.js). */
   --ecr-s1: #2a78d6;
   --ecr-s2: #eb6834;
-  --ecr-s3: #1baf7a;
-  --ecr-s4: #eda100;
-  --ecr-s5: #e87ba4;
+  --ecr-s3: #199e70;
+  --ecr-s4: #c98500;
+  --ecr-s5: #d55181;
   --ecr-s6: #008300;
   --ecr-text-2: color-mix(in oklab, var(--atelier-text) 80%, var(--atelier-muted));
   --ecr-tint: color-mix(in oklab, var(--atelier-text) 6%, transparent);

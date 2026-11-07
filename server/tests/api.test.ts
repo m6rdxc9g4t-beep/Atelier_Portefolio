@@ -10,7 +10,6 @@ const messages = path.join(os.tmpdir(), `portfolio-messages-${process.pid}.jsonl
 
 beforeAll(async () => {
   process.env.MESSAGES_FILE = messages;
-  process.env.ANTHROPIC_API_KEY = '';
   const { createApp } = await import('../src/app');
   app = createApp({ serveClient: false });
 });
@@ -36,8 +35,10 @@ describe('contenu', () => {
 
   it('expose la Suite Atelier (IA & dev) avec ses logos', async () => {
     const r = await request(app).get('/api/projects');
-    const atelier = r.body.projects.filter((p: { slug: string }) => p.slug.startsWith('atelier-') || p.slug === 'agent-ops-lab');
-    expect(atelier.length).toBe(8);
+    const atelier = r.body.projects.filter(
+      (p: { slug: string; atelierApp?: string }) => p.slug.startsWith('atelier-') || p.slug === 'agent-ops-lab' || p.atelierApp,
+    );
+    expect(atelier.length).toBe(9);
     for (const p of atelier) {
       expect(['ia', 'dev', 'bi']).toContain(p.category);
       const file = path.resolve(__dirname, '../../client/public', p.logo.replace(/^\//, ''));
@@ -63,13 +64,24 @@ describe('contenu', () => {
       for (const s of c.sections)
         for (const b of s.blocks)
           if (b.type === 'figure') {
-            const file = path.resolve(__dirname, '../../client/public', b.src.replace(/^\//, ''));
-            expect(fs.existsSync(file), `${slug} : figure manquante ${b.src}`).toBe(true);
+            for (const src of [b.src, b.srcDark].filter(Boolean)) {
+              const file = path.resolve(__dirname, '../../client/public', src.replace(/^\//, ''));
+              expect(fs.existsSync(file), `${slug} : figure manquante ${src}`).toBe(true);
+            }
           }
       for (const rep of r.body.reports ?? []) {
         const file = path.resolve(__dirname, '../../client/public/reports', rep.file);
         expect(fs.existsSync(file), `${slug} : rapport manquant ${rep.file}`).toBe(true);
       }
+    }
+  });
+
+  it('DataMind : captures claires et sombres de l’app présentes', async () => {
+    const r = await request(app).get('/api/projects/datamind');
+    expect(r.body.atelierApp).toBe('datamind');
+    const hero = r.body.content.figures.hero;
+    for (const src of [hero.src, hero.srcDark]) {
+      expect(fs.existsSync(path.resolve(__dirname, '../../client/public', src)), `figure manquante ${src}`).toBe(true);
     }
   });
 
@@ -148,10 +160,11 @@ describe('contact & agent', () => {
     expect(r.status).toBe(400);
   });
 
-  it('agent désactivé sans clé', async () => {
+  it('n’appelle plus aucune IA : l’ancien relais de DataMind a disparu', async () => {
+    // La page DataMind mène à la démo publique de l'app (service datamind-demo du VPS), sans clé côté portfolio.
     const s = await request(app).get('/api/datamind/status');
-    expect(s.body.enabled).toBe(false);
+    expect(s.status).toBe(404);
     const r = await request(app).post('/api/datamind/chat').send({ messages: [{ role: 'user', content: 'Bonjour' }] });
-    expect(r.status).toBe(503);
+    expect(r.status).toBe(404);
   });
 });

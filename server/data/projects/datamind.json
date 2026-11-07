@@ -1,8 +1,8 @@
 {
   "slug": "datamind",
-  "title": "DataMind — agent data analyst",
-  "subtitle": "Déposez un CSV : statistiques, graphiques automatiques et un agent IA qui répond à vos questions sur les données.",
-  "course": "Projet personnel — IA appliquée à l’analyse de données",
+  "title": "DataMind — agent d’analyse de données",
+  "subtitle": "Importez un fichier, posez vos questions en français : l’agent écrit des requêtes SQL, les exécute sur les données et répond avec des chiffres vérifiables.",
+  "course": "Projet personnel — IA appliquée à l’analyse de données · DataMind 7",
   "level": "Perso",
   "date": "2026",
   "authors": [
@@ -10,133 +10,178 @@
   ],
   "supervisor": null,
   "tools": [
+    "TypeScript",
+    "Fastify",
+    "DuckDB",
     "React",
-    "Papa Parse",
-    "Recharts",
-    "API Claude"
+    "ECharts",
+    "Ollama",
+    "Claude"
   ],
   "methods": [
-    "Statistiques descriptives",
-    "Détection de types",
-    "Visualisation automatique",
-    "Agent IA"
+    "Agent à outils",
+    "SQL en lecture seule",
+    "Gradient boosting",
+    "Réseau de neurones",
+    "Holt-Winters",
+    "k-means"
   ],
-  "abstract": "DataMind est un prototype d’agent data analyst : on dépose un fichier CSV, l’application détecte les colonnes numériques et catégorielles, calcule des indicateurs, propose des graphiques automatiques (barres, répartition, évolution temporelle) et un agent conversationnel analyse le jeu de données à partir de raccourcis (exploration, outliers, corrélations, segmentation, insights). Dans ce portfolio, l’agent passe par le serveur : la clé d’API n’est jamais exposée au navigateur.",
-  "question": "Peut-on donner à n’importe qui un premier diagnostic de ses données en quelques secondes ?",
+  "abstract": "On importe un fichier et on pose ses questions en français : l’agent écrit les requêtes SQL, les exécute réellement sur les données avec DuckDB et répond à partir des résultats, chaque étape visible. Autour de lui, l’application fait sans IA ce qui doit être exact (exploration, qualité, prédiction), et l’IA tourne en local par défaut.",
+  "question": "Peut-on confier une analyse à un agent IA sans renoncer à vérifier chaque chiffre ?",
   "kpis": [
     {
-      "value": "3",
-      "label": "Vues : chat, graphiques, données"
+      "value": "5",
+      "label": "Outils de l’agent : SQL, graphique, segmentation, prédiction, prévision"
     },
     {
-      "value": "11",
-      "label": "Analyses en un clic"
+      "value": "4",
+      "label": "Modèles comparés sur un jeu de test, sans IA"
     },
     {
-      "value": "CSV",
-      "label": "Format d’entrée"
+      "value": "16",
+      "label": "Jeux d’exemple fictifs, dans 9 domaines"
     },
     {
-      "value": "0",
-      "label": "Clé exposée côté navigateur"
+      "value": "200 Mo",
+      "label": "Par fichier : CSV, Excel, JSON ou Parquet"
     }
   ],
   "data": {
-    "source": "Fichier CSV fourni par l’utilisateur (traité dans le navigateur)."
+    "source": "Fichiers importés par l’utilisateur, ou jeux d’exemple fictifs fournis avec l’application (générés avec une graine fixe)."
+  },
+  "figures": {
+    "hero": {
+      "src": "img/projets/datamind-prediction.webp",
+      "srcDark": "img/projets/datamind-prediction-sombre.webp",
+      "caption": "Prédiction sur le jeu d’exemple « Boutique en ligne » (3 200 commandes fictives) : quatre modèles comparés sur 640 lignes jamais vues, matrice de confusion et influence des variables. Capture de l’application."
+    }
   },
   "sections": [
     {
-      "id": "fonctionnement",
-      "title": "Fonctionnement",
+      "id": "assistant",
+      "title": "Un assistant qui calcule au lieu de deviner",
+      "blocks": [
+        {
+          "type": "text",
+          "md": "L’agent n’invente pas les chiffres : il écrit une requête SQL, l’exécute sur la table du fichier avec **DuckDB**, lit le résultat et ne répond qu’à partir de ce qu’il a calculé. Il dispose de cinq outils :"
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Requête SQL** en lecture seule, une instruction à la fois, avec un délai maximal.",
+            "**Graphique** interactif tiré du résultat d’une requête.",
+            "**Segmentation** par k-means.",
+            "**Prédiction** par régression linéaire ou logistique, évaluée sur un jeu de test contre une référence naïve.",
+            "**Prévision** d’une série : tendance et saisonnalité."
+          ]
+        },
+        {
+          "type": "text",
+          "md": "Chaque étape s’affiche dans une **trace numérotée** : la requête (modifiable et relançable), son résultat, le graphique. Quinze analyses se lancent en un clic, trois questions de relance suivent chaque réponse, et le dictionnaire des colonnes saisi dans l’onglet Qualité est transmis à l’agent."
+        }
+      ]
+    },
+    {
+      "id": "analyses",
+      "title": "Prédiction, exploration, qualité : sans IA",
       "blocks": [
         {
           "type": "list",
           "items": [
-            "**Chargement** d’un CSV par glisser-déposer, analysé dans le navigateur (Papa Parse).",
-            "**Détection** des colonnes numériques (valeurs convertibles) et catégorielles (2 à 14 modalités).",
-            "**Graphiques automatiques** : somme d’une mesure par catégorie, répartition d’une catégorie, évolution si une colonne de date existe.",
-            "**Agent IA** : questions libres ou raccourcis (exploration, outliers, valeurs manquantes, corrélations, segmentation, tendances, insights, plan d’analyse, graphiques, métriques)."
+            "**Prévoir une variable** : référence naïve, régression linéaire ou logistique, gradient boosting d’arbres et réseau de neurones, entraînés sur 70 % des lignes et comparés sur 20 % jamais vues ; influence des variables et simulateur.",
+            "**Prévoir dans le temps** : référence naïve, tendance et saisonnalité, Holt-Winters, réseau de neurones autorégressif ; le meilleur prolonge la série.",
+            "**Exploration** : graphiques automatiques (évolution, comparaison, répartition, distribution) et fiche de chaque colonne.",
+            "**Qualité** : score sur 100, profil de chaque colonne, recommandations, et un nettoyage appliqué dans une nouvelle version du jeu (l’original est conservé).",
+            "Les modèles sont écrits dans l’application, sans bibliothèque d’apprentissage : ils fonctionnent même sans moteur IA."
+          ]
+        },
+        {
+          "type": "figure",
+          "src": "img/projets/datamind-exploration.webp",
+          "srcDark": "img/projets/datamind-exploration-sombre.webp",
+          "caption": "Exploration automatique du même jeu : évolution mensuelle, comparaison par catégorie, répartition par région, distribution des prix."
+        },
+        {
+          "type": "figure",
+          "src": "img/projets/datamind-qualite.webp",
+          "srcDark": "img/projets/datamind-qualite-sombre.webp",
+          "caption": "Qualité : score sur 100, points à vérifier (valeurs atypiques par la méthode IQR), nettoyage proposé et dictionnaire des colonnes."
+        }
+      ]
+    },
+    {
+      "id": "livrables",
+      "title": "Du constat au livrable",
+      "blocks": [
+        {
+          "type": "list",
+          "items": [
+            "**Tableau de bord** : on épingle graphiques, tableaux et réponses ; titres, commentaires, ordre, export PDF.",
+            "**Fichiers liés** : un second fichier devient une table SQL ; les clés communes sont détectées et leur taux de correspondance mesuré (« 100 % des commandes trouvent leur client »).",
+            "**Modèles enregistrés** : un modèle entraîné se garde et s’applique à un autre fichier, avec les prédictions en CSV.",
+            "**Exports** : table en CSV au format français, analyse complète en page HTML."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "local",
+      "title": "Local d’abord",
+      "blocks": [
+        {
+          "type": "list",
+          "items": [
+            "**Ollama par défaut** : le modèle tourne sur la machine ou le serveur, rien ne part chez un tiers. Claude reste possible, par forfait ou par clé API, pour un usage personnel.",
+            "**Requêtes sous contrôle** : chaque jeu est chargé dans une base DuckDB en mémoire, l’accès aux fichiers est coupé et la configuration verrouillée ; seules les lectures passent, une à la fois, avec un délai maximal. Aucun code arbitraire n’est exécuté.",
+            "**Petits modèles rattrapés** : un appel d’outil écrit en JSON dans le texte, ou une requête proposée dans un bloc SQL, est exécuté quand même et le vrai résultat est renvoyé au modèle.",
+            "**Dans la Suite Atelier** : sur le serveur, DataMind tourne derrière la connexion unique du portail, avec l’IA du serveur."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "demo",
+      "title": "La démo publique",
+      "blocks": [
+        {
+          "type": "text",
+          "md": "La démo en ligne est la même application, lancée en **mode démonstration** sur le serveur de la Suite Atelier."
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Jeux d’exemple seulement** : pas d’import de fichier, rien n’est enregistré, chaque visiteur a sa propre session.",
+            "**IA du serveur** : un modèle local, sans carte graphique ; une réponse peut prendre une à plusieurs minutes. Une question à la fois et un nombre limité de questions par heure ; Claude est désactivé.",
+            "**Le reste répond tout de suite** : exploration, qualité et prédiction ne passent pas par l’IA."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "architecture",
+      "title": "Architecture",
+      "blocks": [
+        {
+          "type": "list",
+          "items": [
+            "**Backend** : Fastify et DuckDB en TypeScript ; chaque fichier devient un Parquet (encodage, séparateur et feuilles Excel détectés).",
+            "**Frontend** : React et Vite, graphiques ECharts, réponses de l’agent en flux (SSE).",
+            "**Moteurs** : boucle d’outils pour Ollama et pour l’API Claude, Claude Agent SDK pour le forfait (outils exposés par MCP, ceux de Claude Code désactivés).",
+            "**Un seul processus** en production : l’API sert aussi l’interface. Image Docker, tests Vitest (import, requêtes, analyses, moteurs simulés, API)."
           ]
         }
       ]
     }
   ],
-  "figures": {
-    "quickPrompts": [
-      {
-        "label": "Exploration",
-        "items": [
-          [
-            "Statistiques descriptives",
-            "Décris ce jeu de données : types de colonnes, valeurs manquantes, statistiques descriptives."
-          ],
-          [
-            "Détection d’outliers",
-            "Identifie les valeurs aberrantes (outliers) dans chaque colonne numérique."
-          ],
-          [
-            "Valeurs manquantes",
-            "Y a-t-il des valeurs manquantes ? Comment les traiter ?"
-          ]
-        ]
-      },
-      {
-        "label": "Analyse",
-        "items": [
-          [
-            "Corrélations",
-            "Quelles corrélations remarquables existent entre les colonnes numériques ?"
-          ],
-          [
-            "Segmentation",
-            "Segmente les données en groupes significatifs et explique chaque groupe."
-          ],
-          [
-            "Tendances temporelles",
-            "Quelles sont les tendances temporelles si une colonne de date existe ?"
-          ]
-        ]
-      },
-      {
-        "label": "Insights",
-        "items": [
-          [
-            "Top 5 insights",
-            "Donne-moi les 5 insights les plus importants de ce dataset."
-          ],
-          [
-            "Questions business",
-            "Quelles questions business peut-on répondre avec ces données ?"
-          ],
-          [
-            "Plan d’analyse",
-            "Propose un plan d’analyse complet étape par étape pour ce dataset."
-          ]
-        ]
-      },
-      {
-        "label": "Visualisation",
-        "items": [
-          [
-            "Recommander des graphiques",
-            "Quels graphiques seraient les plus pertinents pour visualiser ces données ?"
-          ],
-          [
-            "Métriques clés",
-            "Génère un tableau de bord avec les métriques clés à surveiller."
-          ]
-        ]
-      }
-    ]
-  },
   "conclusions": [
-    "Un premier diagnostic de n’importe quel CSV en quelques secondes, et un agent pour aller plus loin."
+    "Un agent d’analyse utile est un agent qu’on peut vérifier : il calcule sur les vraies données et montre chaque requête."
   ],
   "limits": [
-    "L’agent ne voit qu’un aperçu (30 lignes) et des statistiques : ses conclusions restent à vérifier sur le jeu complet.",
-    "L’agent IA n’est actif que si le serveur dispose d’une clé d’API."
+    "Avec un petit modèle local, l’agent est plus lent et moins sûr dans le choix de ses requêtes qu’avec Claude ; la trace permet de le voir et de relancer une requête corrigée.",
+    "Les modèles de prédiction ont des réglages fixes (arrêt anticipé sur un jeu de validation, pas de recherche d’hyperparamètres) : ils donnent un premier diagnostic solide, pas un modèle de production.",
+    "Les jeux d’exemple sont fictifs : ils illustrent les fonctions, pas des résultats réels."
   ],
   "changesVsOldSite": [
-    "Projet absent de l’ancien site ; l’appel à l’API passe désormais par le serveur."
+    "La page présente désormais l’application complète (DataMind 7) et mène à sa démo publique, au lieu de l’ancien prototype d’exploration CSV."
   ]
 }

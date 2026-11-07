@@ -14,9 +14,6 @@ export const config = {
   clientDist: process.env.CLIENT_DIST ?? path.resolve(serverRoot, '../client/dist'),
   /** Fichier où sont enregistrés les messages du formulaire de contact. */
   messagesFile: process.env.MESSAGES_FILE ?? path.join(serverRoot, 'storage', 'messages.jsonl'),
-  /** Clé optionnelle : active l'agent DataMind (proxy vers l'API Claude). */
-  anthropicApiKey: process.env.ANTHROPIC_API_KEY ?? '',
-  anthropicModel: process.env.ANTHROPIC_MODEL ?? 'claude-sonnet-5-5',
   /** Secret partagé avec le relais Netlify (réécriture signée) : permet de reconnaître l'adresse réelle du visiteur. */
   netlifyProxySecret: process.env.NETLIFY_PROXY_SECRET ?? '',
 };

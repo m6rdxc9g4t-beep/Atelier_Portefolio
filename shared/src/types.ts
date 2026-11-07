@@ -17,7 +17,8 @@ export type Block =
   | { type: 'list'; items: string[] }
   | { type: 'table'; title?: string; columns: string[]; rows: string[][]; note?: string }
   | { type: 'formula'; tex: string; caption?: string }
-  | { type: 'figure'; src: string; caption: string }
+  /** `srcDark` : version de l'image pour le thème sombre (pages de la Suite Atelier, qui suivent le thème du site). */
+  | { type: 'figure'; src: string; srcDark?: string; caption: string }
   | { type: 'callout'; md: string };
 
 export interface Section {
@@ -96,7 +97,7 @@ export interface ProjectMeta {
   /** Logo de l'application (client/public), affiché à la place du pictogramme. */
   logo?: string;
   /** App de la Suite Atelier (data-atelier-app) : icône carrée et couleur signature communes à la suite. */
-  atelierApp?: 'nexus' | 'viz' | 'tab' | 'convert' | 'projets' | 'tresorerie' | 'mission' | 'ops';
+  atelierApp?: 'nexus' | 'viz' | 'tab' | 'convert' | 'projets' | 'tresorerie' | 'mission' | 'ops' | 'datamind';
   /** Nom du module interactif de la page. */
   interactive: string;
   year: number;

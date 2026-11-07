@@ -7,7 +7,6 @@ import { config } from './config.js';
 import { projectsRouter } from './routes/projects.js';
 import { modelsRouter } from './routes/models.js';
 import { contactRouter } from './routes/contact.js';
-import { datamindRouter } from './routes/datamind.js';
 
 export function createApp({ serveClient = config.isProd }: { serveClient?: boolean } = {}) {
   const app = express();
@@ -40,7 +39,6 @@ export function createApp({ serveClient = config.isProd }: { serveClient?: boole
   api.use(projectsRouter);
   api.use(modelsRouter);
   api.use(contactRouter);
-  api.use(datamindRouter);
   api.use((_req, res) => res.status(404).json({ error: 'Route API inconnue' }));
   app.use('/api', api);
 

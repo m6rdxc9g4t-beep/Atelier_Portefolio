@@ -92,6 +92,7 @@ export function EdHero({
   project,
   meta,
   deco = true,
+  actions,
   children,
 }: {
   kicker: ReactNode;
@@ -100,6 +101,8 @@ export function EdHero({
   project: ProjectResponse;
   meta: ReactNode;
   deco?: boolean;
+  /** Boutons placés sous le chapeau (ex. « Essayer la démo »). */
+  actions?: ReactNode;
   children?: ReactNode;
 }) {
   return (
@@ -110,6 +113,7 @@ export function EdHero({
         <div className="ed-kicker">{kicker}</div>
         <h1 className="ed-title">{title}</h1>
         <p className="ed-lede">{lede}</p>
+        {actions}
         <div className="ed-authors">
           {project.content.authors.map((a) => (
             <div key={a} className="ed-author">

@@ -20,7 +20,7 @@ Chaque projet a **sa propre page, habillée à l’image de son sujet**, avec un
 | Scoring marketing (M1) | publipostage (enveloppe par avion) | déciles, V de Cramér, sélection stepwise pas à pas, calculateur de score (formule SAS, vérifiable côté serveur), ROC |
 | Prévision ARIMA / SARIMA | deux séries | démarche Box–Jenkins pas à pas |
 | Porsche — Power BI | automobile premium | sélecteur de gamme + rapports Power BI |
-| DataMind — agent data analyst (perso) | terminal vert | exploration CSV + agent IA (proxy serveur) |
+| DataMind — agent d’analyse de données (perso) | signature DataMind (indigo), captures claires et sombres de l’app | bouton « Essayer la démo » vers la démo publique de l’app (jeux d’exemple, IA du serveur) |
 | **Suite Atelier — IA & développement (perso)** | système commun de la suite (charte v2 « Linear ») | schéma de la suite sur l’accueil (section « Le coin atelier ») |
 | Atelier Nexus — hub d’agents IA | signature Nexus (orange) | orchestrateur, 17 agents, validation humaine, workflows rejouables |
 | Atelier Viz — BI locale | signature Viz (or) | rapports multipages, 22 visuels, export PowerPoint |
@@ -60,16 +60,18 @@ Avec Docker :
 
 ```bash
 docker build -t portfolio .
-docker run -p 8787:8787 -e ANTHROPIC_API_KEY=... portfolio
+docker run -p 8787:8787 portfolio
 ```
 
-Variables d’environnement : voir [`.env.example`](.env.example). `ANTHROPIC_API_KEY` est facultative (elle n’active que l’agent IA de DataMind).
+Variables d’environnement : voir [`.env.example`](.env.example). Le site n’appelle aucune IA.
+À la construction, `VITE_DATAMIND_DEMO_URL` donne l’adresse de la démo publique de DataMind (bouton « Essayer la démo » de `/projets/datamind`) ;
+sur le VPS, `Atelier_Deploy` la fixe à `https://demo-datamind.<domaine>`. Vide : le bouton est remplacé par une mention.
 
 ## Architecture
 
 ```
 shared/   types du contenu, catalogue des projets, modèles (logit, survie, GARCH, Moran, Heckman, lexique d’avis) + tests
-server/   API Express 5 : contenu, profil, prédictions et simulations, contact, proxy DataMind ; data/ = fiches JSON
+server/   API Express 5 : contenu, profil, prédictions et simulations, contact ; data/ = fiches JSON
 client/   React 19 + Vite : accueil, projets, CV imprimable, une page thématisée par projet (chargée à la demande)
 ```
 
@@ -87,7 +89,6 @@ client/   React 19 + Vite : accueil, projets, CV imprimable, une page thématis�
 | POST | `/api/models/selection` | simulation du biais de sélection et correction de Heckman |
 | POST | `/api/nlp/classify` | famille thématique et polarité d’un avis client |
 | POST | `/api/contact` | message du formulaire (validation, anti-robots, limitation de débit) |
-| GET/POST | `/api/datamind/status`, `/api/datamind/chat` | agent IA (proxy, clé côté serveur) |
 
 ## Modifier le contenu
 
@@ -96,7 +97,7 @@ client/   React 19 + Vite : accueil, projets, CV imprimable, une page thématis�
 - **Ordre, couleurs, logos, rapports, liens Power BI** : `shared/src/catalog.ts` (apps de la Suite Atelier : champ `atelierApp`, icônes carrées dans `client/public/img/atelier/<app>.svg`)
 - **Ajouter un projet** : une fiche JSON + une entrée au catalogue suffisent (la page générique l’affiche) ; une page thématisée peut ensuite être ajoutée dans `client/src/projects/<slug>/` et déclarée dans `registry.ts`.
 
-Les fiches ont été rédigées à partir des rapports de chaque projet : tous les chiffres viennent des documents. Sans rapport fourni, les fiches ARIMA / SARIMA, Porsche, stage ECM et DataMind reprennent le contenu de l’ancien site.
+Les fiches ont été rédigées à partir des rapports de chaque projet : tous les chiffres viennent des documents. Sans rapport fourni, les fiches ARIMA / SARIMA, Porsche et stage ECM reprennent le contenu de l’ancien site ; la fiche DataMind décrit l’application (README d’Agent_Data) et ses captures sont faites sur ses jeux d’exemple fictifs.
 Les marques citées (Netflix, Flunch, Leboncoin, Porsche…) sont les sujets des études ; les logos de Netflix, Flunch et Leboncoin (`client/public/img/brands/`) servent uniquement à identifier le sujet de chaque étude.
 
 ---

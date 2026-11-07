@@ -238,7 +238,7 @@
       "items": [
         "Suite Atelier : Nexus, Viz, Tab, Convert, Projets, Trésorerie, Mission",
         "Agent Ops Lab : agent IA de dispatch, validation humaine",
-        "DataMind : agent data analyst sur fichiers CSV"
+        "DataMind : agent d’analyse de données (SQL sur DuckDB, IA locale), démo publique"
       ]
     }
   ],

@@ -30,15 +30,24 @@ export function BlockView({ block }: { block: Block }) {
           {block.caption && <figcaption>{block.caption}</figcaption>}
         </figure>
       );
-    case 'figure':
+    case 'figure': {
+      const src = `/${block.src.replace(/^\//, '')}`;
+      // Une version sombre (srcDark) remplace l'image quand le site est en thème sombre (voir blocks.css).
+      const dark = block.srcDark ? `/${block.srcDark.replace(/^\//, '')}` : null;
       return (
-        <figure className="blk-figure">
-          <a href={`/${block.src.replace(/^\//, '')}`} target="_blank" rel="noopener noreferrer" title="Ouvrir la figure en grand">
-            <img src={`/${block.src.replace(/^\//, '')}`} alt={block.caption} loading="lazy" />
+        <figure className={dark ? 'blk-figure blk-figure--themed' : 'blk-figure'}>
+          <a className="blk-fig-light" href={src} target="_blank" rel="noopener noreferrer" title="Ouvrir la figure en grand">
+            <img src={src} alt={block.caption} loading="lazy" />
           </a>
+          {dark && (
+            <a className="blk-fig-dark" href={dark} target="_blank" rel="noopener noreferrer" title="Ouvrir la figure en grand">
+              <img src={dark} alt={block.caption} loading="lazy" />
+            </a>
+          )}
           <figcaption>{block.caption}</figcaption>
         </figure>
       );
+    }
     case 'table':
       return (
         <figure className="blk-table">

@@ -17,6 +17,12 @@
 .blk-figure { margin: 4px 0; max-width: 920px; }
 .blk-figure img { width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--b-line, rgba(127, 127, 127, 0.2)); background: #fff; }
 .blk-figure figcaption { font-family: var(--b-mono, var(--mono)); font-size: 12px; color: var(--b-muted, inherit); margin-top: 8px; line-height: 1.5; }
+/* Figure à deux versions (srcDark) : celle du thème courant du site (data-theme sur <html>). */
+.blk-figure--themed a { display: block; }
+.blk-figure--themed .blk-fig-dark { display: none; }
+:root[data-theme='dark'] .blk-figure--themed .blk-fig-light { display: none; }
+:root[data-theme='dark'] .blk-figure--themed .blk-fig-dark { display: block; }
+:root[data-theme='dark'] .blk-figure--themed img { background: transparent; }
 .blk-table { margin: 4px 0; }
 .blk-table-title { font-family: var(--b-display, inherit); font-weight: 600; font-size: 1.02rem; margin-bottom: 10px; color: var(--b-strong, inherit); }
 .blk-table-scroll { overflow-x: auto; contain: inline-size; border: 1px solid var(--b-line, rgba(127, 127, 127, 0.25)); border-radius: 10px; background: var(--b-card, transparent); -webkit-overflow-scrolling: touch; }

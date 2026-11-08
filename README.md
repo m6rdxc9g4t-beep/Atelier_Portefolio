@@ -47,6 +47,12 @@ Chaque démo tourne entièrement dans le navigateur du visiteur (`client/src/dem
 | Qualité des données | profil d'un CSV, score de qualité par dimension, nettoyage avec aperçu |
 | Tableau de bord | KPI filtrables de Comptoir Lumen, comparaison N-1, cohortes de fidélité |
 | Modélisation de données | schéma relationnel éditable, diagnostic de normalisation, DDL multi-dialecte testé dans SQLite |
+| Segmentation clients | RFM et k-means (k-means++, coude, silhouette, ACP) sur Comptoir Lumen, portrait et action par segment |
+| Élasticité-prix | régression log-log avec contrôles, biais de la régression naïve, simulateur de prix et de marge |
+| Score de churn | régression logistique, ROC/AUC, calibration, seuil choisi selon le coût des erreurs |
+| Labo de régression | MCO, erreurs-types robustes HC1, Breusch-Pagan, VIF, Cook, comparaison de modèles |
+| Attribution marketing | dernier clic, linéaire, décroissance, en U, Markov (effet de retrait) et Shapley face à l'effet vrai |
+| Pipeline de données | DAG SQL à la dbt exécuté dans SQLite, tests de données, lignage, reconstruction en aval |
 
 Le moteur SQLite est compilé en WebAssembly : la politique de sécurité du serveur autorise `'wasm-unsafe-eval'` (et rien d'autre de plus) dans `script-src`.
 

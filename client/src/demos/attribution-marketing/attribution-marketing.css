@@ -1,0 +1,742 @@
+/* ═════════════════════════════════════════════════════════════
+   Démo « Attribution marketing » — charte v2 « Linear » de la Suite Atelier.
+   Tout est scopé sous .attribution-marketing (classes atb-*). Structure neutre (jetons --atelier-*),
+   palette catégorielle (méthode dataviz, reprise de la démo E-commerce) pour les modèles comparés,
+   l'effet réel toujours en trait d'encre. Disposition : réglages, chiffres, graphique pleine largeur,
+   puis deux colonnes (classement, chemins), puis le détail d'un modèle.
+   ═════════════════════════════════════════════════════════════ */
+
+.attribution-marketing {
+  --atb-s1: #2a78d6;
+  --atb-s2: #eb6834;
+  --atb-s3: #199e70;
+  --atb-s4: #c98500;
+  --atb-text-2: color-mix(
+    in oklab,
+    var(--atelier-text) 80%,
+    var(--atelier-muted)
+  );
+  --atb-tint: color-mix(in oklab, var(--atelier-text) 6%, transparent);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+[data-theme="dark"] .attribution-marketing,
+.dark .attribution-marketing {
+  --atb-s1: #3987e5;
+  --atb-s2: #d95926;
+  --atb-tint: color-mix(in oklab, var(--atelier-text) 8%, transparent);
+}
+.attribution-marketing .atb-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── En-tête ── */
+.attribution-marketing .atb-hero h1 {
+  font-size: clamp(26px, 3vw, 36px);
+  font-weight: 600;
+  letter-spacing: -0.026em;
+  line-height: 1.14;
+  max-width: 28ch;
+  text-wrap: balance;
+}
+.attribution-marketing .atb-hero .sec-lede {
+  font-size: 15.5px;
+}
+.attribution-marketing .atb-chips {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 18px;
+  padding: 0;
+}
+.attribution-marketing .atb-chips li {
+  font-size: 12.5px;
+  color: var(--atb-text-2);
+  border: 1px solid var(--atelier-border);
+  background: var(--atelier-surface);
+  border-radius: 999px;
+  padding: 3px 10px;
+}
+.attribution-marketing .atb-disclaimer {
+  margin-top: 14px;
+  font-size: 13px;
+  color: var(--atelier-muted);
+}
+
+/* ── Outil ── */
+.attribution-marketing .atb-tool-wrap {
+  max-width: 1180px;
+  margin: 28px auto 0;
+  padding: 0 28px;
+}
+.attribution-marketing .atb-tool {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.attribution-marketing .atb-panel {
+  background: var(--atelier-surface);
+  border: 1px solid var(--atelier-border);
+  border-radius: var(--atelier-radius-lg);
+  padding: 14px 16px 16px;
+  min-width: 0;
+}
+.attribution-marketing .atb-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  flex-wrap: wrap;
+}
+.attribution-marketing .atb-head h2 {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.006em;
+  margin: 0;
+}
+.attribution-marketing .atb-panel-lede {
+  margin: 6px 0 10px;
+  font-size: 13px;
+  color: var(--atelier-muted);
+  max-width: 78ch;
+}
+.attribution-marketing .atb-subtitle {
+  margin: 22px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+  padding-top: 16px;
+  border-top: 1px solid var(--atelier-line);
+}
+
+/* Réglages */
+.attribution-marketing .atb-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 28px;
+}
+.attribution-marketing .atb-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.attribution-marketing .atb-field-wide {
+  grid-column: 1 / -1;
+}
+.attribution-marketing .atb-label-txt {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--atb-text-2);
+}
+.attribution-marketing .atb-hint {
+  font-size: 12px;
+  color: var(--atelier-muted);
+}
+.attribution-marketing .atb-seg {
+  display: grid;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
+  gap: 2px;
+  padding: 2px;
+  max-width: 420px;
+  border-radius: var(--atelier-radius-md);
+  background: var(--atelier-surface-2);
+}
+.attribution-marketing .atb-seg button {
+  min-height: 28px;
+  padding: 3px 8px;
+  border: 0;
+  border-radius: var(--atelier-radius-sm);
+  background: transparent;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--atelier-muted);
+  cursor: pointer;
+}
+.attribution-marketing .atb-seg button:hover {
+  color: var(--atelier-text);
+}
+.attribution-marketing .atb-seg button[aria-pressed="true"] {
+  background: var(--atelier-surface);
+  color: var(--atelier-text);
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.08),
+    0 0 0 1px var(--atelier-line);
+}
+.attribution-marketing .atb-range-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.attribution-marketing .atb-range-head output {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--atelier-text);
+  font-variant-numeric: tabular-nums;
+}
+.attribution-marketing .atb-range {
+  width: 100%;
+  max-width: 420px;
+  accent-color: var(--atelier-signature);
+}
+.attribution-marketing .atb-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.attribution-marketing .atb-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 4px 11px;
+  border: 1px solid var(--atelier-border);
+  border-radius: 999px;
+  background: var(--atelier-surface);
+  font: inherit;
+  font-size: 12.5px;
+  color: var(--atelier-muted);
+  cursor: pointer;
+}
+.attribution-marketing .atb-toggle:hover:not(:disabled) {
+  color: var(--atelier-text);
+  border-color: color-mix(
+    in oklab,
+    var(--atelier-text) 30%,
+    var(--atelier-border)
+  );
+}
+.attribution-marketing .atb-toggle[aria-pressed="true"] {
+  color: var(--atelier-text);
+  border-color: color-mix(
+    in oklab,
+    var(--atelier-text) 40%,
+    var(--atelier-border)
+  );
+  font-weight: 500;
+}
+.attribution-marketing .atb-toggle:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Pastilles de série */
+.attribution-marketing .atb-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--atb-c);
+  flex: none;
+}
+.attribution-marketing .atb-swatch-truth {
+  display: inline-block;
+  width: 2px;
+  height: 12px;
+  background: var(--atelier-text);
+  flex: none;
+}
+.attribution-marketing .atb-s1 {
+  --atb-c: var(--atb-s1);
+}
+.attribution-marketing .atb-s2 {
+  --atb-c: var(--atb-s2);
+}
+.attribution-marketing .atb-s3 {
+  --atb-c: var(--atb-s3);
+}
+.attribution-marketing .atb-s4 {
+  --atb-c: var(--atb-s4);
+}
+.attribution-marketing .atb-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  font-size: 12.5px;
+  color: var(--atb-text-2);
+}
+.attribution-marketing .atb-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Chiffres */
+.attribution-marketing .atb-kpis {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.attribution-marketing .atb-kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 16px;
+  min-width: 0;
+  background: var(--atelier-surface);
+  border: 1px solid var(--atelier-border);
+  border-radius: var(--atelier-radius-xl, 12px);
+}
+.attribution-marketing .atb-kpi-label {
+  font-size: 12.5px;
+  color: var(--atelier-muted);
+}
+.attribution-marketing .atb-kpi-value {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.25;
+}
+.attribution-marketing .atb-kpi-value-sm {
+  font-size: 18px;
+  line-height: 1.35;
+}
+.attribution-marketing .atb-kpi-sub {
+  font-size: 12px;
+  color: var(--atelier-muted);
+}
+
+/* Graphiques SVG */
+.attribution-marketing .atb-chart-scroll {
+  overflow-x: auto;
+}
+.attribution-marketing .atb-svg {
+  display: block;
+  max-width: none;
+}
+.attribution-marketing .atb-grid {
+  stroke: var(--atelier-line);
+}
+.attribution-marketing .atb-axisline {
+  stroke: color-mix(in oklab, var(--atelier-text) 35%, transparent);
+}
+.attribution-marketing .atb-axis {
+  font-size: 11px;
+  fill: var(--atelier-faint);
+  font-variant-numeric: tabular-nums;
+}
+.attribution-marketing .atb-label {
+  font-size: 12.5px;
+  fill: var(--atelier-text);
+}
+.attribution-marketing .atb-val {
+  font-size: 11.5px;
+  fill: var(--atb-text-2);
+  font-variant-numeric: tabular-nums;
+}
+.attribution-marketing .atb-bar {
+  fill: var(--atb-c);
+}
+.attribution-marketing .atb-bar:hover {
+  opacity: 0.8;
+}
+.attribution-marketing .atb-truth {
+  stroke: var(--atelier-text);
+  stroke-width: 2.2;
+}
+.attribution-marketing .atb-truth-label {
+  font-size: 11px;
+  font-weight: 600;
+  fill: var(--atelier-text);
+  font-variant-numeric: tabular-nums;
+}
+.attribution-marketing .atb-over {
+  fill: var(--atelier-down);
+  opacity: 0.85;
+}
+.attribution-marketing .atb-under {
+  fill: var(--atelier-muted);
+  opacity: 0.7;
+}
+
+/* Deux colonnes */
+.attribution-marketing .atb-grid2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.attribution-marketing .atb-span2 {
+  grid-column: 1 / -1;
+}
+
+/* Classement des modèles */
+.attribution-marketing .atb-rank {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.attribution-marketing .atb-rank-row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1.3fr) minmax(0, 1fr) 62px;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 8px;
+  border: 0;
+  border-radius: var(--atelier-radius-md);
+  background: transparent;
+  color: var(--atelier-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.attribution-marketing .atb-rank-row:hover {
+  background: var(--atb-tint);
+}
+.attribution-marketing .atb-rank-row[aria-pressed="true"] {
+  background: var(--atb-tint);
+  box-shadow: inset 0 0 0 1px var(--atelier-line);
+}
+.attribution-marketing .atb-rank-pos {
+  font-size: 12px;
+  color: var(--atelier-faint);
+  font-variant-numeric: tabular-nums;
+}
+.attribution-marketing .atb-rank-name {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+.attribution-marketing .atb-rank-family {
+  font-size: 11.5px;
+  font-weight: 400;
+  color: var(--atelier-muted);
+}
+.attribution-marketing .atb-rank-track {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--atelier-surface-2);
+  overflow: hidden;
+}
+.attribution-marketing .atb-rank-fill {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: color-mix(
+    in oklab,
+    var(--atelier-down) 75%,
+    var(--atelier-muted)
+  );
+}
+.attribution-marketing .atb-rank-val {
+  text-align: right;
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--atb-text-2);
+}
+
+/* Chemins */
+.attribution-marketing .atb-paths {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.attribution-marketing .atb-paths li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 112px;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  border-top: 1px solid var(--atelier-line);
+}
+.attribution-marketing .atb-paths li:first-child {
+  border-top: 0;
+}
+.attribution-marketing .atb-path {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+.attribution-marketing .atb-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.attribution-marketing .atb-arrow {
+  color: var(--atelier-faint);
+  font-size: 12px;
+}
+.attribution-marketing .atb-chip {
+  font-size: 12px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--atelier-surface-2);
+  color: var(--atelier-text);
+  white-space: nowrap;
+}
+.attribution-marketing .atb-path-n {
+  font-size: 12px;
+  color: var(--atelier-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.attribution-marketing .atb-path-rate {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  justify-content: flex-end;
+}
+.attribution-marketing .atb-path-track {
+  width: 44px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--atelier-surface-2);
+  overflow: hidden;
+}
+.attribution-marketing .atb-path-fill {
+  display: block;
+  height: 100%;
+  background: var(--atelier-signature);
+}
+
+/* Détail d'un modèle */
+.attribution-marketing .atb-select {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--atb-text-2);
+}
+.attribution-marketing .atb-select select {
+  font: inherit;
+  font-size: 13px;
+  padding: 5px 28px 5px 10px;
+  border-radius: var(--atelier-radius-md);
+  border: 1px solid var(--atelier-border);
+  background: var(--atelier-surface);
+  color: var(--atelier-text);
+}
+.attribution-marketing .atb-insight {
+  margin: 10px 0 12px;
+  padding: 10px 12px;
+  border-radius: var(--atelier-radius-md);
+  background: var(--atb-tint);
+  font-size: 13.5px;
+  color: var(--atelier-text);
+  max-width: 90ch;
+}
+.attribution-marketing .atb-table-wrap {
+  overflow-x: auto;
+}
+.attribution-marketing .atb-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.attribution-marketing .atb-table th,
+.attribution-marketing .atb-table td {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--atelier-line);
+  text-align: left;
+  white-space: nowrap;
+}
+.attribution-marketing .atb-table thead th {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--atelier-muted);
+}
+.attribution-marketing .atb-table tbody th {
+  font-weight: 500;
+}
+.attribution-marketing .atb-table .is-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.attribution-marketing .atb-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 2px 9px;
+  border-radius: 999px;
+}
+.attribution-marketing .atb-pill-over {
+  color: var(--atelier-down);
+  background: color-mix(in oklab, var(--atelier-down) 12%, transparent);
+}
+.attribution-marketing .atb-pill-under {
+  color: var(--atelier-warn);
+  background: color-mix(in oklab, var(--atelier-warn) 14%, transparent);
+}
+.attribution-marketing .atb-pill-ok {
+  color: var(--atelier-up);
+  background: color-mix(in oklab, var(--atelier-up) 12%, transparent);
+}
+.attribution-marketing .atb-pill-dev {
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+.attribution-marketing .atb-note {
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: var(--atelier-muted);
+  max-width: 90ch;
+}
+
+/* ── Méthode ── */
+.attribution-marketing .atb-method {
+  margin-top: 72px;
+  padding-top: 56px;
+  border-top: 1px solid var(--atelier-line);
+}
+.attribution-marketing .atb-method h2,
+.attribution-marketing .atb-cta h2 {
+  font-size: clamp(22px, 2.4vw, 28px);
+  font-weight: 600;
+  letter-spacing: -0.022em;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+.attribution-marketing .atb-method-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 36px 40px;
+  margin-top: 28px;
+}
+.attribution-marketing .atb-method article {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.attribution-marketing .atb-method h3 {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.008em;
+}
+.attribution-marketing .atb-method p,
+.attribution-marketing .atb-limits li {
+  font-size: 14px;
+  line-height: 1.62;
+  color: var(--atb-text-2);
+  max-width: 68ch;
+}
+.attribution-marketing .atb-method .formula-block {
+  display: block;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 4px 14px;
+  border: 1px solid var(--atelier-line);
+  border-radius: var(--atelier-radius-md);
+  background: var(--atelier-surface);
+  color: var(--atelier-text);
+}
+.attribution-marketing .atb-method .formula-block .katex-display {
+  margin: 0.55em 0;
+}
+.attribution-marketing .atb-method-foot {
+  margin-top: 28px;
+}
+.attribution-marketing .atb-limits {
+  margin-top: 40px;
+}
+.attribution-marketing .atb-limits h3 {
+  font-size: 15px;
+  font-weight: 600;
+}
+.attribution-marketing .atb-limits ul {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.attribution-marketing .atb-limits li::marker {
+  color: var(--atelier-faint);
+}
+
+/* ── Appel à l'action ── */
+.attribution-marketing .atb-cta {
+  margin-top: 64px;
+  padding-top: 48px;
+  border-top: 1px solid var(--atelier-line);
+}
+.attribution-marketing .atb-cta .sec-lede {
+  font-size: 15px;
+}
+.attribution-marketing .atb-cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+/* ── Réactif ── */
+@media (max-width: 980px) {
+  .attribution-marketing .atb-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .attribution-marketing .atb-grid2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .attribution-marketing .atb-method-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 640px) {
+  .attribution-marketing {
+    font-size: 14px;
+  }
+  .attribution-marketing .atb-tool-wrap {
+    padding: 0 16px;
+    margin-top: 24px;
+  }
+  .attribution-marketing .atb-controls {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .attribution-marketing .atb-kpis {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .attribution-marketing .atb-paths li {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .attribution-marketing .atb-path-n {
+    display: none;
+  }
+  .attribution-marketing .atb-rank-row {
+    grid-template-columns: 18px minmax(0, 1fr) 62px;
+  }
+  .attribution-marketing .atb-rank-track {
+    display: none;
+  }
+  .attribution-marketing .atb-method {
+    margin-top: 56px;
+    padding-top: 40px;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .attribution-marketing .atb-rank-fill,
+  .attribution-marketing .atb-path-fill {
+    transition: width 0.25s ease;
+  }
+}

@@ -1,0 +1,225 @@
+/* ═════════════════════════════════════════════════════════════
+   Démo « Score de churn » — charte v2 « Linear » de la Suite Atelier.
+   Tout est scopé sous .score-churn (classes chn-*). Structure neutre (jetons --atelier-*),
+   une couleur de série (même bleu que les autres démos de données), et les couleurs d'état
+   réservées au sens d'un effet : rouge = augmente le risque, vert = le réduit.
+   Disposition : réglages, indicateurs, coefficients, quatre courbes d'évaluation, décision, liste d'action.
+   ═════════════════════════════════════════════════════════════ */
+
+.score-churn {
+  --chn-s1: #2a78d6;
+  --chn-series: var(--chn-s1);
+  --chn-text-2: color-mix(in oklab, var(--atelier-text) 80%, var(--atelier-muted));
+  --chn-tint: color-mix(in oklab, var(--atelier-text) 6%, transparent);
+  --chn-risk: var(--atelier-down);
+  --chn-safe: var(--atelier-up);
+  font-size: 13px;
+  line-height: 1.45;
+}
+[data-theme='dark'] .score-churn,
+.dark .score-churn {
+  --chn-s1: #3987e5;
+  --chn-tint: color-mix(in oklab, var(--atelier-text) 8%, transparent);
+}
+
+.score-churn .chn-sr {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ── En-tête ── */
+.score-churn .chn-hero h1 {
+  font-size: clamp(26px, 3vw, 36px); font-weight: 600; letter-spacing: -0.026em; line-height: 1.14; max-width: 26ch; text-wrap: balance;
+}
+.score-churn .chn-hero .sec-lede { font-size: 15.5px; }
+.score-churn .chn-chips { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 18px; padding: 0; }
+.score-churn .chn-chips li {
+  font-size: 12.5px; color: var(--chn-text-2); border: 1px solid var(--atelier-border); background: var(--atelier-surface);
+  border-radius: 999px; padding: 3px 10px;
+}
+.score-churn .chn-disclaimer { display: flex; align-items: center; gap: 8px; margin-top: 14px; font-size: 13px; color: var(--atelier-muted); }
+
+/* ── Outil ── */
+.score-churn .chn-tool-wrap { max-width: 1120px; margin: 28px auto 0; padding: 0 28px; }
+.score-churn .chn-tool { display: flex; flex-direction: column; gap: 12px; }
+.score-churn .chn-panel {
+  background: var(--atelier-surface); border: 1px solid var(--atelier-border); border-radius: var(--atelier-radius-lg); min-width: 0;
+}
+.score-churn .chn-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap;
+  padding: 12px 14px 10px; min-height: 52px; border-bottom: 1px solid var(--atelier-line);
+}
+.score-churn .chn-head h2 { font-size: 14px; font-weight: 600; letter-spacing: -0.006em; margin: 0; text-wrap: balance; }
+.score-churn .chn-head-meta { font-size: 12px; color: var(--atelier-faint); }
+.score-churn .btn:disabled { opacity: 0.5; cursor: default; }
+
+/* Réglages */
+.score-churn .chn-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 20px; padding: 10px 14px; }
+.score-churn .chn-tb-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.score-churn .chn-tb-label { font-size: 12px; font-weight: 500; color: var(--atelier-faint); }
+.score-churn .chn-seg { display: inline-flex; gap: 2px; padding: 2px; border-radius: var(--atelier-radius-md); background: var(--atelier-surface-2); }
+.score-churn .chn-seg button {
+  border: 0; background: transparent; color: var(--chn-text-2); font: inherit; font-size: 12.5px; font-variant-numeric: tabular-nums;
+  padding: 4px 10px; border-radius: calc(var(--atelier-radius-md) - 2px); cursor: pointer;
+}
+.score-churn .chn-seg button:hover { color: var(--atelier-text); }
+.score-churn .chn-seg button.is-on { background: var(--atelier-surface); color: var(--atelier-text); font-weight: 600; box-shadow: 0 0 0 1px var(--atelier-border); }
+.score-churn .chn-check { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--chn-text-2); cursor: pointer; }
+.score-churn .chn-check input { width: 15px; height: 15px; accent-color: var(--chn-series); }
+.score-churn .chn-tb-meta { margin: 0 0 0 auto; font-size: 12px; color: var(--atelier-faint); }
+
+/* Indicateurs */
+.score-churn .chn-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.score-churn .chn-kpi {
+  display: flex; flex-direction: column; gap: 3px; padding: 14px; min-width: 0;
+  background: var(--atelier-surface); border: 1px solid var(--atelier-border); border-radius: var(--atelier-radius-xl);
+}
+.score-churn .chn-kpi-label { font-size: 12.5px; font-weight: 500; color: var(--atelier-muted); }
+.score-churn .chn-kpi-value { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.score-churn .chn-kpi-sub { font-size: 12px; color: var(--atelier-faint); font-variant-numeric: tabular-nums; }
+.score-churn .is-good { color: var(--atelier-up); }
+.score-churn .is-bad { color: var(--atelier-down); }
+
+/* Coefficients */
+.score-churn .chn-legend { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; font-size: 12px; color: var(--atelier-muted); }
+.score-churn .chn-key { display: inline-block; width: 12px; height: 8px; border-radius: 2px; margin-left: 6px; }
+.score-churn .chn-key-up { background: var(--chn-risk); }
+.score-churn .chn-key-down { background: var(--chn-safe); }
+.score-churn .chn-key-truth { width: 2px; height: 12px; background: var(--atelier-text); border-radius: 0; }
+.score-churn .chn-sentences { margin: 0; padding: 12px 14px 4px 32px; display: flex; flex-direction: column; gap: 4px; font-size: 13.5px; color: var(--chn-text-2); }
+.score-churn .chn-sentences strong { color: var(--atelier-text); font-weight: 600; }
+.score-churn .chn-table-wrap { position: relative; overflow-x: auto; }
+.score-churn table { border-collapse: collapse; width: 100%; }
+.score-churn .chn-coefs th, .score-churn .chn-coefs td,
+.score-churn .chn-risk th, .score-churn .chn-risk td { padding: 7px 12px; border-bottom: 1px solid var(--atelier-line); text-align: left; vertical-align: middle; }
+.score-churn .chn-coefs tbody tr:last-child > *, .score-churn .chn-risk tbody tr:last-child > * { border-bottom: 0; }
+.score-churn thead th { font-size: 11.5px; font-weight: 500; color: var(--atelier-faint); white-space: nowrap; }
+.score-churn tbody th { font-weight: 500; white-space: nowrap; }
+.score-churn .is-num { text-align: right !important; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.score-churn .chn-unit { color: var(--atelier-muted); font-size: 12.5px; white-space: nowrap; }
+.score-churn .chn-ci, .score-churn .chn-truth { color: var(--atelier-muted); }
+.score-churn .chn-or-col { width: 236px; min-width: 200px; }
+.score-churn .chn-or { display: block; width: 100%; height: 22px; }
+.score-churn .chn-or-scale { display: flex; justify-content: space-between; font-weight: 400; }
+.score-churn .chn-or-one { stroke: var(--atelier-border); }
+.score-churn .chn-or-ci { stroke: var(--atelier-faint); stroke-width: 1.5; }
+.score-churn .chn-or-bar.is-up { fill: var(--chn-risk); }
+.score-churn .chn-or-bar.is-down { fill: var(--chn-safe); }
+.score-churn .chn-or-truth { stroke: var(--atelier-text); stroke-width: 2; }
+
+/* Courbes */
+.score-churn .chn-charts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.score-churn .chn-fig { margin: 0; padding: 12px 16px 10px; min-width: 0; }
+.score-churn .chn-fig:nth-child(odd) { border-right: 1px solid var(--atelier-line); }
+.score-churn .chn-fig:nth-child(-n + 2) { border-bottom: 1px solid var(--atelier-line); }
+.score-churn .chn-fig figcaption { font-size: 13px; color: var(--atelier-muted); margin-bottom: 4px; text-wrap: balance; }
+.score-churn .chn-fig .chn-svg { max-width: 460px; margin: 0 auto; }
+.score-churn .chn-fig figcaption strong { color: var(--atelier-text); font-weight: 600; }
+.score-churn .chn-svg { display: block; width: 100%; height: auto; overflow: visible; }
+.score-churn .chn-grid { stroke: var(--atelier-line); }
+.score-churn .chn-zero { stroke: var(--atelier-border); stroke-width: 1.2; }
+.score-churn .chn-axis { font-size: 10.5px; fill: var(--atelier-faint); font-variant-numeric: tabular-nums; }
+.score-churn .chn-axis-title { font-size: 10.5px; fill: var(--atelier-muted); }
+.score-churn .chn-ref { fill: none; stroke: var(--atelier-faint); stroke-width: 1.2; stroke-dasharray: 4 4; }
+.score-churn .chn-ref-label { font-size: 10.5px; fill: var(--atelier-faint); }
+.score-churn .chn-curve { fill: none; stroke: var(--chn-series); stroke-width: 2.2; stroke-linejoin: round; }
+.score-churn .chn-curve-thin { stroke-width: 1.5; }
+.score-churn .chn-area { fill: color-mix(in oklab, var(--chn-series) 12%, transparent); }
+.score-churn .chn-dot { fill: var(--chn-series); stroke: var(--atelier-surface); stroke-width: 1.5; }
+.score-churn .chn-hover line { stroke: var(--atelier-faint); stroke-dasharray: 2 3; }
+.score-churn .chn-hover circle { fill: var(--chn-series); stroke: var(--atelier-surface); stroke-width: 2; }
+.score-churn .chn-hover text { font-size: 10.5px; font-weight: 600; fill: var(--atelier-text); paint-order: stroke; stroke: var(--atelier-surface); stroke-width: 4px; stroke-linejoin: round; }
+
+/* Décision */
+.score-churn .chn-decision { display: grid; grid-template-columns: 280px minmax(0, 1fr); }
+.score-churn .chn-sliders { display: flex; flex-direction: column; gap: 14px; padding: 14px; border-right: 1px solid var(--atelier-line); }
+.score-churn .chn-slider { display: flex; flex-direction: column; gap: 4px; }
+.score-churn .chn-slider-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 12.5px; color: var(--chn-text-2); }
+.score-churn .chn-slider output { font-weight: 600; color: var(--atelier-text); font-variant-numeric: tabular-nums; }
+.score-churn .chn-slider input { width: 100%; accent-color: var(--chn-series); }
+.score-churn .chn-note { margin: 0; font-size: 12.5px; line-height: 1.55; color: var(--atelier-muted); }
+.score-churn .chn-note strong { color: var(--atelier-text); font-variant-numeric: tabular-nums; }
+.score-churn .chn-decision-main { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.score-churn .chn-svg-wide { cursor: crosshair; }
+.score-churn .chn-best { stroke: var(--atelier-faint); stroke-dasharray: 3 3; }
+.score-churn .chn-best-label { font-size: 11px; fill: var(--atelier-muted); }
+.score-churn .chn-cursor { stroke: var(--atelier-text); stroke-width: 1.2; }
+.score-churn .chn-cursor-dot { fill: var(--atelier-text); stroke: var(--atelier-surface); stroke-width: 2; }
+.score-churn .chn-summary { margin: 0; font-size: 13.5px; line-height: 1.6; color: var(--chn-text-2); max-width: 78ch; }
+.score-churn .chn-summary strong { color: var(--atelier-text); font-variant-numeric: tabular-nums; }
+.score-churn .chn-summary strong.is-good { color: var(--atelier-up); }
+.score-churn .chn-summary strong.is-bad { color: var(--atelier-down); }
+.score-churn .chn-confusion { max-width: 560px; border-collapse: separate; border-spacing: 6px; margin: -6px; }
+.score-churn .chn-confusion th { font-size: 12px; font-weight: 500; color: var(--atelier-muted); text-align: left; padding: 0 4px; }
+.score-churn .chn-confusion thead td { border: 0; padding: 0; background: none; }
+.score-churn .chn-confusion td {
+  border-radius: var(--atelier-radius-md); padding: 10px 12px; border: 1px solid var(--atelier-line); vertical-align: top;
+}
+.score-churn .chn-confusion td strong { display: block; font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.score-churn .chn-confusion td span { font-size: 12px; color: var(--atelier-muted); }
+.score-churn .chn-confusion .is-tp { background: color-mix(in oklab, var(--atelier-up) 10%, transparent); }
+.score-churn .chn-confusion .is-fp { background: color-mix(in oklab, var(--atelier-warn) 10%, transparent); }
+.score-churn .chn-confusion .is-fn { background: color-mix(in oklab, var(--atelier-down) 9%, transparent); }
+
+/* Liste d'action */
+.score-churn .chn-id { font-family: var(--atelier-font-mono); font-size: 12px; white-space: nowrap; }
+.score-churn .chn-score { position: relative; display: inline-flex; justify-content: flex-end; min-width: 64px; padding: 1px 6px; font-weight: 600; z-index: 0; }
+.score-churn .chn-score-bar { position: absolute; inset: 0 auto 0 0; background: color-mix(in oklab, var(--chn-risk) 16%, transparent); border-radius: 4px; z-index: -1; }
+.score-churn .chn-reasons { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; }
+.score-churn .chn-reasons li {
+  font-size: 12px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--atelier-border-soft, var(--atelier-border)); color: var(--chn-text-2);
+  white-space: nowrap; background: var(--chn-tint);
+}
+.score-churn .chn-outcome { font-size: 12px; white-space: nowrap; padding: 1px 8px; border-radius: 999px; }
+.score-churn .chn-outcome.is-gone { color: var(--atelier-down); background: color-mix(in oklab, var(--atelier-down) 10%, transparent); }
+.score-churn .chn-outcome.is-stay { color: var(--atelier-muted); background: var(--chn-tint); }
+.score-churn .chn-foot { margin: 0; padding: 10px 14px 12px; border-top: 1px solid var(--atelier-line); font-size: 12px; color: var(--atelier-muted); }
+
+/* ── Méthode ── */
+.score-churn .chn-method { margin-top: 72px; padding-top: 56px; border-top: 1px solid var(--atelier-line); }
+.score-churn .chn-method h2, .score-churn .chn-cta h2 {
+  font-size: clamp(22px, 2.4vw, 28px); font-weight: 600; letter-spacing: -0.022em; line-height: 1.2; text-wrap: balance;
+}
+.score-churn .chn-method-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 36px 48px; margin-top: 28px; }
+.score-churn .chn-method article { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.score-churn .chn-method h3 { font-size: 15px; font-weight: 600; letter-spacing: -0.008em; }
+.score-churn .chn-method p, .score-churn .chn-limits li { font-size: 14px; line-height: 1.62; color: var(--chn-text-2); max-width: 68ch; }
+.score-churn .chn-method .formula-block {
+  display: block; overflow-x: auto; overflow-y: hidden; padding: 4px 14px; border: 1px solid var(--atelier-line); border-radius: var(--atelier-radius-md);
+  background: var(--atelier-surface); color: var(--atelier-text);
+}
+.score-churn .chn-method .formula-block .katex-display { margin: 0.55em 0; }
+.score-churn .chn-limits { margin-top: 40px; }
+.score-churn .chn-limits h3 { font-size: 15px; font-weight: 600; }
+.score-churn .chn-limits ul { margin: 10px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+.score-churn .chn-limits li::marker { color: var(--atelier-faint); }
+
+/* ── Appel à l'action ── */
+.score-churn .chn-cta { margin-top: 64px; padding-top: 48px; border-top: 1px solid var(--atelier-line); }
+.score-churn .chn-cta .sec-lede { font-size: 15px; }
+.score-churn .chn-cta-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+
+/* ── Réactif ── */
+@media (max-width: 1080px) {
+  .score-churn .chn-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .score-churn .chn-tb-meta { margin-left: 0; width: 100%; }
+}
+@media (max-width: 860px) {
+  .score-churn .chn-decision { grid-template-columns: minmax(0, 1fr); }
+  .score-churn .chn-sliders { border-right: 0; border-bottom: 1px solid var(--atelier-line); }
+  .score-churn .chn-method-grid { grid-template-columns: minmax(0, 1fr); }
+  .score-churn .chn-svg-wide { min-width: 560px; }
+  .score-churn .chn-decision-main { overflow-x: auto; }
+}
+@media (max-width: 640px) {
+  .score-churn { font-size: 14px; }
+  .score-churn .chn-tool-wrap { padding: 0 16px; margin-top: 24px; }
+  .score-churn .chn-hero .sec-lede { font-size: 15px; }
+  .score-churn .chn-charts { grid-template-columns: minmax(0, 1fr); }
+  .score-churn .chn-fig, .score-churn .chn-fig:nth-child(odd) { border-right: 0; border-bottom: 1px solid var(--atelier-line); }
+  .score-churn .chn-fig:last-child { border-bottom: 0; }
+  .score-churn .chn-kpi-value { font-size: 20px; }
+  .score-churn .chn-method { margin-top: 56px; padding-top: 40px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .score-churn .chn-seg button { transition: background-color 0.15s, color 0.15s; }
+}

@@ -35,7 +35,7 @@ Les rapports PDF de chaque projet sont téléchargeables depuis sa page (`client
 
 ### Démos interactives (`/demos`)
 
-Chaque démo tourne entièrement dans le navigateur du visiteur (`client/src/demos/<slug>/`, déclarée dans `client/src/demos/registry.ts`) et a sa tuile dans la Vitrine pro du portail.
+Chaque démo tourne entièrement dans le navigateur du visiteur (`client/src/demos/<slug>/`, déclarée dans `client/src/demos/registry.ts`) et a sa tuile dans la Vitrine pro du portail. La page `/demos` les regroupe par famille (`theme` dans le registre) et propose un parcours par profil ; les démos `featured` sont reprises sur l'accueil.
 
 | Démo | Ce qu'elle montre |
 | --- | --- |
@@ -53,6 +53,8 @@ Chaque démo tourne entièrement dans le navigateur du visiteur (`client/src/dem
 | Labo de régression | MCO, erreurs-types robustes HC1, Breusch-Pagan, VIF, Cook, comparaison de modèles |
 | Attribution marketing | dernier clic, linéaire, décroissance, en U, Markov (effet de retrait) et Shapley face à l'effet vrai |
 | Pipeline de données | DAG SQL à la dbt exécuté dans SQLite, tests de données, lignage, reconstruction en aval |
+| Impact sans groupe témoin | contrôle synthétique (poids sur le simplexe), DiD, inférence par placebos, face à l'effet vrai |
+| Durée de vie client | Kaplan-Meier (Greenwood, log-rank), modèle de Cox, censure, valeur vie client |
 
 Le moteur SQLite est compilé en WebAssembly : la politique de sécurité du serveur autorise `'wasm-unsafe-eval'` (et rien d'autre de plus) dans `script-src`.
 

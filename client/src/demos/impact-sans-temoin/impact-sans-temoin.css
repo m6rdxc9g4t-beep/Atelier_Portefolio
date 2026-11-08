@@ -1,0 +1,192 @@
+/* ═════════════════════════════════════════════════════════════
+   Démo « Impact sans groupe témoin » — charte v2 « Linear » de la Suite Atelier.
+   Tout est scopé sous .impact-sans-temoin (classes imp-*). Structure neutre (jetons --atelier-*).
+   Couleurs de données, définies ici une fois : ville traitée (encre), jumeau synthétique (signature),
+   vérité de la simulation (vert « hausse »), choc commun (orange, même teinte que les autres démos).
+   ═════════════════════════════════════════════════════════════ */
+
+.impact-sans-temoin {
+  --imp-treated: var(--atelier-text);
+  --imp-synth: var(--atelier-chart-1, var(--atelier-signature));
+  --imp-true: var(--atelier-up);
+  --imp-shock: #eb6834;
+  --imp-text-2: color-mix(in oklab, var(--atelier-text) 80%, var(--atelier-muted));
+  --imp-post-bg: color-mix(in oklab, var(--atelier-text) 3.5%, transparent);
+  --imp-shock-bg: color-mix(in oklab, var(--imp-shock) 12%, transparent);
+  --imp-band-bg: color-mix(in oklab, var(--atelier-muted) 20%, transparent);
+  --imp-cum-bg: color-mix(in oklab, var(--imp-synth) 13%, transparent);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+[data-theme='dark'] .impact-sans-temoin,
+.dark .impact-sans-temoin {
+  --imp-shock: #f0814f;
+  --imp-post-bg: color-mix(in oklab, var(--atelier-text) 5%, transparent);
+  --imp-shock-bg: color-mix(in oklab, var(--imp-shock) 16%, transparent);
+  --imp-band-bg: color-mix(in oklab, var(--atelier-muted) 26%, transparent);
+}
+
+/* ── En-tête ── */
+.impact-sans-temoin .imp-hero h1 {
+  font-size: clamp(26px, 3vw, 36px); font-weight: 600; letter-spacing: -0.026em; line-height: 1.14; max-width: 28ch; text-wrap: balance;
+}
+.impact-sans-temoin .imp-hero .sec-lede { font-size: 15.5px; }
+.impact-sans-temoin .imp-chips { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 18px; padding: 0; }
+.impact-sans-temoin .imp-chips li {
+  font-size: 12.5px; color: var(--imp-text-2); border: 1px solid var(--atelier-border); background: var(--atelier-surface);
+  border-radius: 999px; padding: 3px 10px;
+}
+.impact-sans-temoin .imp-disclaimer { margin-top: 14px; font-size: 13px; color: var(--atelier-muted); }
+
+/* ── Outil ── */
+.impact-sans-temoin .imp-tool-wrap { max-width: 1180px; margin: 28px auto 0; padding: 0 28px; }
+.impact-sans-temoin .imp-tool { display: flex; flex-direction: column; gap: 14px; border-top: 1px solid var(--atelier-line); padding-top: 20px; }
+.impact-sans-temoin .imp-tool.is-stale .imp-card { opacity: 0.72; }
+@media (prefers-reduced-motion: no-preference) {
+  .impact-sans-temoin .imp-card { transition: opacity 0.15s ease; }
+}
+
+.impact-sans-temoin .imp-controls {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto auto; gap: 14px 22px; align-items: end;
+}
+.impact-sans-temoin .imp-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.impact-sans-temoin .imp-field label, .impact-sans-temoin .imp-label { font-size: 13px; color: var(--imp-text-2); }
+.impact-sans-temoin .imp-field label b { color: var(--atelier-text); font-variant-numeric: tabular-nums; font-weight: 600; }
+.site .impact-sans-temoin .imp-field input[type='range'] {
+  width: 100%; margin: 0; padding: 0; min-height: 0; height: 24px; accent-color: var(--imp-synth); border: 0; background: none;
+}
+.impact-sans-temoin .imp-seg {
+  display: inline-flex; gap: 2px; padding: 2px; border-radius: var(--atelier-radius-md); background: var(--atelier-surface-2); max-width: 100%;
+}
+.impact-sans-temoin .imp-seg button {
+  height: 30px; padding: 0 10px; border: 0; border-radius: var(--atelier-radius-sm); background: transparent;
+  color: var(--atelier-muted); font: inherit; font-size: 13px; font-weight: 500; white-space: nowrap; cursor: pointer;
+}
+.impact-sans-temoin .imp-seg button:hover { color: var(--atelier-text); }
+.impact-sans-temoin .imp-seg button[aria-pressed='true'] {
+  background: var(--atelier-surface); color: var(--atelier-text); box-shadow: 0 1px 2px rgb(0 0 0 / 0.08), 0 0 0 1px var(--atelier-line);
+}
+.impact-sans-temoin .imp-seg-sub { font-size: 11px; color: var(--atelier-faint); font-variant-numeric: tabular-nums; }
+.impact-sans-temoin .imp-reveal { white-space: nowrap; }
+
+.impact-sans-temoin .imp-card {
+  background: var(--atelier-surface); border: 1px solid var(--atelier-border); border-radius: var(--atelier-radius-lg);
+  padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 12px; min-width: 0;
+}
+.impact-sans-temoin .imp-card-head h2 { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; margin: 0; }
+.impact-sans-temoin .imp-card-head p { margin: 4px 0 0; color: var(--imp-text-2); max-width: 88ch; }
+.impact-sans-temoin .imp-card-head b, .impact-sans-temoin .imp-fit b { color: var(--atelier-text); font-weight: 600; font-variant-numeric: tabular-nums; }
+.impact-sans-temoin .imp-fit { margin: 0; font-size: 13px; color: var(--atelier-muted); }
+.impact-sans-temoin .imp-two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; align-items: stretch; }
+
+/* Graphiques */
+.impact-sans-temoin .imp-scroll { min-width: 0; }
+.impact-sans-temoin .imp-svg { display: block; width: 100%; height: auto; overflow: visible; }
+.impact-sans-temoin .imp-grid { stroke: var(--atelier-line); }
+.impact-sans-temoin .imp-zero { stroke: var(--atelier-border); stroke-width: 1.2; }
+.impact-sans-temoin .imp-axis { font-size: 11px; fill: var(--atelier-faint); font-variant-numeric: tabular-nums; }
+.impact-sans-temoin .imp-axis-title { font-size: 11px; font-weight: 500; fill: var(--atelier-muted); }
+.impact-sans-temoin .imp-post { fill: var(--imp-post-bg); }
+.impact-sans-temoin .imp-shock { fill: var(--imp-shock-bg); }
+.impact-sans-temoin .imp-shock-label { font-size: 11px; font-weight: 500; fill: var(--imp-shock); }
+.impact-sans-temoin .imp-launch { stroke: var(--atelier-text); stroke-width: 1; stroke-dasharray: 3 3; }
+.impact-sans-temoin .imp-launch-label { font-size: 11px; font-weight: 500; fill: var(--atelier-muted); }
+.impact-sans-temoin .imp-treated-line { fill: none; stroke: var(--imp-treated); stroke-width: 1.7; stroke-linejoin: round; }
+.impact-sans-temoin .imp-synth-line { fill: none; stroke: var(--imp-synth); stroke-width: 2.2; stroke-linejoin: round; stroke-dasharray: 7 4; }
+.impact-sans-temoin .imp-true-line { fill: none; stroke: var(--imp-true); stroke-width: 2; stroke-linejoin: round; stroke-dasharray: 2 3; }
+.impact-sans-temoin .imp-gap-line { fill: none; stroke: var(--imp-synth); stroke-width: 2; stroke-linejoin: round; }
+.impact-sans-temoin .imp-gap-line--strong { stroke-width: 2.6; }
+.impact-sans-temoin .imp-band { fill: var(--imp-band-bg); }
+.impact-sans-temoin .imp-cum-area { fill: var(--imp-cum-bg); }
+.impact-sans-temoin .imp-end-dot { fill: var(--imp-synth); }
+.impact-sans-temoin .imp-end-label { font-size: 12px; font-weight: 600; fill: var(--atelier-text); font-variant-numeric: tabular-nums; }
+.impact-sans-temoin .imp-placebo-line { fill: none; stroke: var(--atelier-faint); stroke-width: 1; opacity: 0.45; }
+.impact-sans-temoin .imp-placebo-line:hover { opacity: 1; stroke: var(--atelier-muted); }
+.impact-sans-temoin .imp-hit { fill: transparent; }
+.impact-sans-temoin .imp-hit:hover { fill: color-mix(in oklab, var(--atelier-text) 6%, transparent); }
+.impact-sans-temoin .imp-barlabel { font-size: 12px; fill: var(--atelier-text); }
+.impact-sans-temoin .imp-barlabel--strong { font-weight: 600; }
+.impact-sans-temoin .imp-weight-bar { fill: var(--imp-synth); }
+.impact-sans-temoin .imp-true-tick { stroke: var(--imp-true); stroke-width: 2.5; }
+.impact-sans-temoin .imp-ratio-bar { fill: color-mix(in oklab, var(--atelier-muted) 45%, transparent); }
+.impact-sans-temoin .imp-ratio-bar--treated { fill: var(--imp-synth); }
+
+.impact-sans-temoin .imp-legend { list-style: none; display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 0; padding: 0; font-size: 12px; color: var(--atelier-muted); }
+.impact-sans-temoin .imp-legend li { display: inline-flex; align-items: center; gap: 6px; }
+.impact-sans-temoin .imp-key { display: inline-block; width: 16px; height: 0; }
+.impact-sans-temoin .imp-key-treated { border-top: 1.7px solid var(--imp-treated); }
+.impact-sans-temoin .imp-key-synth { border-top: 2.2px dashed var(--imp-synth); }
+.impact-sans-temoin .imp-key-true { border-top: 2px dotted var(--imp-true); }
+.impact-sans-temoin .imp-key-gap { border-top: 2.6px solid var(--imp-synth); }
+.impact-sans-temoin .imp-key-placebo { border-top: 1.5px solid var(--atelier-faint); }
+.impact-sans-temoin .imp-key-shock { height: 10px; width: 12px; border-radius: 2px; background: var(--imp-shock-bg); border: 1px solid color-mix(in oklab, var(--imp-shock) 40%, transparent); }
+
+/* Méthodes */
+.impact-sans-temoin .imp-methods { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.impact-sans-temoin .imp-method {
+  border: 1px solid var(--atelier-border); border-radius: var(--atelier-radius-xl); padding: 14px 15px; display: flex; flex-direction: column; gap: 6px; min-width: 0;
+}
+.impact-sans-temoin .imp-method--synth { border-color: color-mix(in oklab, var(--imp-synth) 55%, var(--atelier-border)); }
+.impact-sans-temoin .imp-method h3 { margin: 0; font-size: 13.5px; font-weight: 600; }
+.impact-sans-temoin .imp-method p { margin: 0; }
+.impact-sans-temoin .imp-method-value { display: flex; flex-direction: column; }
+.impact-sans-temoin .imp-method-num { font-size: 24px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.impact-sans-temoin .imp-method-unit, .impact-sans-temoin .imp-method-ci { font-size: 12px; color: var(--atelier-muted); font-variant-numeric: tabular-nums; }
+.impact-sans-temoin .imp-method-hyp, .impact-sans-temoin .imp-method-why { font-size: 12.5px; color: var(--imp-text-2); }
+.impact-sans-temoin .imp-method-hyp b { color: var(--atelier-text); font-weight: 600; }
+.impact-sans-temoin .imp-truth, .impact-sans-temoin .imp-verdict { margin: 2px 0 0; font-size: 12.5px; padding: 6px 9px; border-radius: var(--atelier-radius-md); font-variant-numeric: tabular-nums; }
+.impact-sans-temoin .imp-truth.is-ok, .impact-sans-temoin .imp-verdict.is-ok { color: var(--atelier-up); background: color-mix(in oklab, var(--atelier-up) 11%, transparent); }
+.impact-sans-temoin .imp-truth.is-ko { color: var(--atelier-down); background: color-mix(in oklab, var(--atelier-down) 10%, transparent); }
+.impact-sans-temoin .imp-verdict { font-size: 13px; }
+.impact-sans-temoin .imp-verdict.is-neutral { color: var(--atelier-muted); background: var(--atelier-surface-2); }
+
+.impact-sans-temoin .imp-reading h2 { font-size: 16px; font-weight: 600; margin: 0; }
+.impact-sans-temoin .imp-reading p { margin: 0; color: var(--imp-text-2); max-width: 96ch; }
+.impact-sans-temoin .imp-reading b { color: var(--atelier-text); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ── Méthode ── */
+.impact-sans-temoin .imp-about { margin-top: 72px; padding-top: 56px; border-top: 1px solid var(--atelier-line); }
+.impact-sans-temoin .imp-about-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 36px 40px; margin-top: 28px; }
+.impact-sans-temoin .imp-about h2, .impact-sans-temoin .imp-cta h2 {
+  font-size: clamp(22px, 2.4vw, 28px); font-weight: 600; letter-spacing: -0.022em; line-height: 1.2; text-wrap: balance;
+}
+.impact-sans-temoin .imp-about-grid article { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.impact-sans-temoin .imp-about-grid h3 { font-size: 15px; font-weight: 600; letter-spacing: -0.008em; }
+.impact-sans-temoin .imp-about-grid p, .impact-sans-temoin .imp-limits li { font-size: 14px; line-height: 1.62; color: var(--imp-text-2); max-width: 68ch; }
+.impact-sans-temoin .imp-about-grid .formula-block {
+  display: block; overflow-x: auto; overflow-y: hidden; padding: 4px 14px; border: 1px solid var(--atelier-line);
+  border-radius: var(--atelier-radius-md); background: var(--atelier-surface); color: var(--atelier-text);
+}
+.impact-sans-temoin .imp-about-grid .formula-block .katex-display { margin: 0.55em 0; }
+.impact-sans-temoin .imp-limits { margin-top: 40px; }
+.impact-sans-temoin .imp-limits h3 { font-size: 15px; font-weight: 600; }
+.impact-sans-temoin .imp-limits ul { margin: 10px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+.impact-sans-temoin .imp-limits li::marker { color: var(--atelier-faint); }
+
+/* ── Appel à l'action ── */
+.impact-sans-temoin .imp-cta { margin-top: 64px; padding-top: 48px; border-top: 1px solid var(--atelier-line); }
+.impact-sans-temoin .imp-cta .sec-lede { font-size: 15px; }
+.impact-sans-temoin .imp-cta-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+
+/* ── Réactif ── */
+@media (max-width: 1080px) {
+  .impact-sans-temoin .imp-controls { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .impact-sans-temoin .imp-methods { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .impact-sans-temoin .imp-about-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 860px) {
+  .impact-sans-temoin .imp-two { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 640px) {
+  .impact-sans-temoin { font-size: 14px; }
+  .impact-sans-temoin .imp-tool-wrap { padding: 0 16px; margin-top: 24px; }
+  .impact-sans-temoin .imp-controls { grid-template-columns: minmax(0, 1fr); }
+  .impact-sans-temoin .imp-seg { display: grid; grid-template-columns: repeat(3, 1fr); width: 100%; }
+  .impact-sans-temoin .imp-seg button { height: 40px; display: flex; flex-direction: column; justify-content: center; line-height: 1.2; }
+  .impact-sans-temoin .imp-methods { grid-template-columns: minmax(0, 1fr); }
+  .impact-sans-temoin .imp-card { padding: 14px; }
+  .impact-sans-temoin .imp-scroll { overflow-x: auto; }
+  .impact-sans-temoin .imp-scroll .imp-svg { min-width: 640px; }
+  .impact-sans-temoin .imp-two .imp-scroll .imp-svg { min-width: 420px; }
+  .impact-sans-temoin .imp-about { margin-top: 56px; padding-top: 40px; }
+}

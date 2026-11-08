@@ -1,0 +1,232 @@
+/* ═════════════════════════════════════════════════════════════
+   Démo « Durée de vie client » — charte v2 « Linear » de la Suite Atelier.
+   Tout est scopé sous .duree-vie-client (classes sv-*). Structure neutre (jetons --atelier-*),
+   une palette catégorielle de 5 couleurs définie ici une seule fois (groupes et profils),
+   rouge / vert réservés au sens d'un effet (augmente ou réduit le risque de départ).
+   Disposition : indicateurs, courbes de Kaplan-Meier, piège de la moyenne, modèle de Cox, valeur vie.
+   ═════════════════════════════════════════════════════════════ */
+
+.duree-vie-client {
+  --sv-c0: #2a78d6;
+  --sv-c1: #d9822b;
+  --sv-c2: #2f9e73;
+  --sv-c3: #8a5cd1;
+  --sv-c4: #6b7280;
+  --sv-text-2: color-mix(in oklab, var(--atelier-text) 80%, var(--atelier-muted));
+  --sv-tint: color-mix(in oklab, var(--atelier-text) 6%, transparent);
+  font-size: 13px;
+  line-height: 1.45;
+}
+[data-theme='dark'] .duree-vie-client,
+.dark .duree-vie-client {
+  --sv-c0: #4a93ea;
+  --sv-c1: #eb9a4b;
+  --sv-c2: #45b98a;
+  --sv-c3: #a47de6;
+  --sv-c4: #9aa1ad;
+  --sv-tint: color-mix(in oklab, var(--atelier-text) 8%, transparent);
+}
+
+.duree-vie-client .sv-c0 { --sv-col: var(--sv-c0); }
+.duree-vie-client .sv-c1 { --sv-col: var(--sv-c1); }
+.duree-vie-client .sv-c2 { --sv-col: var(--sv-c2); }
+.duree-vie-client .sv-c3 { --sv-col: var(--sv-c3); }
+.duree-vie-client .sv-c4 { --sv-col: var(--sv-c4); }
+
+.duree-vie-client .sv-sr {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ── En-tête ── */
+.duree-vie-client .sv-hero h1 {
+  font-size: clamp(26px, 3vw, 36px); font-weight: 600; letter-spacing: -0.026em; line-height: 1.14; max-width: 28ch; text-wrap: balance;
+}
+.duree-vie-client .sv-hero .sec-lede { font-size: 15.5px; }
+.duree-vie-client .sv-chips { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 18px; padding: 0; }
+.duree-vie-client .sv-chips li {
+  font-size: 12.5px; color: var(--sv-text-2); border: 1px solid var(--atelier-border); background: var(--atelier-surface);
+  border-radius: 999px; padding: 3px 10px;
+}
+.duree-vie-client .sv-disclaimer { display: flex; align-items: center; gap: 8px; margin-top: 14px; font-size: 13px; color: var(--atelier-muted); }
+
+/* ── Outil ── */
+.duree-vie-client .sv-tool-wrap { max-width: 1120px; margin: 28px auto 0; padding: 0 28px; }
+.duree-vie-client .sv-tool { display: flex; flex-direction: column; gap: 12px; }
+.duree-vie-client .sv-panel {
+  background: var(--atelier-surface); border: 1px solid var(--atelier-border); border-radius: var(--atelier-radius-lg); min-width: 0;
+}
+.duree-vie-client .sv-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap;
+  padding: 12px 14px 10px; min-height: 52px; border-bottom: 1px solid var(--atelier-line);
+}
+.duree-vie-client .sv-head h2 { font-size: 14px; font-weight: 600; letter-spacing: -0.006em; margin: 0; text-wrap: balance; }
+.duree-vie-client .sv-head-meta { font-size: 12px; color: var(--atelier-faint); font-variant-numeric: tabular-nums; }
+
+.duree-vie-client .sv-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+.duree-vie-client .sv-tb-label { font-size: 12px; font-weight: 500; color: var(--atelier-faint); }
+.duree-vie-client .sv-seg { display: inline-flex; flex-wrap: wrap; gap: 2px; padding: 2px; border-radius: var(--atelier-radius-md); background: var(--atelier-surface-2); }
+.duree-vie-client .sv-seg button {
+  border: 0; background: transparent; color: var(--sv-text-2); font: inherit; font-size: 12.5px;
+  padding: 4px 10px; border-radius: calc(var(--atelier-radius-md) - 2px); cursor: pointer;
+}
+.duree-vie-client .sv-seg button:hover { color: var(--atelier-text); }
+.duree-vie-client .sv-seg button.is-on { background: var(--atelier-surface); color: var(--atelier-text); font-weight: 600; box-shadow: 0 0 0 1px var(--atelier-border); }
+.duree-vie-client .sv-check { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--sv-text-2); cursor: pointer; }
+.duree-vie-client .sv-check input { width: 15px; height: 15px; accent-color: var(--sv-c0); }
+
+/* Indicateurs */
+.duree-vie-client .sv-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.duree-vie-client .sv-kpi {
+  display: flex; flex-direction: column; gap: 3px; padding: 14px; min-width: 0;
+  background: var(--atelier-surface); border: 1px solid var(--atelier-border); border-radius: var(--atelier-radius-xl);
+}
+.duree-vie-client .sv-kpi-label { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 500; color: var(--atelier-muted); }
+.duree-vie-client .sv-kpi-value { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.duree-vie-client .sv-kpi-sub { font-size: 12px; color: var(--atelier-faint); font-variant-numeric: tabular-nums; }
+.duree-vie-client .is-good { color: var(--atelier-up); }
+.duree-vie-client .is-bad { color: var(--atelier-down); }
+
+/* Légende et graphique */
+.duree-vie-client .sv-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; padding: 10px 16px 0; font-size: 12.5px; color: var(--sv-text-2); }
+.duree-vie-client .sv-legend > span { display: inline-flex; align-items: center; gap: 6px; }
+.duree-vie-client .sv-legend-note { margin-left: auto; color: var(--atelier-faint); font-size: 12px; }
+.duree-vie-client .sv-swatch { display: inline-block; width: 10px; height: 10px; border-radius: 3px; background: var(--sv-col); flex: none; }
+.duree-vie-client .sv-chart-wrap { padding: 6px 12px 8px; overflow-x: auto; }
+.duree-vie-client .sv-svg { display: block; width: 100%; height: auto; overflow: visible; }
+.duree-vie-client .sv-svg:focus-visible { outline: 2px solid var(--atelier-focus, var(--sv-c0)); outline-offset: 2px; border-radius: 6px; }
+.duree-vie-client .sv-grid { stroke: var(--atelier-line); }
+.duree-vie-client .sv-axis { font-size: 11px; fill: var(--atelier-faint); font-variant-numeric: tabular-nums; }
+.duree-vie-client .sv-axis-title { font-size: 11px; fill: var(--atelier-muted); }
+.duree-vie-client .sv-risk { font-size: 11px; fill: var(--sv-text-2); font-variant-numeric: tabular-nums; }
+.duree-vie-client .sv-dot { fill: var(--sv-col); }
+.duree-vie-client .sv-line { fill: none; stroke: var(--sv-col); stroke-width: 2; stroke-linejoin: round; }
+.duree-vie-client .sv-line.is-dashed { stroke-width: 1.5; stroke-dasharray: 5 4; }
+.duree-vie-client .sv-band { fill: var(--sv-col); opacity: 0.13; stroke: none; }
+.duree-vie-client .sv-censor { fill: none; stroke: var(--sv-col); stroke-width: 1; opacity: 0.35; }
+.duree-vie-client .sv-marker { stroke: var(--atelier-faint); stroke-dasharray: 3 3; }
+.duree-vie-client .sv-marker-label { font-size: 11px; fill: var(--atelier-muted); }
+.duree-vie-client .sv-hover line { stroke: var(--atelier-faint); stroke-dasharray: 2 3; }
+.duree-vie-client .sv-hover circle { fill: var(--sv-col); stroke: var(--atelier-surface); stroke-width: 2; }
+.duree-vie-client .sv-tip { fill: var(--atelier-surface); stroke: var(--atelier-border); }
+.duree-vie-client .sv-tip-title { font-size: 11.5px; font-weight: 600; fill: var(--atelier-text); }
+.duree-vie-client .sv-tip-row { font-size: 11.5px; fill: var(--sv-text-2); font-variant-numeric: tabular-nums; }
+.duree-vie-client .sv-tip-dot { fill: var(--sv-col); }
+
+/* Tableaux */
+.duree-vie-client .sv-table-wrap { overflow-x: auto; border-top: 1px solid var(--atelier-line); }
+.duree-vie-client .sv-table { border-collapse: collapse; width: 100%; }
+.duree-vie-client .sv-table th, .duree-vie-client .sv-table td { padding: 7px 12px; border-bottom: 1px solid var(--atelier-line); text-align: left; vertical-align: middle; }
+.duree-vie-client .sv-table tbody tr:last-child > * { border-bottom: 0; }
+.duree-vie-client .sv-table thead th { font-size: 11.5px; font-weight: 500; color: var(--atelier-faint); white-space: nowrap; }
+.duree-vie-client .sv-table tbody th { font-weight: 500; white-space: nowrap; }
+.duree-vie-client .sv-table tbody th .sv-swatch { margin-right: 6px; vertical-align: -1px; }
+.duree-vie-client .is-num { text-align: right !important; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.duree-vie-client .sv-ci { color: var(--atelier-muted); font-size: 12px; }
+.duree-vie-client .sv-unit { color: var(--atelier-muted); font-size: 12.5px; white-space: nowrap; }
+.duree-vie-client .sv-flag {
+  display: inline-block; margin-left: 8px; font-size: 11px; font-weight: 500; padding: 0 7px; border-radius: 999px;
+  color: var(--atelier-warn); background: color-mix(in oklab, var(--atelier-warn) 12%, transparent);
+}
+.duree-vie-client .sv-hr-col { width: 216px; min-width: 190px; }
+.duree-vie-client .sv-hr { display: block; width: 100%; height: 22px; }
+.duree-vie-client .sv-hr-scale { display: flex; justify-content: space-between; font-weight: 400; }
+.duree-vie-client .sv-hr-one { stroke: var(--atelier-border); }
+.duree-vie-client .sv-hr-ci { stroke: var(--atelier-faint); stroke-width: 1.5; }
+.duree-vie-client .sv-hr-dot { fill: var(--atelier-faint); }
+.duree-vie-client .sv-hr-dot.is-up { fill: var(--atelier-down); }
+.duree-vie-client .sv-hr-dot.is-down { fill: var(--atelier-up); }
+.duree-vie-client .sv-hr-truth { stroke: var(--atelier-text); stroke-width: 2; }
+.duree-vie-client .sv-foot { margin: 0; padding: 10px 14px 12px; border-top: 1px solid var(--atelier-line); font-size: 13px; line-height: 1.55; color: var(--sv-text-2); }
+.duree-vie-client .sv-foot strong { color: var(--atelier-text); font-variant-numeric: tabular-nums; }
+.duree-vie-client .sv-foot strong.is-bad { color: var(--atelier-down); }
+.duree-vie-client .sv-sentences { margin: 0; padding: 12px 14px 12px 32px; display: flex; flex-direction: column; gap: 4px; font-size: 13.5px; color: var(--sv-text-2); }
+.duree-vie-client .sv-sentences strong { color: var(--atelier-text); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* Piège de la moyenne */
+.duree-vie-client .sv-trap { display: flex; flex-direction: column; padding: 6px 0; }
+.duree-vie-client .sv-trap-row {
+  display: grid; grid-template-columns: minmax(220px, 1.1fr) minmax(120px, 1.4fr) 92px; align-items: center; gap: 16px; padding: 9px 16px;
+}
+.duree-vie-client .sv-trap-row.is-truth { background: var(--sv-tint); }
+.duree-vie-client .sv-trap-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.duree-vie-client .sv-trap-label { font-size: 13.5px; font-weight: 500; }
+.duree-vie-client .sv-trap-note { font-size: 12px; color: var(--atelier-faint); }
+.duree-vie-client .sv-trap-bar { height: 10px; border-radius: 999px; background: var(--sv-tint); overflow: hidden; }
+.duree-vie-client .sv-trap-fill { display: block; height: 100%; border-radius: 999px; background: var(--sv-c0); }
+.duree-vie-client .sv-trap-fill.is-bad { background: color-mix(in oklab, var(--atelier-down) 70%, var(--atelier-surface)); }
+.duree-vie-client .sv-trap-value { font-size: 15px; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* Valeur vie */
+.duree-vie-client .sv-clv { display: grid; grid-template-columns: 280px minmax(0, 1fr); }
+.duree-vie-client .sv-clv-forms { display: flex; flex-direction: column; border-right: 1px solid var(--atelier-line); }
+.duree-vie-client .sv-profile { margin: 0; border: 0; padding: 12px 14px 14px; display: grid; gap: 4px; min-width: 0; }
+.duree-vie-client .sv-profile + .sv-profile { border-top: 1px solid var(--atelier-line); }
+.duree-vie-client .sv-profile legend { display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 600; padding: 0; margin-bottom: 4px; float: left; width: 100%; }
+.duree-vie-client .sv-profile label { font-size: 12px; color: var(--atelier-muted); margin-top: 4px; display: flex; justify-content: space-between; gap: 8px; }
+.duree-vie-client .sv-profile output, .duree-vie-client .sv-slider output { font-weight: 600; color: var(--atelier-text); font-variant-numeric: tabular-nums; }
+.duree-vie-client .sv-profile select {
+  font: inherit; font-size: 13px; color: var(--atelier-text); background: var(--atelier-surface); border: 1px solid var(--atelier-border);
+  border-radius: var(--atelier-radius-md); padding: 5px 8px; min-width: 0;
+}
+.duree-vie-client .sv-profile input[type='range'], .duree-vie-client .sv-slider input { width: 100%; accent-color: var(--sv-c0); }
+.duree-vie-client .sv-profile .sv-check { margin-top: 8px; justify-content: flex-start; font-size: 13px; color: var(--sv-text-2); }
+.duree-vie-client .sv-clv-main { display: flex; flex-direction: column; gap: 12px; padding-bottom: 14px; min-width: 0; }
+.duree-vie-client .sv-sliders { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 24px; padding: 0 16px; }
+.duree-vie-client .sv-slider { display: flex; flex-direction: column; gap: 4px; }
+.duree-vie-client .sv-slider label { display: flex; justify-content: space-between; gap: 8px; font-size: 12.5px; color: var(--sv-text-2); }
+.duree-vie-client .sv-clv-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; padding: 0 16px; }
+.duree-vie-client .sv-summary { margin: 0; padding: 0 16px; font-size: 13.5px; line-height: 1.6; color: var(--sv-text-2); max-width: 78ch; }
+.duree-vie-client .sv-summary-note { font-size: 12.5px; color: var(--atelier-muted); }
+.duree-vie-client .sv-summary strong { color: var(--atelier-text); font-variant-numeric: tabular-nums; }
+
+/* ── Méthode ── */
+.duree-vie-client .sv-method { margin-top: 72px; padding-top: 56px; border-top: 1px solid var(--atelier-line); }
+.duree-vie-client .sv-method h2, .duree-vie-client .sv-cta h2 {
+  font-size: clamp(22px, 2.4vw, 28px); font-weight: 600; letter-spacing: -0.022em; line-height: 1.2; text-wrap: balance;
+}
+.duree-vie-client .sv-method-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 36px 48px; margin-top: 28px; }
+.duree-vie-client .sv-method article { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.duree-vie-client .sv-method h3 { font-size: 15px; font-weight: 600; letter-spacing: -0.008em; }
+.duree-vie-client .sv-method p, .duree-vie-client .sv-limits li { font-size: 14px; line-height: 1.62; color: var(--sv-text-2); max-width: 68ch; }
+.duree-vie-client .sv-method .formula-block {
+  display: block; overflow-x: auto; overflow-y: hidden; padding: 4px 14px; border: 1px solid var(--atelier-line); border-radius: var(--atelier-radius-md);
+  background: var(--atelier-surface); color: var(--atelier-text);
+}
+.duree-vie-client .sv-method .formula-block .katex-display { margin: 0.55em 0; }
+.duree-vie-client .sv-limits { margin-top: 40px; }
+.duree-vie-client .sv-limits h3 { font-size: 15px; font-weight: 600; }
+.duree-vie-client .sv-limits ul { margin: 10px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+.duree-vie-client .sv-limits li::marker { color: var(--atelier-faint); }
+
+/* ── Appel à l'action ── */
+.duree-vie-client .sv-cta { margin-top: 64px; padding-top: 48px; border-top: 1px solid var(--atelier-line); }
+.duree-vie-client .sv-cta .sec-lede { font-size: 15px; }
+.duree-vie-client .sv-cta-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+
+/* ── Réactif ── */
+@media (max-width: 1080px) {
+  .duree-vie-client .sv-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 860px) {
+  .duree-vie-client .sv-clv { grid-template-columns: minmax(0, 1fr); }
+  .duree-vie-client .sv-clv-forms { flex-direction: row; flex-wrap: wrap; border-right: 0; border-bottom: 1px solid var(--atelier-line); }
+  .duree-vie-client .sv-profile { flex: 1 1 240px; }
+  .duree-vie-client .sv-profile + .sv-profile { border-top: 0; }
+  .duree-vie-client .sv-method-grid { grid-template-columns: minmax(0, 1fr); }
+  .duree-vie-client .sv-svg-wide { min-width: 600px; }
+}
+@media (max-width: 640px) {
+  .duree-vie-client { font-size: 14px; }
+  .duree-vie-client .sv-tool-wrap { padding: 0 16px; margin-top: 24px; }
+  .duree-vie-client .sv-hero .sec-lede { font-size: 15px; }
+  .duree-vie-client .sv-kpi-value { font-size: 20px; }
+  .duree-vie-client .sv-legend-note { margin-left: 0; width: 100%; }
+  .duree-vie-client .sv-trap-row { grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; }
+  .duree-vie-client .sv-trap-bar { grid-column: 1 / -1; grid-row: 2; }
+  .duree-vie-client .sv-sliders, .duree-vie-client .sv-clv-cards { grid-template-columns: minmax(0, 1fr); }
+  .duree-vie-client .sv-method { margin-top: 56px; padding-top: 40px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .duree-vie-client .sv-seg button { transition: background-color 0.15s, color 0.15s; }
+  .duree-vie-client .sv-trap-fill { transition: width 0.3s ease; }
+}

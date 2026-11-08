@@ -430,7 +430,46 @@ body:has(.site) { background: var(--atelier-bg); }
 
 /* ── Démos (/demos) ─────────────────────────────────────────────────────────
    Liste en cartes plates ; chaque démo a ensuite sa propre page (.demo-page), dans l'enveloppe du site. */
-.demos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); gap: 12px; padding-bottom: 96px; }
+.demos-page { padding-bottom: 96px; }
+.demos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); gap: 12px; }
+.demos-section-title { font-size: clamp(20px, 2.2vw, 24px); font-weight: 600; letter-spacing: -0.02em; line-height: 1.25; text-wrap: balance; }
+.demos-themes-nav { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
+.demos-themes-nav a {
+  display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border: 1px solid var(--atelier-border);
+  border-radius: 999px; background: var(--atelier-surface); color: var(--atelier-text); font-size: 13.5px; text-decoration: none;
+  transition: border-color 0.15s;
+}
+.demos-themes-nav a:hover { border-color: var(--atelier-border-soft); }
+.demos-themes-nav a span { color: var(--atelier-faint); font-variant-numeric: tabular-nums; }
+.demos-parcours { margin-top: 8px; }
+.demos-parcours-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 12px; margin-top: 16px; }
+.demos-parcours-card {
+  display: flex; flex-direction: column; gap: 4px; padding: 18px 18px 14px; border: 1px solid var(--atelier-border);
+  border-radius: var(--atelier-radius-lg); background: var(--atelier-surface);
+}
+.demos-parcours-for { font-size: 12px; color: var(--atelier-faint); }
+.demos-parcours-card h3 { font-size: 15.5px; font-weight: 600; letter-spacing: -0.01em; }
+.demos-parcours-why { font-size: 13.5px; color: var(--atelier-muted); text-wrap: pretty; }
+.demos-parcours-card ol { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 2px; counter-reset: parcours; }
+.demos-parcours-card li { counter-increment: parcours; }
+.demos-parcours-card li a {
+  display: flex; align-items: center; gap: 8px; padding: 6px 8px; margin: 0 -8px; border-radius: var(--atelier-radius-md);
+  color: var(--atelier-text); font-size: 14px; text-decoration: none;
+}
+.demos-parcours-card li a::before { content: counter(parcours); width: 1.2em; color: var(--atelier-faint); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.demos-parcours-card li a .ic { color: var(--atelier-muted); flex: none; }
+.demos-parcours-card li a span { text-wrap: pretty; }
+.demos-parcours-card li a:hover { background: var(--atelier-signature-soft); }
+.demos-theme { margin-top: 56px; scroll-margin-top: calc(var(--nav-h) + 20px); }
+.demos-theme-head { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.demos-theme-head p { color: var(--atelier-muted); font-size: 14.5px; max-width: 68ch; }
+.demo-card-badge {
+  display: inline-block; margin-left: 8px; padding: 1px 8px; border-radius: 999px; vertical-align: 2px;
+  font-size: 11.5px; font-weight: 500; letter-spacing: 0; color: var(--atelier-ink); background: var(--atelier-signature-soft);
+}
+.home-demos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 12px; margin-top: 36px; }
+.home-demos-grid .demo-card { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; }
+.home-demos-grid .demo-card-icon { grid-row: auto; margin-bottom: 8px; }
 .demo-card {
   display: grid; grid-template-columns: auto 1fr; grid-template-rows: 1fr auto; gap: 4px 16px;
   padding: 20px; border: 1px solid var(--atelier-border); border-radius: var(--atelier-radius-lg);

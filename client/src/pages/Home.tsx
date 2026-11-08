@@ -8,6 +8,8 @@ import { ContactForm } from './ContactForm';
 import { splitProjects } from '../lib/groups';
 import { Icon, type IconName } from '../components/Icon';
 import { SuiteSchema } from '../components/SuiteSchema';
+import { DEMOS } from '../demos/registry';
+import { DemoCard } from '../components/DemoCard';
 
 /** Glyphe à trait de chaque passion (à la place des emoji du profil). */
 const PASSION_ICONS: Record<string, IconName> = { Photographie: 'camera', Voyages: 'plane', 'Sports mécaniques': 'flag' };
@@ -129,6 +131,31 @@ export default function Home() {
           <div className="proj-grid">
             {featured.map((p) => (
               <ProjectCard key={p.slug} project={p} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════ DÉMOS ══════════ */}
+      <section id="demos" className="sec">
+        <div className="wrap">
+          <div className="proj-head">
+            <div>
+              <h2 className="sec-title">
+                Le coin <em>démos</em>.
+              </h2>
+              <p className="sec-lede">
+                Des outils qui tournent dans votre navigateur, sur des données réelles ou simulées : SQL, économétrie, machine learning,
+                data engineering. Trois pour commencer :
+              </p>
+            </div>
+            <Link to="/demos" className="btn">
+              Voir les {DEMOS.length} démos <Icon name="arrow-right" />
+            </Link>
+          </div>
+          <div className="home-demos-grid">
+            {DEMOS.filter((d) => d.featured).slice(0, 3).map((d) => (
+              <DemoCard key={d.slug} demo={d} />
             ))}
           </div>
         </div>

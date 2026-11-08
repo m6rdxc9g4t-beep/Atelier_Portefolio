@@ -14,8 +14,24 @@ export interface DemoEntry {
   skills: string[];
   /** Nom d'icône de `components/Icon`. */
   icon: string;
+  /** Famille de compétences : regroupe les démos sur la page /demos. */
+  theme: DemoTheme;
+  /** Données réelles (publiques) plutôt que simulées. */
+  realData?: boolean;
+  /** Mise en avant sur la page d'accueil (3 au plus). */
+  featured?: boolean;
   Page: LazyExoticComponent<ComponentType>;
 }
+
+export type DemoTheme = 'analyse' | 'econometrie' | 'ml' | 'engineering';
+
+/** Familles de démos, dans l'ordre d'affichage de la page /demos. */
+export const DEMO_THEMES: { id: DemoTheme; title: string; lede: string }[] = [
+  { id: 'analyse', title: 'Analyse et BI', lede: 'Interroger, contrôler et restituer : SQL, qualité des données, tableaux de bord et suivi en temps réel.' },
+  { id: 'econometrie', title: 'Économétrie et inférence causale', lede: 'Mesurer un effet plutôt qu’une corrélation : régression et diagnostics, élasticité, tests A/B, contrôle synthétique, prévision.' },
+  { id: 'ml', title: 'Machine learning appliqué', lede: 'Des modèles qui débouchent sur une décision chiffrée : churn, segmentation, durée de vie client, attribution.' },
+  { id: 'engineering', title: 'Data engineering', lede: 'Ce qui rend l’analyse fiable : modèles de données normalisés, pipelines testés, lignage.' },
+];
 
 export const DEMOS: DemoEntry[] = [
   {
@@ -24,6 +40,8 @@ export const DEMOS: DemoEntry[] = [
     summary: 'Prix au m² des ventes réelles (DVF) par commune, sur carte, avec tendances et estimation de prix.',
     skills: ['Données publiques DVF', 'Cartographie', 'Modèle hédonique'],
     icon: 'map',
+    theme: 'econometrie',
+    realData: true,
     Page: lazy(() => import('./observatoire-immobilier')),
   },
   {
@@ -32,6 +50,7 @@ export const DEMOS: DemoEntry[] = [
     summary: 'Tableau de bord d’une boutique simulée : flux de commandes, indicateurs, alertes et détection d’anomalies.',
     skills: ['Pilotage temps réel', 'KPI', 'Détection d’anomalies'],
     icon: 'activity',
+    theme: 'analyse',
     Page: lazy(() => import('./ecommerce-temps-reel')),
   },
   {
@@ -40,6 +59,7 @@ export const DEMOS: DemoEntry[] = [
     summary: 'Taille d’échantillon, significativité, puissance et différence de différences, expliquées pas à pas.',
     skills: ['Tests A/B', 'Puissance statistique', 'Diff-in-diff'],
     icon: 'flask',
+    theme: 'econometrie',
     Page: lazy(() => import('./labo-ab-causal')),
   },
   {
@@ -48,6 +68,7 @@ export const DEMOS: DemoEntry[] = [
     summary: 'Chargez un CSV (ou un exemple) et obtenez une prévision avec ses intervalles et son explication.',
     skills: ['Séries temporelles', 'Prévision', 'Validation hors échantillon'],
     icon: 'trending-up',
+    theme: 'econometrie',
     Page: lazy(() => import('./prevision-ventes')),
   },
   {
@@ -56,6 +77,8 @@ export const DEMOS: DemoEntry[] = [
     summary: 'Une vraie base SQLite dans le navigateur : écrivez vos requêtes sur deux ans de ventes et relevez neuf défis corrigés automatiquement.',
     skills: ['SQL analytique', 'Fonctions de fenêtre', 'Modèle de ventes'],
     icon: 'database',
+    theme: 'analyse',
+    featured: true,
     Page: lazy(() => import('./sql-lab')),
   },
   {
@@ -64,6 +87,7 @@ export const DEMOS: DemoEntry[] = [
     summary: 'Déposez un CSV : profil de chaque colonne, doublons même déguisés, score sur 100 et nettoyage téléchargeable.',
     skills: ['Profilage de données', 'Statistiques robustes', 'Dédoublonnage'],
     icon: 'shield-check',
+    theme: 'analyse',
     Page: lazy(() => import('./qualite-donnees')),
   },
   {
@@ -72,6 +96,7 @@ export const DEMOS: DemoEntry[] = [
     summary: 'Deux ans de ventes d’une boutique, filtrées en un clic et comparées à l’année précédente à périmètre égal, cohortes comprises.',
     skills: ['Définition de KPI', 'Comparaison à périmètre égal', 'Analyse de cohortes'],
     icon: 'layout-dashboard',
+    theme: 'analyse',
     Page: lazy(() => import('./tableau-de-bord')),
   },
   {
@@ -80,6 +105,7 @@ export const DEMOS: DemoEntry[] = [
     summary: 'Dessinez un schéma relationnel : diagnostic des formes normales, SQL pour PostgreSQL, SQLite et MySQL, testé en direct dans SQLite.',
     skills: ['Modélisation relationnelle', 'Formes normales', 'SQL DDL'],
     icon: 'network',
+    theme: 'engineering',
     Page: lazy(() => import('./modelisation-donnees')),
   },
   {
@@ -88,6 +114,7 @@ export const DEMOS: DemoEntry[] = [
     summary: 'Les clients d’une boutique regroupés deux fois, par scores RFM puis par k-means, avec un portrait et une action marketing par groupe.',
     skills: ['Segmentation RFM', 'Clustering k-means', 'ACP'],
     icon: 'users',
+    theme: 'ml',
     Page: lazy(() => import('./segmentation-clients')),
   },
   {
@@ -96,6 +123,8 @@ export const DEMOS: DemoEntry[] = [
     summary: 'Mesurez la sensibilité au prix sans vous laisser piéger par la saison, puis trouvez le prix qui maximise la marge.',
     skills: ['Économétrie appliquée', 'Biais de variable omise', 'Tarification'],
     icon: 'tag',
+    theme: 'econometrie',
+    featured: true,
     Page: lazy(() => import('./elasticite-prix')),
   },
   {
@@ -104,6 +133,8 @@ export const DEMOS: DemoEntry[] = [
     summary: 'Une régression logistique écrite à la main prédit qui va résilier ; ROC, calibration, puis un seuil de contact choisi en euros.',
     skills: ['Régression logistique', 'Évaluation d’un classifieur', 'Décision au coût'],
     icon: 'target',
+    theme: 'ml',
+    featured: true,
     Page: lazy(() => import('./score-churn')),
   },
   {
@@ -112,6 +143,7 @@ export const DEMOS: DemoEntry[] = [
     summary: 'Moindres carrés écrits à la main : erreurs-types robustes, diagnostics expliqués et modèles côte à côte pour voir un biais apparaître.',
     skills: ['Économétrie', 'Erreurs-types robustes', 'Diagnostics de modèle'],
     icon: 'chart-scatter',
+    theme: 'econometrie',
     Page: lazy(() => import('./labo-regression')),
   },
   {
@@ -120,6 +152,7 @@ export const DEMOS: DemoEntry[] = [
     summary: 'Sept modèles d’attribution, du dernier clic aux valeurs de Shapley, confrontés à l’effet réel de chaque canal, et le budget qu’ils déplaceraient.',
     skills: ['Attribution multi-touch', 'Chaînes de Markov', 'Valeurs de Shapley'],
     icon: 'route',
+    theme: 'ml',
     Page: lazy(() => import('./attribution-marketing')),
   },
   {
@@ -128,7 +161,26 @@ export const DEMOS: DemoEntry[] = [
     summary: 'Un projet à la dbt exécuté dans le navigateur : staging, marts, tests de données et lignage. Un doublon à la source fait échouer les tests jusqu’au mart, à vous de le corriger.',
     skills: ['Analytics engineering', 'Tests de données', 'Lignage'],
     icon: 'workflow',
+    theme: 'engineering',
     Page: lazy(() => import('./pipeline-donnees')),
+  },
+  {
+    slug: 'impact-sans-temoin',
+    title: 'Impact sans groupe témoin',
+    summary: 'Une campagne lancée dans une seule ville : un contrôle synthétique reconstruit ce qui se serait passé sans elle, des placebos disent si l’écart est réel.',
+    skills: ['Contrôle synthétique', 'Différence de différences', 'Tests par permutation'],
+    icon: 'crosshair',
+    theme: 'econometrie',
+    Page: lazy(() => import('./impact-sans-temoin')),
+  },
+  {
+    slug: 'duree-vie-client',
+    title: 'Durée de vie client',
+    summary: 'Kaplan-Meier, log-rank et modèle de Cox écrits à la main : combien de temps restent les abonnés, ce qui les fait partir, et ce que vaut chaque profil en euros.',
+    skills: ['Analyse de survie', 'Modèle de Cox', 'Valeur vie client'],
+    icon: 'hourglass',
+    theme: 'ml',
+    Page: lazy(() => import('./duree-vie-client')),
   },
 ];
 

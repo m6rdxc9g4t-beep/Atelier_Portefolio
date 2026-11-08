@@ -18,7 +18,8 @@ export function createApp({ serveClient = config.isProd }: { serveClient?: boole
       contentSecurityPolicy: {
         directives: {
           defaultSrc: ["'self'"],
-          scriptSrc: ["'self'"],
+          // 'wasm-unsafe-eval' : compilation WebAssembly du moteur SQLite (démos SQL Lab et Modélisation), sans eval JavaScript.
+          scriptSrc: ["'self'", "'wasm-unsafe-eval'"],
           styleSrc: ["'self'", "'unsafe-inline'"],
           imgSrc: ["'self'", 'data:', 'blob:'],
           fontSrc: ["'self'", 'data:'],

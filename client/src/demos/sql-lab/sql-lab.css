@@ -1,0 +1,193 @@
+/* ═════════════════════════════════════════════════════════════
+   Démo « SQL Lab » — charte v2 « Linear » de la Suite Atelier.
+   Tout est scopé sous .sql-lab (classes sl-*). Structure neutre (jetons --atelier-*),
+   accent = signature du portfolio, vert / brique seulement pour le verdict des défis.
+   Disposition : schéma | éditeur + résultat | défis (les défis passent dessous sous 1240 px).
+   ═════════════════════════════════════════════════════════════ */
+
+.sql-lab {
+  --sl-text-2: color-mix(in oklab, var(--atelier-text) 80%, var(--atelier-muted));
+  --sl-code-bg: color-mix(in oklab, var(--atelier-surface) 92%, var(--atelier-text));
+  --sl-tint: color-mix(in oklab, var(--atelier-signature) 9%, transparent);
+  --sl-series: var(--atelier-chart-1, var(--atelier-signature));
+  --sl-area: color-mix(in oklab, var(--sl-series) 14%, transparent);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+.sql-lab .sl-sr {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.sql-lab code { font-family: var(--atelier-font-mono); font-size: 0.92em; }
+
+/* ── En-tête ── */
+.sql-lab .sl-hero h1 {
+  font-size: clamp(26px, 3vw, 36px); font-weight: 600; letter-spacing: -0.026em; line-height: 1.14; max-width: 26ch; text-wrap: balance;
+}
+.sql-lab .sl-hero .sec-lede { font-size: 15.5px; }
+.sql-lab .sl-chips { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 18px; padding: 0; }
+.sql-lab .sl-chips li {
+  font-size: 12.5px; color: var(--sl-text-2); border: 1px solid var(--atelier-border); background: var(--atelier-surface);
+  border-radius: 999px; padding: 3px 10px;
+}
+.sql-lab .sl-disclaimer { margin-top: 14px; font-size: 13px; color: var(--atelier-muted); }
+
+/* ── Outil ── */
+.sql-lab .sl-tool-wrap { max-width: 1320px; margin: 28px auto 0; padding: 0 28px; }
+.sql-lab .sl-tool {
+  display: grid; gap: 12px; align-items: start;
+  grid-template-columns: 220px minmax(0, 1fr) 300px;
+}
+.sql-lab .sl-panel {
+  background: var(--atelier-surface); border: 1px solid var(--atelier-border); border-radius: var(--atelier-radius-lg); min-width: 0;
+}
+.sql-lab .sl-fatal { padding: 16px; color: var(--atelier-down); }
+.sql-lab .sl-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;
+  padding: 10px 12px 10px 14px; min-height: 52px;
+}
+.sql-lab .sl-head h2 { font-size: 13px; font-weight: 600; letter-spacing: -0.005em; margin: 0; }
+.sql-lab .sl-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.sql-lab .btn kbd {
+  font: 500 11px var(--atelier-font-mono); margin-left: 6px; padding: 0 5px; border-radius: 4px;
+  border: 1px solid currentColor; opacity: 0.7;
+}
+.sql-lab .btn:disabled { opacity: 0.5; cursor: default; }
+
+/* Schéma */
+.sql-lab .sl-engine { font: 11.5px var(--atelier-font-mono); color: var(--atelier-faint); }
+.sql-lab .sl-table { border-top: 1px solid var(--atelier-line); padding: 10px 14px 12px; }
+.sql-lab .sl-tname { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.sql-lab .sl-tname button {
+  background: none; border: 0; padding: 0; font: 600 13.5px var(--atelier-font-mono); color: var(--atelier-text); cursor: pointer;
+}
+.sql-lab .sl-tname button:hover { color: var(--atelier-signature); }
+.sql-lab .sl-count { font-size: 11.5px; color: var(--atelier-faint); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.sql-lab .sl-table ul { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 1px; }
+.sql-lab .sl-table li button {
+  width: calc(100% + 12px); margin-left: -6px; display: flex; justify-content: space-between; gap: 8px;
+  background: none; border: 0; border-radius: 6px; padding: 2px 6px; cursor: pointer; text-align: left;
+  font: 12.5px var(--atelier-font-mono); color: var(--atelier-text);
+}
+.sql-lab .sl-table li button:hover { background: var(--sl-tint); }
+.sql-lab .sl-table li button > span:first-child { flex: none; }
+.sql-lab .sl-type { color: var(--atelier-faint); font-size: 11px; white-space: nowrap; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.sql-lab .sl-note { margin: 6px 0 0; font-size: 11.5px; color: var(--atelier-muted); }
+.sql-lab .sl-hint { margin: 0; padding: 10px 14px 14px; border-top: 1px solid var(--atelier-line); font-size: 12px; color: var(--atelier-muted); }
+
+/* Éditeur */
+.sql-lab .sl-bench { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.sql-lab .sl-editor {
+  display: block; width: 100%; min-height: 250px; resize: vertical; margin: 0; border: 0; border-top: 1px solid var(--atelier-line);
+  border-radius: 0 0 var(--atelier-radius-lg) var(--atelier-radius-lg);
+  padding: 14px 16px; background: var(--sl-code-bg); color: var(--atelier-text);
+  font: 13.5px/1.65 var(--atelier-font-mono); tab-size: 2;
+}
+.sql-lab .sl-editor:focus { outline: none; box-shadow: inset 0 0 0 2px var(--atelier-focus, var(--atelier-signature)); }
+
+/* Résultat */
+.sql-lab .sl-verdict, .sql-lab .sl-error { margin: 0 12px 12px; padding: 9px 12px; border-radius: var(--atelier-radius-md); font-size: 13.5px; }
+.sql-lab .sl-verdict.is-ok { color: var(--atelier-up); background: color-mix(in oklab, var(--atelier-up) 12%, transparent); }
+.sql-lab .sl-verdict.is-ko, .sql-lab .sl-error { color: var(--atelier-down); background: color-mix(in oklab, var(--atelier-down) 11%, transparent); }
+.sql-lab .sl-error { font: 12.5px/1.5 var(--atelier-font-mono); white-space: pre-wrap; }
+
+.sql-lab .sl-chart { margin: 0; padding: 4px 14px 10px; }
+.sql-lab .sl-chart figcaption { font-size: 12px; color: var(--atelier-muted); margin-bottom: 2px; }
+.sql-lab .sl-chart svg { display: block; width: 100%; height: auto; }
+.sql-lab .sl-grid { stroke: var(--atelier-line); }
+.sql-lab .sl-axis { font-size: 11px; fill: var(--atelier-faint); font-variant-numeric: tabular-nums; }
+.sql-lab .sl-barlabel { font-size: 12px; fill: var(--atelier-text); }
+.sql-lab .sl-area { fill: var(--sl-area); }
+.sql-lab .sl-line { fill: none; stroke: var(--sl-series); stroke-width: 2.2; stroke-linejoin: round; }
+.sql-lab .sl-dot { fill: var(--sl-series); }
+.sql-lab .sl-hit { fill: transparent; }
+.sql-lab .sl-hit:hover { fill: color-mix(in oklab, var(--sl-series) 25%, transparent); }
+.sql-lab .sl-endlabel { font-size: 12px; font-weight: 600; fill: var(--atelier-text); }
+.sql-lab .sl-bar { fill: var(--sl-series); opacity: 0.55; }
+.sql-lab .sl-bar-top, .sql-lab .sl-bar:hover { opacity: 1; }
+
+.sql-lab .sl-status {
+  display: flex; flex-wrap: wrap; gap: 4px 16px; padding: 9px 14px; border-top: 1px solid var(--atelier-line);
+  font-size: 12.5px; color: var(--atelier-muted);
+}
+.sql-lab .sl-status strong { color: var(--atelier-text); font-weight: 600; font-variant-numeric: tabular-nums; }
+.sql-lab .sl-table-wrap { overflow: auto; max-height: 440px; border-top: 1px solid var(--atelier-line); border-radius: 0 0 var(--atelier-radius-lg) var(--atelier-radius-lg); }
+.sql-lab .sl-res { border-collapse: collapse; width: 100%; font-size: 12.5px; }
+.sql-lab .sl-res th, .sql-lab .sl-res td { padding: 6px 12px; border-bottom: 1px solid var(--atelier-line); text-align: left; white-space: nowrap; }
+.sql-lab .sl-res th { position: sticky; top: 0; background: var(--atelier-surface); font: 500 11.5px var(--atelier-font-mono); color: var(--atelier-muted); }
+.sql-lab .sl-res .is-num { text-align: right; font-variant-numeric: tabular-nums; }
+.sql-lab .sl-res .is-null { color: var(--atelier-faint); font-style: italic; }
+.sql-lab .sl-res tbody tr:hover { background: var(--sl-tint); }
+.sql-lab .sl-empty { margin: 0; padding: 16px 14px; color: var(--atelier-muted); }
+
+/* Défis */
+.sql-lab .sl-progress { font-size: 12.5px; color: var(--atelier-muted); font-variant-numeric: tabular-nums; }
+.sql-lab .sl-progress strong { color: var(--atelier-text); }
+.sql-lab .sl-ch-list { list-style: none; margin: 0; padding: 0; }
+.sql-lab .sl-ch { border-top: 1px solid var(--atelier-line); padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 6px; }
+.sql-lab .sl-ch.is-active { background: var(--sl-tint); }
+.sql-lab .sl-ch:last-child { border-radius: 0 0 var(--atelier-radius-lg) var(--atelier-radius-lg); }
+.sql-lab .sl-ch-top { display: flex; align-items: center; gap: 6px 8px; flex-wrap: wrap; }
+.sql-lab .sl-level {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.02em; padding: 1px 8px; border-radius: 999px;
+  border: 1px solid var(--atelier-border); color: var(--atelier-muted);
+}
+.sql-lab .sl-level-2 { border-color: var(--atelier-signature); color: var(--atelier-signature); }
+.sql-lab .sl-level-3 { background: var(--atelier-signature); border-color: var(--atelier-signature); color: var(--atelier-signature-contrast); }
+.sql-lab .sl-notion { font: 11px var(--atelier-font-mono); color: var(--atelier-faint); }
+.sql-lab .sl-state { margin-left: auto; font-size: 11.5px; color: var(--atelier-muted); }
+.sql-lab .sl-state.is-done { color: var(--atelier-up); font-weight: 600; }
+.sql-lab .sl-ch h3 { margin: 0; font-size: 14px; font-weight: 600; letter-spacing: -0.006em; }
+.sql-lab .sl-ch p { margin: 0; font-size: 13px; color: var(--sl-text-2); }
+.sql-lab .sl-ch-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+.sql-lab .sl-ch-actions .btn { font-size: 12.5px; padding: 5px 10px; min-height: 0; }
+.sql-lab .sl-btn-quiet { color: var(--atelier-muted); }
+
+/* ── Méthode ── */
+.sql-lab .sl-method { margin-top: 72px; padding-top: 56px; border-top: 1px solid var(--atelier-line); }
+.sql-lab .sl-method h2, .sql-lab .sl-cta h2 {
+  font-size: clamp(22px, 2.4vw, 28px); font-weight: 600; letter-spacing: -0.022em; line-height: 1.2; text-wrap: balance;
+}
+.sql-lab .sl-method-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 36px 40px; margin-top: 28px; }
+.sql-lab .sl-method article { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.sql-lab .sl-method h3 { font-size: 15px; font-weight: 600; letter-spacing: -0.008em; }
+.sql-lab .sl-method p, .sql-lab .sl-limits li { font-size: 14px; line-height: 1.62; color: var(--sl-text-2); max-width: 68ch; }
+.sql-lab .sl-method .formula-block {
+  display: block; overflow-x: auto; overflow-y: hidden; padding: 4px 14px; border: 1px solid var(--atelier-line);
+  border-radius: var(--atelier-radius-md); background: var(--atelier-surface); color: var(--atelier-text);
+}
+.sql-lab .sl-method .formula-block .katex-display { margin: 0.55em 0; }
+.sql-lab .sl-limits { margin-top: 40px; }
+.sql-lab .sl-limits h3 { font-size: 15px; font-weight: 600; }
+.sql-lab .sl-limits ul { margin: 10px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+.sql-lab .sl-limits li::marker { color: var(--atelier-faint); }
+
+/* ── Appel à l'action ── */
+.sql-lab .sl-cta { margin-top: 64px; padding-top: 48px; border-top: 1px solid var(--atelier-line); }
+.sql-lab .sl-cta .sec-lede { font-size: 15px; }
+.sql-lab .sl-cta-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+
+/* ── Réactif ── */
+@media (max-width: 1240px) {
+  .sql-lab .sl-tool { grid-template-columns: 210px minmax(0, 1fr); }
+  .sql-lab .sl-challenges { grid-column: 1 / -1; }
+  .sql-lab .sl-ch-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+  .sql-lab .sl-ch { border-right: 1px solid var(--atelier-line); }
+}
+@media (max-width: 960px) {
+  .sql-lab .sl-method-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 760px) {
+  .sql-lab .sl-tool { grid-template-columns: minmax(0, 1fr); }
+  .sql-lab .sl-schema { order: 2; }
+  .sql-lab .sl-bench { order: 1; }
+  .sql-lab .sl-challenges { order: 3; }
+}
+@media (max-width: 640px) {
+  .sql-lab { font-size: 14px; }
+  .sql-lab .sl-tool-wrap { padding: 0 16px; margin-top: 24px; }
+  .sql-lab .sl-hero .sec-lede { font-size: 15px; }
+  .sql-lab .sl-editor { min-height: 220px; font-size: 13px; }
+  .sql-lab .sl-chart { overflow-x: auto; }
+  .sql-lab .sl-chart svg { min-width: 540px; }
+  .sql-lab .sl-method { margin-top: 56px; padding-top: 40px; }
+}

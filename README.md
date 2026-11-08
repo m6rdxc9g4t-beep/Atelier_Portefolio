@@ -33,6 +33,23 @@ Chaque projet a **sa propre page, habillée à l’image de son sujet**, avec un
 
 Les rapports PDF de chaque projet sont téléchargeables depuis sa page (`client/public/reports`).
 
+### Démos interactives (`/demos`)
+
+Chaque démo tourne entièrement dans le navigateur du visiteur (`client/src/demos/<slug>/`, déclarée dans `client/src/demos/registry.ts`) et a sa tuile dans la Vitrine pro du portail.
+
+| Démo | Ce qu'elle montre |
+| --- | --- |
+| Observatoire immobilier | prix au m² DVF par commune, carte, tendances, estimation |
+| E-commerce en temps réel | boutique simulée, KPI en direct, cartes de contrôle EWMA |
+| Labo A/B et inférence causale | taille d'échantillon, significativité, puissance, diff-in-diff |
+| Prévision de ventes | CSV → prévision avec intervalles et validation hors échantillon |
+| SQL Lab | SQLite (sql.js, WebAssembly) sur la base fictive Comptoir Lumen, 9 défis corrigés automatiquement |
+| Qualité des données | profil d'un CSV, score de qualité par dimension, nettoyage avec aperçu |
+| Tableau de bord | KPI filtrables de Comptoir Lumen, comparaison N-1, cohortes de fidélité |
+| Modélisation de données | schéma relationnel éditable, diagnostic de normalisation, DDL multi-dialecte testé dans SQLite |
+
+Le moteur SQLite est compilé en WebAssembly : la politique de sécurité du serveur autorise `'wasm-unsafe-eval'` (et rien d'autre de plus) dans `script-src`.
+
 ### Apparence
 
 - **Enveloppe du site** (accueil, projets, IA & dev, CV, contact, 404, barre et pied de page, lien « Portfolio » des pages projets) : système commun de la Suite Atelier, charte v2 « Linear » (`Atelier_Deploy/DESIGN.md`) — structure crème en clair et bleu nuit en sombre, Inter, plat, accent = signature du portfolio (ardoise `#4a5468`, `data-atelier-app="portfolio"`). Styles : `client/src/styles/site.css`, tous scopés sous `.site`.

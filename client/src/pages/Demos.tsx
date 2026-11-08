@@ -3,6 +3,8 @@ import { DEMOS } from '../demos/registry';
 import { Icon } from '../components/Icon';
 import { useTitle } from '../components/SiteChrome';
 
+const DEMO_COUNT_WORD: Record<number, string> = { 4: 'Quatre', 5: 'Cinq', 6: 'Six', 7: 'Sept', 8: 'Huit', 9: 'Neuf', 10: 'Dix' };
+
 /** Liste des démos interactives : outils qui tournent dans le navigateur, sur données réelles ou simulées (signalées). */
 export default function Demos() {
   useTitle('Démos — François Pichon');
@@ -14,7 +16,7 @@ export default function Demos() {
             Des outils qui <em>tournent</em>, pas des captures.
           </h1>
           <p className="sec-lede">
-            Quatre démos interactives, à manipuler directement dans le navigateur : rien n’est installé, rien n’est envoyé.
+            {DEMO_COUNT_WORD[DEMOS.length] ?? DEMOS.length} démos interactives, à manipuler directement dans le navigateur : rien n’est installé, rien n’est envoyé.
             Chacune montre une compétence que j’apporte à une équipe data, de la donnée publique au modèle.
           </p>
         </div>

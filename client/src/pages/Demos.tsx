@@ -3,7 +3,7 @@ import { DEMOS } from '../demos/registry';
 import { Icon } from '../components/Icon';
 import { useTitle } from '../components/SiteChrome';
 
-const DEMO_COUNT_WORD: Record<number, string> = { 4: 'Quatre', 5: 'Cinq', 6: 'Six', 7: 'Sept', 8: 'Huit', 9: 'Neuf', 10: 'Dix' };
+const DEMO_COUNT_WORD: Record<number, string> = { 4: 'Quatre', 5: 'Cinq', 6: 'Six', 7: 'Sept', 8: 'Huit', 9: 'Neuf', 10: 'Dix', 11: 'Onze', 12: 'Douze', 13: 'Treize', 14: 'Quatorze', 15: 'Quinze', 16: 'Seize' };
 
 /** Liste des démos interactives : outils qui tournent dans le navigateur, sur données réelles ou simulées (signalées). */
 export default function Demos() {

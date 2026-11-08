@@ -1,0 +1,224 @@
+/* ═════════════════════════════════════════════════════════════
+   Démo « Pipeline de données » — charte v2 « Linear » de la Suite Atelier.
+   Tout est scopé sous .pipeline-donnees (classes pl-*). Structure neutre (jetons --atelier-*),
+   accent = signature du portfolio ; vert / brique / ambre réservés aux états du build.
+   Disposition : barre d'actions, graphe pleine largeur, puis détail du modèle | lignage + journal.
+   ═════════════════════════════════════════════════════════════ */
+
+.pipeline-donnees {
+  --pl-text-2: color-mix(in oklab, var(--atelier-text) 80%, var(--atelier-muted));
+  --pl-code-bg: color-mix(in oklab, var(--atelier-surface) 92%, var(--atelier-text));
+  --pl-tint: color-mix(in oklab, var(--atelier-signature) 9%, transparent);
+  --pl-good: var(--atelier-up);
+  --pl-bad: var(--atelier-down);
+  --pl-stale: var(--atelier-warn, #b7791f);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+.pipeline-donnees code { font-family: var(--atelier-font-mono); font-size: 0.92em; }
+
+/* ── En-tête ── */
+.pipeline-donnees .pl-hero h1 {
+  font-size: clamp(26px, 3vw, 36px); font-weight: 600; letter-spacing: -0.026em; line-height: 1.14; max-width: 28ch; text-wrap: balance;
+}
+.pipeline-donnees .pl-hero .sec-lede { font-size: 15.5px; }
+.pipeline-donnees .pl-chips { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 18px; padding: 0; }
+.pipeline-donnees .pl-chips li {
+  font-size: 12.5px; color: var(--pl-text-2); border: 1px solid var(--atelier-border); background: var(--atelier-surface);
+  border-radius: 999px; padding: 3px 10px;
+}
+.pipeline-donnees .pl-disclaimer { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 14px; font-size: 13px; color: var(--atelier-muted); }
+.pipeline-donnees .pl-disclaimer a { color: var(--atelier-text); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--atelier-border-soft, var(--atelier-border)); }
+
+/* ── Outil ── */
+.pipeline-donnees .pl-tool-wrap { max-width: 1240px; margin: 28px auto 0; padding: 0 28px; }
+.pipeline-donnees .pl-tool { display: flex; flex-direction: column; gap: 12px; }
+.pipeline-donnees .pl-panel {
+  background: var(--atelier-surface); border: 1px solid var(--atelier-border); border-radius: var(--atelier-radius-lg); min-width: 0;
+}
+.pipeline-donnees .pl-fatal { padding: 16px; color: var(--pl-bad); }
+.pipeline-donnees .btn:disabled { opacity: 0.55; cursor: default; }
+
+/* Barre d'actions + résumé */
+.pipeline-donnees .pl-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; padding: 12px 14px; }
+.pipeline-donnees .pl-tb-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.pipeline-donnees .pl-summary { display: flex; flex-wrap: wrap; gap: 8px 22px; margin: 0 0 0 auto; }
+.pipeline-donnees .pl-summary div { display: flex; flex-direction: column; gap: 1px; }
+.pipeline-donnees .pl-summary dt { font-size: 11.5px; color: var(--atelier-faint); }
+.pipeline-donnees .pl-summary dd { margin: 0; font-size: 13.5px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.pipeline-donnees .pl-summary .is-good dd { color: var(--pl-good); }
+.pipeline-donnees .pl-summary .is-bad dd { color: var(--pl-bad); }
+.pipeline-donnees .pl-summary .is-stale dd { color: var(--pl-stale); }
+
+/* Graphe */
+.pipeline-donnees .pl-graph-scroll { overflow-x: auto; padding: 12px 12px 4px; }
+.pipeline-donnees .pl-graph { display: block; width: 100%; min-width: 860px; height: auto; }
+.pipeline-donnees .pl-layer-label { font-size: 11.5px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; fill: var(--atelier-faint); }
+.pipeline-donnees .pl-edge { fill: none; stroke: var(--atelier-border); stroke-width: 1.4; }
+.pipeline-donnees .pl-edge.is-on { stroke: var(--atelier-muted); stroke-width: 1.8; }
+.pipeline-donnees .pl-edge.is-lineage { stroke: var(--atelier-signature); stroke-width: 2.4; }
+.pipeline-donnees .pl-arrowhead { fill: var(--atelier-muted); }
+.pipeline-donnees .pl-node { cursor: pointer; outline: none; }
+.pipeline-donnees .pl-node-box { fill: var(--atelier-surface); stroke: var(--atelier-border); stroke-width: 1; }
+.pipeline-donnees .pl-node--source .pl-node-box { fill: var(--pl-code-bg); stroke-dasharray: 4 3; }
+.pipeline-donnees .pl-node:hover .pl-node-box { stroke: var(--atelier-muted); }
+.pipeline-donnees .pl-node.is-related .pl-node-box { stroke: var(--atelier-muted); }
+.pipeline-donnees .pl-node.is-selected .pl-node-box { stroke: var(--atelier-signature); stroke-width: 2; fill: var(--pl-tint); }
+.pipeline-donnees .pl-node.is-lineage .pl-node-box { stroke: var(--atelier-signature); stroke-width: 2; }
+.pipeline-donnees .pl-node:focus-visible .pl-node-box { stroke: var(--atelier-focus, var(--atelier-signature)); stroke-width: 3; }
+.pipeline-donnees .pl-node-name { font: 600 11.5px var(--atelier-font-mono); fill: var(--atelier-text); }
+.pipeline-donnees .pl-node-meta { font-size: 11px; fill: var(--atelier-muted); font-variant-numeric: tabular-nums; }
+.pipeline-donnees .pl-node-dot { fill: var(--atelier-faint); }
+.pipeline-donnees .pl-tone-good .pl-node-dot { fill: var(--pl-good); }
+.pipeline-donnees .pl-tone-bad .pl-node-dot { fill: var(--pl-bad); }
+.pipeline-donnees .pl-tone-bad .pl-node-meta { fill: var(--pl-bad); }
+.pipeline-donnees .pl-tone-stale .pl-node-dot { fill: var(--pl-stale); }
+.pipeline-donnees .pl-tone-stale .pl-node-meta { fill: var(--pl-stale); }
+.pipeline-donnees .pl-tone-running .pl-node-dot { fill: var(--atelier-signature); }
+.pipeline-donnees .pl-node-pulse { fill: none; stroke: var(--atelier-signature); stroke-width: 2; }
+@media (prefers-reduced-motion: no-preference) {
+  .pipeline-donnees .pl-node-pulse { animation: pl-pulse 0.9s ease-in-out infinite; }
+  @keyframes pl-pulse { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
+}
+
+.pipeline-donnees .pl-graph-legend {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; margin: 0; padding: 8px 14px 12px;
+  border-top: 1px solid var(--atelier-line); font-size: 12px; color: var(--atelier-muted);
+}
+.pipeline-donnees .pl-lg { display: inline-flex; align-items: center; gap: 6px; }
+.pipeline-donnees .pl-lg::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--pl-lg); }
+.pipeline-donnees .pl-lg-good { --pl-lg: var(--pl-good); }
+.pipeline-donnees .pl-lg-bad { --pl-lg: var(--pl-bad); }
+.pipeline-donnees .pl-lg-stale { --pl-lg: var(--pl-stale); }
+.pipeline-donnees .pl-lg-hint { margin-left: auto; color: var(--atelier-faint); }
+
+/* Encadré pédagogique */
+.pipeline-donnees .pl-callout {
+  display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; border-radius: var(--atelier-radius-lg);
+  border: 1px solid color-mix(in oklab, var(--pl-bad) 35%, var(--atelier-border));
+  background: color-mix(in oklab, var(--pl-bad) 7%, var(--atelier-surface));
+}
+.pipeline-donnees .pl-callout p { margin: 0; font-size: 13.5px; color: var(--pl-text-2); max-width: 110ch; }
+.pipeline-donnees .pl-callout strong { color: var(--atelier-text); }
+.pipeline-donnees .pl-callout-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.pipeline-donnees .pl-hint { padding-top: 2px; }
+
+/* Bas : détail | côté */
+.pipeline-donnees .pl-lower { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 12px; align-items: start; }
+.pipeline-donnees .pl-side { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.pipeline-donnees .pl-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;
+  padding: 10px 12px 10px 14px; min-height: 52px; border-bottom: 1px solid var(--atelier-line);
+}
+.pipeline-donnees .pl-head h2 { font-size: 13px; font-weight: 600; margin: 0; }
+.pipeline-donnees .pl-detail .pl-head h2 { font: 600 14px var(--atelier-font-mono); }
+.pipeline-donnees .pl-title { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.pipeline-donnees .pl-layer {
+  font-size: 11px; font-weight: 600; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--atelier-border); color: var(--atelier-muted);
+}
+.pipeline-donnees .pl-layer--mart { border-color: var(--atelier-signature); color: var(--atelier-signature); }
+.pipeline-donnees .pl-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.pipeline-donnees .pl-body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 10px; }
+.pipeline-donnees .pl-desc { margin: 0; color: var(--pl-text-2); }
+.pipeline-donnees .pl-defects, .pipeline-donnees .pl-meta { margin: 0; font-size: 13px; color: var(--pl-text-2); }
+.pipeline-donnees .pl-muted { color: var(--atelier-muted); margin: 0; }
+.pipeline-donnees .pl-label { font-size: 12.5px; font-weight: 600; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
+.pipeline-donnees .pl-label > span { font-weight: 400; color: var(--atelier-muted); }
+.pipeline-donnees .pl-editor {
+  width: 100%; resize: vertical; min-height: 160px; padding: 12px 14px; border: 1px solid var(--atelier-border);
+  border-radius: var(--atelier-radius-md); background: var(--pl-code-bg); color: var(--atelier-text);
+  font: 12.5px/1.6 var(--atelier-font-mono); tab-size: 2;
+}
+.pipeline-donnees .pl-editor:focus { outline: none; border-color: var(--atelier-signature); box-shadow: 0 0 0 1px var(--atelier-signature); }
+.pipeline-donnees .pl-run { margin: 0; font-size: 13px; color: var(--pl-text-2); }
+.pipeline-donnees .pl-run strong { color: var(--atelier-text); font-variant-numeric: tabular-nums; }
+.pipeline-donnees .pl-run.is-bad { color: var(--pl-bad); font-family: var(--atelier-font-mono); font-size: 12.5px; }
+.pipeline-donnees .pl-run.is-stale { color: var(--pl-stale); }
+
+/* Tests */
+.pipeline-donnees .pl-tests h3, .pipeline-donnees .pl-preview h3 { font-size: 12.5px; font-weight: 600; margin: 4px 0 6px; }
+.pipeline-donnees .pl-tests ul { list-style: none; margin: 0; padding: 0; border: 1px solid var(--atelier-line); border-radius: var(--atelier-radius-md); }
+.pipeline-donnees .pl-tests li + li { border-top: 1px solid var(--atelier-line); }
+.pipeline-donnees .pl-tests summary {
+  display: flex; align-items: center; gap: 8px; padding: 7px 10px; cursor: pointer; list-style: none; font-size: 13px;
+}
+.pipeline-donnees .pl-tests summary::-webkit-details-marker { display: none; }
+.pipeline-donnees .pl-tests summary:focus-visible { outline: 2px solid var(--atelier-focus, var(--atelier-signature)); outline-offset: -2px; }
+.pipeline-donnees .pl-test-mark { width: 18px; height: 18px; flex: none; display: grid; place-items: center; border-radius: 50%; font-size: 11px; font-weight: 700; }
+.pipeline-donnees .is-ok .pl-test-mark { color: var(--pl-good); background: color-mix(in oklab, var(--pl-good) 14%, transparent); }
+.pipeline-donnees .is-ko .pl-test-mark { color: var(--pl-bad); background: color-mix(in oklab, var(--pl-bad) 14%, transparent); }
+.pipeline-donnees .pl-test-res { margin-left: auto; font-size: 12px; color: var(--atelier-muted); white-space: nowrap; }
+.pipeline-donnees .is-ko .pl-test-res { color: var(--pl-bad); font-weight: 600; }
+.pipeline-donnees .pl-test-sql {
+  margin: 0 10px 10px; padding: 10px 12px; border-radius: var(--atelier-radius-md); background: var(--pl-code-bg);
+  font: 12px/1.55 var(--atelier-font-mono); white-space: pre-wrap; overflow-x: auto; color: var(--atelier-text);
+}
+.pipeline-donnees .pl-tests .pl-table-wrap { margin: 0 10px 10px; }
+
+/* Tables */
+.pipeline-donnees .pl-preview { padding: 0 14px 14px; }
+.pipeline-donnees .pl-table-wrap { overflow: auto; max-height: 360px; border: 1px solid var(--atelier-line); border-radius: var(--atelier-radius-md); }
+.pipeline-donnees .pl-table { border-collapse: collapse; width: 100%; font-size: 12px; }
+.pipeline-donnees .pl-table caption { text-align: left; font-size: 12px; color: var(--atelier-muted); padding: 6px 10px; caption-side: top; }
+.pipeline-donnees .pl-table th, .pipeline-donnees .pl-table td { padding: 5px 10px; border-bottom: 1px solid var(--atelier-line); text-align: left; white-space: nowrap; }
+.pipeline-donnees .pl-table th { position: sticky; top: 0; background: var(--atelier-surface); font: 500 11.5px var(--atelier-font-mono); color: var(--atelier-muted); }
+.pipeline-donnees .pl-table .is-num { text-align: right; font-variant-numeric: tabular-nums; }
+.pipeline-donnees .pl-table .is-null { color: var(--atelier-faint); font-style: italic; }
+
+/* Lignage */
+.pipeline-donnees .pl-lineage-controls { display: flex; align-items: center; gap: 4px; }
+.pipeline-donnees .pl-lineage-controls select {
+  font: 500 12.5px var(--atelier-font-mono); padding: 4px 8px; border-radius: 6px; border: 1px solid var(--atelier-border);
+  background: var(--atelier-surface); color: var(--atelier-text);
+}
+.pipeline-donnees .pl-check { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--pl-text-2); }
+.pipeline-donnees .pl-tree, .pipeline-donnees .pl-tree ul { list-style: none; margin: 0; padding: 0; }
+.pipeline-donnees .pl-tree ul { padding-left: 14px; margin-top: 3px; border-left: 1px solid var(--atelier-line); margin-left: 6px; }
+.pipeline-donnees .pl-tree li { font-size: 12px; padding: 2px 0; }
+.pipeline-donnees .pl-tree ul li { position: relative; padding-left: 8px; }
+.pipeline-donnees .pl-tree ul li::before { content: '←'; position: absolute; left: -6px; color: var(--atelier-faint); font-size: 10px; top: 4px; }
+.pipeline-donnees .pl-missing { color: var(--pl-stale); font-size: 11.5px; }
+.pipeline-donnees .pl-leaves, .pipeline-donnees .pl-filter { margin: 0; font-size: 12.5px; color: var(--pl-text-2); }
+
+/* Journal */
+.pipeline-donnees .pl-log { list-style: none; margin: 0; padding: 8px 14px 12px; max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+.pipeline-donnees .pl-log li { font-size: 12px; color: var(--pl-text-2); padding-left: 12px; position: relative; }
+.pipeline-donnees .pl-log li::before { content: ''; position: absolute; left: 0; top: 7px; width: 6px; height: 6px; border-radius: 50%; background: var(--atelier-faint); }
+.pipeline-donnees .pl-log li.is-good::before { background: var(--pl-good); }
+.pipeline-donnees .pl-log li.is-bad { color: var(--pl-bad); }
+.pipeline-donnees .pl-log li.is-bad::before { background: var(--pl-bad); }
+.pipeline-donnees .pl-log-empty { color: var(--atelier-muted); }
+
+/* ── Méthode ── */
+.pipeline-donnees .pl-method { margin-top: 72px; padding-top: 56px; border-top: 1px solid var(--atelier-line); }
+.pipeline-donnees .pl-method h2, .pipeline-donnees .pl-cta h2 {
+  font-size: clamp(22px, 2.4vw, 28px); font-weight: 600; letter-spacing: -0.022em; line-height: 1.2; text-wrap: balance;
+}
+.pipeline-donnees .pl-method-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 36px 40px; margin-top: 28px; }
+.pipeline-donnees .pl-method article { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.pipeline-donnees .pl-method h3 { font-size: 15px; font-weight: 600; letter-spacing: -0.008em; }
+.pipeline-donnees .pl-method p, .pipeline-donnees .pl-limits li { font-size: 14px; line-height: 1.62; color: var(--pl-text-2); max-width: 68ch; }
+.pipeline-donnees .pl-method strong { color: var(--atelier-text); font-weight: 600; }
+.pipeline-donnees .pl-limits { margin-top: 40px; }
+.pipeline-donnees .pl-limits h3 { font-size: 15px; font-weight: 600; }
+.pipeline-donnees .pl-limits ul { margin: 10px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+.pipeline-donnees .pl-limits li::marker { color: var(--atelier-faint); }
+
+/* ── Appel à l'action ── */
+.pipeline-donnees .pl-cta { margin-top: 64px; padding-top: 48px; border-top: 1px solid var(--atelier-line); }
+.pipeline-donnees .pl-cta .sec-lede { font-size: 15px; }
+.pipeline-donnees .pl-cta-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+
+/* ── Réactif ── */
+@media (max-width: 1040px) {
+  .pipeline-donnees .pl-lower { grid-template-columns: minmax(0, 1fr); }
+  .pipeline-donnees .pl-method-grid { grid-template-columns: minmax(0, 1fr); }
+  .pipeline-donnees .pl-summary { margin-left: 0; }
+}
+@media (max-width: 640px) {
+  .pipeline-donnees { font-size: 14px; }
+  .pipeline-donnees .pl-tool-wrap { padding: 0 16px; margin-top: 24px; }
+  .pipeline-donnees .pl-hero .sec-lede { font-size: 15px; }
+  .pipeline-donnees .pl-lg-hint { margin-left: 0; }
+  .pipeline-donnees .pl-method { margin-top: 56px; padding-top: 40px; }
+}

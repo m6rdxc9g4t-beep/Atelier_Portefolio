@@ -1,0 +1,233 @@
+/* ═════════════════════════════════════════════════════════════
+   Démo « Élasticité-prix » — charte v2 « Linear » de la Suite Atelier.
+   Tout est scopé sous .elasticite-prix (classes elp-*). Structure neutre (jetons --atelier-*).
+   Deux couleurs de données, définies ici une fois : la régression contrôlée (signature)
+   et la régression naïve / la haute saison (orange, même teinte que les autres démos).
+   ═════════════════════════════════════════════════════════════ */
+
+.elasticite-prix {
+  --elp-ctrl: var(--atelier-chart-1, var(--atelier-signature));
+  --elp-naive: #eb6834;
+  --elp-text-2: color-mix(in oklab, var(--atelier-text) 80%, var(--atelier-muted));
+  --elp-high: color-mix(in oklab, var(--elp-naive) 9%, transparent);
+  --elp-band: color-mix(in oklab, var(--elp-ctrl) 16%, transparent);
+  --elp-observed: color-mix(in oklab, var(--atelier-text) 5%, transparent);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+[data-theme='dark'] .elasticite-prix,
+.dark .elasticite-prix {
+  --elp-naive: #f0814f;
+  --elp-high: color-mix(in oklab, var(--elp-naive) 13%, transparent);
+  --elp-observed: color-mix(in oklab, var(--atelier-text) 7%, transparent);
+}
+.elasticite-prix code { font-family: var(--atelier-font-mono); font-size: 0.92em; }
+
+/* ── En-tête ── */
+.elasticite-prix .elp-hero h1 {
+  font-size: clamp(26px, 3vw, 36px); font-weight: 600; letter-spacing: -0.026em; line-height: 1.14; max-width: 28ch; text-wrap: balance;
+}
+.elasticite-prix .elp-hero .sec-lede { font-size: 15.5px; }
+.elasticite-prix .elp-chips { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 18px; padding: 0; }
+.elasticite-prix .elp-chips li {
+  font-size: 12.5px; color: var(--elp-text-2); border: 1px solid var(--atelier-border); background: var(--atelier-surface);
+  border-radius: 999px; padding: 3px 10px;
+}
+.elasticite-prix .elp-disclaimer { margin-top: 14px; font-size: 13px; color: var(--atelier-muted); }
+
+/* ── Outil ── */
+.elasticite-prix .elp-tool-wrap { max-width: 1180px; margin: 28px auto 0; padding: 0 28px; }
+.elasticite-prix .elp-tool { position: relative; display: flex; flex-direction: column; gap: 14px; border-top: 1px solid var(--atelier-line); padding-top: 20px; }
+.elasticite-prix .elp-tool.is-drag::after {
+  content: ''; position: absolute; inset: -8px; border: 1.5px dashed var(--atelier-ink); border-radius: var(--atelier-radius-lg);
+  background: color-mix(in oklab, var(--atelier-bg) 80%, transparent); pointer-events: none; z-index: 8;
+}
+.elasticite-prix .elp-source { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px 24px; flex-wrap: wrap; }
+.elasticite-prix .elp-source-pick { display: flex; flex-direction: column; gap: 6px; min-width: 0; max-width: 100%; }
+.elasticite-prix .elp-label { font-size: 12.5px; font-weight: 500; color: var(--elp-text-2); }
+.elasticite-prix .elp-seg {
+  display: inline-flex; gap: 2px; padding: 2px; border-radius: var(--atelier-radius-md); background: var(--atelier-surface-2);
+  max-width: 100%; overflow-x: auto; scrollbar-width: none;
+}
+.elasticite-prix .elp-seg button {
+  height: 28px; padding: 0 11px; border: 0; border-radius: var(--atelier-radius-sm); background: transparent;
+  color: var(--atelier-muted); font: inherit; font-size: 13px; font-weight: 500; white-space: nowrap; cursor: pointer;
+}
+.elasticite-prix .elp-seg button:hover { color: var(--atelier-text); }
+.elasticite-prix .elp-seg button[aria-pressed='true'] {
+  background: var(--atelier-surface); color: var(--atelier-text); box-shadow: 0 1px 2px rgb(0 0 0 / 0.08), 0 0 0 1px var(--atelier-line);
+}
+.elasticite-prix .elp-drop { display: flex; align-items: center; gap: 10px; }
+.site .elasticite-prix input.elp-file[type='file'] {
+  position: absolute; width: 1px; min-height: 0; height: 1px; padding: 0; border: 0; overflow: hidden; clip-path: inset(50%); opacity: 0; pointer-events: none;
+}
+.elasticite-prix .elp-drop label { cursor: pointer; }
+.elasticite-prix .elp-file:focus-visible + label { outline: 2px solid var(--atelier-focus, var(--atelier-ink)); outline-offset: 2px; }
+.elasticite-prix .elp-drop-hint { font: 12px var(--atelier-font-mono); color: var(--atelier-faint); }
+.elasticite-prix .elp-privacy { display: flex; align-items: center; gap: 7px; margin: 0; font-size: 13px; color: var(--atelier-muted); }
+.elasticite-prix .elp-privacy .ic { color: var(--atelier-faint); }
+.elasticite-prix .elp-note {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap;
+  padding: 9px 12px; border-radius: var(--atelier-radius-md); background: var(--atelier-surface-2); font-size: 13px; color: var(--atelier-muted);
+}
+.elasticite-prix .elp-note > span { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.elasticite-prix .elp-note b { color: var(--atelier-text); font-weight: 600; }
+.elasticite-prix .elp-link {
+  display: inline-flex; align-items: center; gap: 6px; border: 0; background: none; padding: 2px 0; font: inherit; font-size: 13px; font-weight: 500;
+  color: var(--atelier-ink); cursor: pointer; text-underline-offset: 3px;
+}
+.elasticite-prix .elp-link:hover { text-decoration: underline; }
+.elasticite-prix .elp-alert {
+  margin: 0; padding: 9px 12px; border-radius: var(--atelier-radius-md); font-size: 13.5px;
+  color: var(--atelier-down); background: color-mix(in oklab, var(--atelier-down) 10%, transparent);
+}
+
+.elasticite-prix .elp-card {
+  background: var(--atelier-surface); border: 1px solid var(--atelier-border); border-radius: var(--atelier-radius-lg);
+  padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 14px; min-width: 0;
+}
+.elasticite-prix .elp-card-head h2 { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; margin: 0; }
+.elasticite-prix .elp-card-head p { margin: 4px 0 0; color: var(--elp-text-2); max-width: 80ch; }
+.elasticite-prix .elp-small { font-size: 12px; color: var(--atelier-muted); }
+
+/* Graphiques */
+.elasticite-prix .elp-svg { display: block; width: 100%; height: auto; overflow: visible; }
+.elasticite-prix .elp-grid { stroke: var(--atelier-line); }
+.elasticite-prix .elp-zero { stroke: var(--atelier-border); }
+.elasticite-prix .elp-axis { font-size: 10.5px; fill: var(--atelier-faint); font-variant-numeric: tabular-nums; }
+.elasticite-prix .elp-axis-title { font-size: 11px; font-weight: 500; fill: var(--atelier-muted); }
+.elasticite-prix .elp-high { fill: var(--elp-high); }
+.elasticite-prix .elp-price-line { fill: none; stroke: var(--atelier-text); stroke-width: 1.6; stroke-linejoin: round; }
+.elasticite-prix .elp-qty-bar { fill: color-mix(in oklab, var(--elp-ctrl) 55%, transparent); }
+.elasticite-prix .elp-qty-bar:hover { fill: var(--elp-ctrl); }
+.elasticite-prix .elp-pt { fill: color-mix(in oklab, var(--elp-ctrl) 45%, transparent); stroke: var(--atelier-surface); stroke-width: 0.8; }
+.elasticite-prix .elp-pt-high { fill: var(--elp-naive); }
+.elasticite-prix .elp-fit-naive { fill: none; stroke: var(--elp-naive); stroke-width: 2.2; stroke-dasharray: 6 4; }
+.elasticite-prix .elp-fit-ctrl { fill: none; stroke: var(--elp-ctrl); stroke-width: 2.4; }
+.elasticite-prix .elp-band { fill: var(--elp-band); }
+.elasticite-prix .elp-observed { fill: var(--elp-observed); }
+.elasticite-prix .elp-margin-line { fill: none; stroke: var(--elp-ctrl); stroke-width: 2.4; stroke-linejoin: round; }
+.elasticite-prix .elp-opt-line { stroke: var(--atelier-up); stroke-width: 1.4; stroke-dasharray: 4 3; }
+.elasticite-prix .elp-opt-label { font-size: 11px; font-weight: 600; fill: var(--atelier-up); }
+.elasticite-prix .elp-cur-line { stroke: var(--atelier-text); stroke-width: 1; stroke-dasharray: 2 3; }
+.elasticite-prix .elp-cur-dot { fill: var(--atelier-surface); stroke: var(--atelier-text); stroke-width: 2; }
+
+.elasticite-prix .elp-legend { list-style: none; display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 6px 0 0; padding: 0; font-size: 12px; color: var(--atelier-muted); }
+.elasticite-prix .elp-legend li { display: inline-flex; align-items: center; gap: 6px; }
+.elasticite-prix .elp-key { display: inline-block; width: 14px; height: 10px; border-radius: 2px; }
+.elasticite-prix .elp-key-pt { width: 8px; height: 8px; border-radius: 50%; background: color-mix(in oklab, var(--elp-ctrl) 45%, transparent); }
+.elasticite-prix .elp-key-high { width: 8px; height: 8px; border-radius: 50%; background: var(--elp-naive); }
+.elasticite-prix .elp-key-naive { height: 0; border-top: 2px dashed var(--elp-naive); border-radius: 0; }
+.elasticite-prix .elp-key-ctrl { height: 0; border-top: 2.4px solid var(--elp-ctrl); border-radius: 0; }
+.elasticite-prix .elp-key-band { background: var(--elp-band); }
+.elasticite-prix .elp-key-observed { background: var(--elp-observed); border: 1px solid var(--atelier-line); }
+
+/* Estimations */
+.elasticite-prix .elp-est-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.5fr); gap: 12px; align-items: start; }
+.elasticite-prix .elp-est {
+  border: 1px solid var(--atelier-border); border-radius: var(--atelier-radius-xl); padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; min-width: 0;
+}
+.elasticite-prix .elp-est header { display: flex; align-items: center; gap: 8px; }
+.elasticite-prix .elp-est h3 { margin: 0; font-size: 14px; font-weight: 600; }
+.elasticite-prix .elp-swatch { width: 14px; height: 0; border-top: 2.4px solid var(--elp-ctrl); }
+.elasticite-prix .elp-swatch-naive { border-top: 2px dashed var(--elp-naive); }
+.elasticite-prix .elp-est-sub { margin: 0; font: 11.5px var(--atelier-font-mono); color: var(--atelier-faint); }
+.elasticite-prix .elp-est-value { margin: 2px 0 0; display: flex; flex-direction: column; }
+.elasticite-prix .elp-est-num { font-size: 30px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.elasticite-prix .elp-est-unit { font-size: 12px; color: var(--atelier-muted); }
+.elasticite-prix .elp-est-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; margin: 4px 0 0; }
+.elasticite-prix .elp-est-stats div { display: flex; flex-direction: column; min-width: 0; }
+.elasticite-prix .elp-est-stats dt { font-size: 11.5px; color: var(--atelier-muted); }
+.elasticite-prix .elp-est-stats dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.elasticite-prix .elp-truth { margin: 4px 0 0; font-size: 12.5px; padding: 6px 9px; border-radius: var(--atelier-radius-md); }
+.elasticite-prix .elp-truth.is-ok { color: var(--atelier-up); background: color-mix(in oklab, var(--atelier-up) 11%, transparent); }
+.elasticite-prix .elp-truth.is-ko { color: var(--atelier-down); background: color-mix(in oklab, var(--atelier-down) 10%, transparent); }
+.elasticite-prix .elp-est-side { min-width: 0; }
+
+.elasticite-prix .elp-reading { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.elasticite-prix .elp-reading p { margin: 0; color: var(--elp-text-2); max-width: 92ch; }
+.elasticite-prix .elp-reading b { color: var(--atelier-text); font-weight: 600; }
+.elasticite-prix .elp-coefs { border-top: 1px solid var(--atelier-line); padding-top: 10px; }
+.elasticite-prix .elp-coefs-wrap { margin-top: 8px; overflow-x: auto; }
+.elasticite-prix .elp-table { border-collapse: collapse; font-size: 12.5px; min-width: 360px; }
+.elasticite-prix .elp-table th, .elasticite-prix .elp-table td { padding: 4px 14px 4px 0; border-bottom: 1px solid var(--atelier-line); text-align: left; white-space: nowrap; }
+.elasticite-prix .elp-table thead th { font-size: 11.5px; font-weight: 500; color: var(--atelier-muted); }
+.elasticite-prix .elp-table tbody th { font-weight: 500; }
+.elasticite-prix .elp-table .is-num { text-align: right; font-variant-numeric: tabular-nums; }
+.elasticite-prix .elp-table tr.is-key th, .elasticite-prix .elp-table tr.is-key td { font-weight: 600; color: var(--atelier-text); }
+
+/* Simulateur */
+.elasticite-prix .elp-sim-controls { display: grid; grid-template-columns: minmax(0, 1fr) 150px auto; gap: 12px 20px; align-items: end; }
+.elasticite-prix .elp-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.elasticite-prix .elp-field label { font-size: 13px; color: var(--elp-text-2); }
+.elasticite-prix .elp-field label b { color: var(--atelier-text); font-variant-numeric: tabular-nums; }
+.site .elasticite-prix .elp-field input[type='range'] { width: 100%; margin: 0; padding: 0; min-height: 0; height: 24px; accent-color: var(--elp-ctrl); border: 0; background: none; }
+.site .elasticite-prix .elp-field-cost input { margin: 0; font-variant-numeric: tabular-nums; }
+.elasticite-prix .elp-sim-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+.elasticite-prix .elp-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.elasticite-prix .elp-kpi { gap: 2px; }
+.elasticite-prix .elp-kpi-label { font-size: 12px; font-weight: 500; color: var(--atelier-muted); }
+.elasticite-prix .elp-kpi-value { font-size: 22px; font-weight: 600; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.elasticite-prix .elp-kpi-delta { font-size: 12px; color: var(--atelier-muted); font-variant-numeric: tabular-nums; }
+.elasticite-prix .elp-kpi-delta.is-up { color: var(--atelier-up); }
+.elasticite-prix .elp-kpi-delta.is-down { color: var(--atelier-down); }
+.elasticite-prix .elp-kpi-band { font-size: 11.5px; color: var(--atelier-faint); font-variant-numeric: tabular-nums; }
+.elasticite-prix .elp-sim-grid { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 16px 24px; align-items: start; }
+.elasticite-prix .elp-optimum { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--atelier-border); border-radius: var(--atelier-radius-xl); padding: 14px 16px; }
+.elasticite-prix .elp-optimum h3 { margin: 0; font-size: 14px; font-weight: 600; }
+.elasticite-prix .elp-optimum p { margin: 0; color: var(--elp-text-2); font-variant-numeric: tabular-nums; }
+.elasticite-prix .elp-opt-value { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; color: var(--atelier-text) !important; }
+.elasticite-prix .elp-warn {
+  font-size: 12.5px; padding: 7px 10px; border-radius: var(--atelier-radius-md);
+  color: var(--atelier-warn) !important; background: color-mix(in oklab, var(--atelier-warn) 10%, transparent);
+}
+
+/* ── Méthode ── */
+.elasticite-prix .elp-method { margin-top: 72px; padding-top: 56px; border-top: 1px solid var(--atelier-line); }
+.elasticite-prix .elp-method h2, .elasticite-prix .elp-cta h2 {
+  font-size: clamp(22px, 2.4vw, 28px); font-weight: 600; letter-spacing: -0.022em; line-height: 1.2; text-wrap: balance;
+}
+.elasticite-prix .elp-method-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 36px 40px; margin-top: 28px; }
+.elasticite-prix .elp-method article { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.elasticite-prix .elp-method h3 { font-size: 15px; font-weight: 600; letter-spacing: -0.008em; }
+.elasticite-prix .elp-method p, .elasticite-prix .elp-limits li { font-size: 14px; line-height: 1.62; color: var(--elp-text-2); max-width: 68ch; }
+.elasticite-prix .elp-method .formula-block {
+  display: block; overflow-x: auto; overflow-y: hidden; padding: 4px 14px; border: 1px solid var(--atelier-line);
+  border-radius: var(--atelier-radius-md); background: var(--atelier-surface); color: var(--atelier-text);
+}
+.elasticite-prix .elp-method .formula-block .katex-display { margin: 0.55em 0; }
+.elasticite-prix .elp-limits { margin-top: 40px; }
+.elasticite-prix .elp-limits h3 { font-size: 15px; font-weight: 600; }
+.elasticite-prix .elp-limits ul { margin: 10px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+.elasticite-prix .elp-limits li::marker { color: var(--atelier-faint); }
+
+/* ── Appel à l'action ── */
+.elasticite-prix .elp-cta { margin-top: 64px; padding-top: 48px; border-top: 1px solid var(--atelier-line); }
+.elasticite-prix .elp-cta .sec-lede { font-size: 15px; }
+.elasticite-prix .elp-cta-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+
+/* ── Réactif ── */
+@media (max-width: 1080px) {
+  .elasticite-prix .elp-est-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .elasticite-prix .elp-est-side { grid-column: 1 / -1; }
+  .elasticite-prix .elp-sim-grid { grid-template-columns: minmax(0, 1fr); }
+  .elasticite-prix .elp-method-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 720px) {
+  .elasticite-prix .elp-sim-controls { grid-template-columns: minmax(0, 1fr); }
+  .elasticite-prix .elp-kpis { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 640px) {
+  .elasticite-prix { font-size: 14px; }
+  .elasticite-prix .elp-tool-wrap { padding: 0 16px; margin-top: 24px; }
+  .elasticite-prix .elp-est-grid { grid-template-columns: minmax(0, 1fr); }
+  .elasticite-prix .elp-source { align-items: stretch; }
+  .elasticite-prix .elp-source-pick, .elasticite-prix .elp-seg { width: 100%; }
+  .elasticite-prix .elp-seg { display: grid; grid-template-columns: 1fr 1fr; }
+  .elasticite-prix .elp-seg button { height: 36px; }
+  .elasticite-prix .elp-drop { width: 100%; }
+  .elasticite-prix .elp-drop label { flex: 1; height: 40px; justify-content: center; }
+  .elasticite-prix .elp-card { padding: 14px; }
+  .elasticite-prix .elp-history { overflow-x: auto; }
+  .elasticite-prix .elp-method { margin-top: 56px; padding-top: 40px; }
+}

@@ -40,6 +40,7 @@
         "SQL",
         "ERP",
         "SharePoint",
+        "API",
         "Modélisation dimensionnelle",
         "Qualité de données",
         "Dictionnaire d’indicateurs"
@@ -167,7 +168,7 @@
         "Plan de charges : consolidation de 3 business units ; estimation du chiffre d’affaires en 4 composantes (réalisé, commandé, estimé, pipeline pondéré).",
         "Pilotage commercial : indicateur d’énergie commerciale (9 types d’actions pondérés), pipeline d’opportunités, taux de transformation corrigés du biais de censure.",
         "Finance et charge : chiffre d’affaires, marges brutes réelle et théorique, résultat d’exploitation, TJM, budget / réalisé / N-1, temps non facturable.",
-        "Fiabilisation : plusieurs centaines de mesures DAX, 6 documents de référence (source, définition, formule et limites de chaque indicateur)."
+        "Fiabilisation : plusieurs centaines de mesures DAX, 6 documents de référence (source, définition, formule et limites de chaque indicateur) ; détection et correction d’incohérences invisibles à l’usage."
       ]
     },
     {
